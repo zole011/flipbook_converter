@@ -1,0 +1,106 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:fc="http://typo3.org/ns/Gmbit/FlipbookConverter/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Default" />
+
+<f:section name="Content">
+    <f:if condition="{document}">
+        <f:then>
+            <!-- Simple Flipbook Container - Minimal Configuration -->
+            <div class="flipbook-container flipbook-simple" 
+                 id="flipbook-simple-{document.uid}"
+                 data-document-uid="{document.uid}"
+                 data-config="{document.flipbookConfig -> f:format.json()}">
+                
+                <!-- Simple Header -->
+                <f:if condition="{document.title}">
+                    <div class="flipbook-simple-header">
+                        <h4 class="flipbook-simple-title">{document.title}</h4>
+                    </div>
+                </f:if>
+
+                <!-- Simple Flipbook Viewer -->
+                <div class="flipbook-simple-viewer" 
+                     style="width: 100%; max-width: {document.flipbookConfig.width}px;">
+                    
+                    <!-- Current Page Display -->
+                    <div class="flipbook-simple-page-container">
+                        <div class="flipbook-simple-page" id="current-page-{document.uid}">
+                            <f:if condition="{document.processedImages.0}">
+                                <img src="{document.processedImages.0.publicUrl}" 
+                                     alt="Page 1 of {document.title}"
+                                     class="flipbook-simple-image"
+                                     style="max-width: 100%; height: auto;" />
+                            </f:if>
+                        </div>
+                    </div>
+
+                    <!-- Simple Navigation -->
+                    <div class="flipbook-simple-controls">
+                        <button class="flipbook-simple-btn flipbook-prev" 
+                                data-target="flipbook-simple-{document.uid}"
+                                aria-label="Previous Page"
+                                disabled>
+                            ← Previous
+                        </button>
+                        
+                        <span class="flipbook-simple-counter">
+                            <span class="current-page">1</span> / <span class="total-pages">{document.totalPages}</span>
+                        </span>
+                        
+                        <button class="flipbook-simple-btn flipbook-next" 
+                                data-target="flipbook-simple-{document.uid}"
+                                aria-label="Next Page"
+                                {f:if(condition: '{document.totalPages} <= 1', then: 'disabled', else: '')}>
+                            Next →
+                        </button>
+                    </div>
+
+                    <!-- Optional Zoom Toggle -->
+                    <f:if condition="{document.flipbookConfig.enableZoom}">
+                        <div class="flipbook-simple-zoom">
+                            <button class="flipbook-simple-btn flipbook-zoom-toggle" 
+                                    data-target="flipbook-simple-{document.uid}"
+                                    aria-label="Toggle Zoom">
+                                🔍 Zoom
+                            </button>
+                        </div>
+                    </f:if>
+                </div>
+
+                <!-- Hidden data for JavaScript -->
+                <script type="application/json" id="flipbook-data-{document.uid}">
+                {
+                    "documentUid": {document.uid},
+                    "totalPages": {document.totalPages},
+                    "currentPage": 1,
+                    "images": [
+                        <f:for each="{document.processedImages}" as="image" iteration="iterator">
+                        {
+                            "page": {image.page},
+                            "src": "{image.publicUrl}",
+                            "width": {image.width},
+                            "height": {image.height}
+                        }<f:if condition="{iterator.isLast}"><f:else>,</f:else></f:if>
+                        </f:for>
+                    ],
+                    "config": {document.flipbookConfig -> f:format.json()}
+                }
+                </script>
+
+            </div>
+
+        </f:then>
+        <f:else>
+            <!-- No Document Selected -->
+            <div class="flipbook-simple-error">
+                <p class="alert alert-info">
+                    <f:translate key="error.simple.no_document" extensionName="flipbook_converter" />
+                </p>
+            </div>
+        </f:else>
+    </f:if>
+</f:section>
+
+</html>

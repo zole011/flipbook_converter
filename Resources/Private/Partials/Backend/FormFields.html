@@ -1,0 +1,386 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<!-- Form Fields Partial -->
+<f:switch expression="{section}">
+    
+    <!-- Basic Information Fields -->
+    <f:case value="basic">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="document-title">
+                <f:translate key="document.title" extensionName="flipbook_converter" />
+                <span class="text-danger">*</span>
+            </label>
+            <div class="col-sm-10">
+                <f:form.textfield property="title" 
+                                  id="document-title"
+                                  class="form-control" 
+                                  placeholder="{f:translate(key: 'document.title.placeholder', extensionName: 'flipbook_converter')}"
+                                  required="required" />
+                <span class="help-block">
+                    <f:translate key="document.title.help" extensionName="flipbook_converter" />
+                </span>
+                <f:form.validationResults for="document.title">
+                    <f:for each="{validationResults.flattenedErrors}" as="errors" key="propertyPath">
+                        <f:for each="{errors}" as="error">
+                            <span class="help-block text-danger">{error.message}</span>
+                        </f:for>
+                    </f:for>
+                </f:form.validationResults>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="document-description">
+                <f:translate key="document.description" extensionName="flipbook_converter" />
+            </label>
+            <div class="col-sm-10">
+                <f:form.textarea property="description" 
+                                 id="document-description"
+                                 class="form-control" 
+                                 rows="4"
+                                 placeholder="{f:translate(key: 'document.description.placeholder', extensionName: 'flipbook_converter')}" />
+                <span class="help-block">
+                    <f:translate key="document.description.help" extensionName="flipbook_converter" />
+                </span>
+            </div>
+        </div>
+    </f:case>
+
+    <!-- PDF File Fields -->
+    <f:case value="file">
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="document-pdf-file">
+                <f:translate key="document.pdf_file" extensionName="flipbook_converter" />
+                <f:if condition="{document.uid}"><f:else><span class="text-danger">*</span></f:else></f:if>
+            </label>
+            <div class="col-sm-10">
+                <div class="flipbook-file-upload">
+                    <input type="file" 
+                           name="tx_flipbookconverter[pdfFile]" 
+                           id="document-pdf-file"
+                           class="form-control" 
+                           accept="application/pdf,.pdf"
+                           <f:if condition="{document.uid}"><f:else>required="required"</f:else></f:if> />
+                    <span class="help-block">
+                        <f:translate key="document.pdf_file.help" extensionName="flipbook_converter" />
+                        <br />
+                        <strong><f:translate key="document.pdf_file.requirements" extensionName="flipbook_converter" /></strong>
+                        <ul class="small">
+                            <li><f:translate key="document.pdf_file.req.format" extensionName="flipbook_converter" /></li>
+                            <li><f:translate key="document.pdf_file.req.size" extensionName="flipbook_converter" /></li>
+                            <li><f:translate key="document.pdf_file.req.pages" extensionName="flipbook_converter" /></li>
+                        </ul>
+                    </span>
+                </div>
+                
+                <!-- File Upload Progress -->
+                <div class="file-upload-progress" style="display: none;">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped active" 
+                             role="progressbar" 
+                             style="width: 0%">
+                            <span class="sr-only">0% Complete</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </f:case>
+
+    <!-- Configuration Fields -->
+    <f:case value="configuration">
+        <!-- Display Settings -->
+        <h4><f:translate key="config.display_settings" extensionName="flipbook_converter" /></h4>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="config-width">
+                        <f:translate key="config.width" extensionName="flipbook_converter" />
+                    </label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <f:form.textfield name="flipbookConfig[width]" 
+                                              value="{document.flipbookConfig.width}" 
+                                              id="config-width"
+                                              class="form-control" 
+                                              placeholder="800" />
+                            <span class="input-group-addon">px</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="config-height">
+                        <f:translate key="config.height" extensionName="flipbook_converter" />
+                    </label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <f:form.textfield name="flipbookConfig[height]" 
+                                              value="{document.flipbookConfig.height}" 
+                                              id="config-height"
+                                              class="form-control" 
+                                              placeholder="600" />
+                            <span class="input-group-addon">px</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="config-background-color">
+                <f:translate key="config.background_color" extensionName="flipbook_converter" />
+            </label>
+            <div class="col-sm-4">
+                <div class="input-group">
+                    <f:form.textfield name="flipbookConfig[backgroundColor]" 
+                                      value="{document.flipbookConfig.backgroundColor}" 
+                                      id="config-background-color"
+                                      class="form-control color-picker" 
+                                      placeholder="#ffffff" />
+                    <span class="input-group-addon">
+                        <i class="color-preview" style="background-color: {document.flipbookConfig.backgroundColor}"></i>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Toggles -->
+        <h4><f:translate key="config.features" extensionName="flipbook_converter" /></h4>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox name="flipbookConfig[showControls]" 
+                                         value="1" 
+                                         checked="{document.flipbookConfig.showControls}" />
+                        <f:translate key="config.show_controls" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox name="flipbookConfig[showPageNumbers]" 
+                                         value="1" 
+                                         checked="{document.flipbookConfig.showPageNumbers}" />
+                        <f:translate key="config.show_page_numbers" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox name="flipbookConfig[enableZoom]" 
+                                         value="1" 
+                                         checked="{document.flipbookConfig.enableZoom}" />
+                        <f:translate key="config.enable_zoom" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox name="flipbookConfig[enableFullscreen]" 
+                                         value="1" 
+                                         checked="{document.flipbookConfig.enableFullscreen}" />
+                        <f:translate key="config.enable_fullscreen" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox name="flipbookConfig[enableKeyboard]" 
+                                         value="1" 
+                                         checked="{document.flipbookConfig.enableKeyboard}" />
+                        <f:translate key="config.enable_keyboard" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox name="flipbookConfig[enableTouch]" 
+                                         value="1" 
+                                         checked="{document.flipbookConfig.enableTouch}" />
+                        <f:translate key="config.enable_touch" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Settings -->
+        <h4><f:translate key="config.advanced_settings" extensionName="flipbook_converter" /></h4>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-6 control-label" for="config-animation-duration">
+                        <f:translate key="config.animation_duration" extensionName="flipbook_converter" />
+                    </label>
+                    <div class="col-sm-6">
+                        <div class="input-group">
+                            <f:form.textfield name="flipbookConfig[animationDuration]" 
+                                              value="{document.flipbookConfig.animationDuration}" 
+                                              id="config-animation-duration"
+                                              class="form-control" 
+                                              placeholder="500" />
+                            <span class="input-group-addon">ms</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox name="flipbookConfig[autoplay]" 
+                                         value="1" 
+                                         checked="{document.flipbookConfig.autoplay}" />
+                        <f:translate key="config.autoplay" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+            </div>
+        </div>
+    </f:case>
+
+    <!-- Processing Information Fields -->
+    <f:case value="processing">
+        <div class="flipbook-processing-info">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="dl-horizontal">
+                        <dt><f:translate key="document.status" extensionName="flipbook_converter" />:</dt>
+                        <dd><f:render partial="Backend/StatusBadge" arguments="{document: document}" /></dd>
+                        
+                        <f:if condition="{document.totalPages}">
+                            <dt><f:translate key="document.total_pages" extensionName="flipbook_converter" />:</dt>
+                            <dd><span class="badge badge-info">{document.totalPages}</span></dd>
+                        </f:if>
+                        
+                        <f:if condition="{document.processingTime}">
+                            <dt><f:translate key="document.processing_time" extensionName="flipbook_converter" />:</dt>
+                            <dd>{document.processingTime}ms</dd>
+                        </f:if>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="dl-horizontal">
+                        <f:if condition="{document.lastProcessed}">
+                            <dt><f:translate key="document.last_processed" extensionName="flipbook_converter" />:</dt>
+                            <dd><f:format.date date="{document.lastProcessed}" format="d.m.Y H:i" /></dd>
+                        </f:if>
+                        
+                        <f:if condition="{document.fileSize}">
+                            <dt><f:translate key="document.file_size" extensionName="flipbook_converter" />:</dt>
+                            <dd>{document.fileSizeFormatted}</dd>
+                        </f:if>
+                        
+                        <f:if condition="{document.fileHash}">
+                            <dt><f:translate key="document.file_hash" extensionName="flipbook_converter" />:</dt>
+                            <dd><code class="small">{document.fileHash -> f:format.crop(maxCharacters: 16)}...</code></dd>
+                        </f:if>
+                    </dl>
+                </div>
+            </div>
+            
+            <!-- Processing Log -->
+            <f:if condition="{document.processingLog}">
+                <div class="processing-log-section">
+                    <h5><f:translate key="document.processing_log" extensionName="flipbook_converter" /></h5>
+                    <div class="processing-log-container">
+                        <textarea class="form-control" 
+                                  rows="8" 
+                                  readonly="readonly">{document.processingLog}</textarea>
+                    </div>
+                </div>
+            </f:if>
+        </div>
+    </f:case>
+
+    <!-- Access Control Fields -->
+    <f:case value="access">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="checkbox">
+                    <label>
+                        <f:form.checkbox property="hidden" value="1" />
+                        <f:translate key="document.hidden" extensionName="flipbook_converter" />
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <!-- Frontend Groups (if needed) -->
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">
+                        <f:translate key="document.fe_group" extensionName="flipbook_converter" />
+                    </label>
+                    <div class="col-sm-8">
+                        <f:form.select property="feGroup" 
+                                       class="form-control" 
+                                       multiple="multiple"
+                                       size="5">
+                            <f:form.select.option value="0">
+                                <f:translate key="document.fe_group.all" extensionName="flipbook_converter" />
+                            </f:form.select.option>
+                            <f:form.select.option value="-1">
+                                <f:translate key="document.fe_group.hide_at_login" extensionName="flipbook_converter" />
+                            </f:form.select.option>
+                            <f:form.select.option value="-2">
+                                <f:translate key="document.fe_group.any_login" extensionName="flipbook_converter" />
+                            </f:form.select.option>
+                            <!-- Frontend groups would be dynamically loaded here -->
+                        </f:form.select>
+                        <span class="help-block">
+                            <f:translate key="document.fe_group.help" extensionName="flipbook_converter" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start/End Time -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="document-starttime">
+                        <f:translate key="document.starttime" extensionName="flipbook_converter" />
+                    </label>
+                    <div class="col-sm-8">
+                        <f:form.textfield property="starttime" 
+                                          id="document-starttime"
+                                          class="form-control datepicker" 
+                                          placeholder="{f:translate(key: 'document.starttime.placeholder', extensionName: 'flipbook_converter')}" />
+                        <span class="help-block">
+                            <f:translate key="document.starttime.help" extensionName="flipbook_converter" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="document-endtime">
+                        <f:translate key="document.endtime" extensionName="flipbook_converter" />
+                    </label>
+                    <div class="col-sm-8">
+                        <f:form.textfield property="endtime" 
+                                          id="document-endtime"
+                                          class="form-control datepicker" 
+                                          placeholder="{f:translate(key: 'document.endtime.placeholder', extensionName: 'flipbook_converter')}" />
+                        <span class="help-block">
+                            <f:translate key="document.endtime.help" extensionName="flipbook_converter" />
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </f:case>
+
+    <!-- Default case for unknown sections -->
+    <f:defaultCase>
+        <div class="alert alert-warning">
+            <f:translate key="form.unknown_section" arguments="{0: section}" extensionName="flipbook_converter" />
+        </div>
+    </f:defaultCase>
+
+</f:switch>
+
+</html>

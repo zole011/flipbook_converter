@@ -1,0 +1,155 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:fc="http://typo3.org/ns/Gmbit/FlipbookConverter/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Default" />
+
+<f:section name="Content">
+    <f:if condition="{document}">
+        <f:then>
+            <!-- Flipbook Container -->
+            <div class="flipbook-container" 
+                 id="{uniqueId}"
+                 data-document-uid="{document.uid}"
+                 data-config="{flipbookConfig -> f:format.json()}"
+                 data-total-pages="{document.totalPages}">
+                
+                <!-- Header -->
+                <f:if condition="{document.title}">
+                    <div class="flipbook-header">
+                        <h3 class="flipbook-title">{document.title}</h3>
+                        <f:if condition="{document.description}">
+                            <div class="flipbook-description">
+                                <f:format.html>{document.description}</f:format.html>
+                            </div>
+                        </f:if>
+                    </div>
+                </f:if>
+
+                <!-- Main Flipbook Area -->
+                <div class="flipbook-main" 
+                     style="width: {config.width}px; height: {config.height}px; background-color: {config.backgroundColor};">
+                    
+                    <!-- Loading Indicator -->
+                    <div class="flipbook-loading" id="loading-{uniqueId}">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text">{config.loadingText}</div>
+                    </div>
+
+                    <!-- Flipbook Viewer -->
+                    <div class="flipbook-viewer" id="viewer-{uniqueId}">
+                        <!-- Pages Container -->
+                        <div class="flipbook-pages" id="pages-{uniqueId}">
+                            <f:for each="{images}" as="image" iteration="iterator">
+                                <div class="flipbook-page" 
+                                     data-page="{image.page}"
+                                     data-src="{image.publicUrl}"
+                                     data-width="{image.width}"
+                                     data-height="{image.height}"
+                                     style="display: {f:if(condition: '{iterator.isFirst}', then: 'block', else: 'none')};">
+                                    
+                                    <f:if condition="{iterator.isFirst} || {config.preloadPages} > {iterator.index}">
+                                        <f:then>
+                                            <!-- Preload first few pages -->
+                                            <img src="{image.publicUrl}" 
+                                                 alt="Page {image.page} of {document.title}"
+                                                 class="flipbook-page-image"
+                                                 width="{image.width}"
+                                                 height="{image.height}"
+                                                 loading="{f:if(condition: '{iterator.isFirst}', then: 'eager', else: 'lazy')}" />
+                                        </f:then>
+                                        <f:else>
+                                            <!-- Lazy load other pages -->
+                                            <img data-src="{image.publicUrl}" 
+                                                 alt="Page {image.page} of {document.title}"
+                                                 class="flipbook-page-image lazy"
+                                                 width="{image.width}"
+                                                 height="{image.height}"
+                                                 loading="lazy" />
+                                        </f:else>
+                                    </f:if>
+                                </div>
+                            </f:for>
+                        </div>
+
+                        <!-- Zoom Container -->
+                        <f:if condition="{config.enableZoom}">
+                            <div class="flipbook-zoom-container" id="zoom-{uniqueId}">
+                                <!-- Zoomed content will be inserted here -->
+                            </div>
+                        </f:if>
+                    </div>
+
+                    <!-- Controls -->
+                    <f:if condition="{config.showControls}">
+                        <f:render partial="Flipbook/Controls" arguments="{config: config, document: document, uniqueId: uniqueId}" />
+                    </f:if>
+
+                    <!-- Thumbnails -->
+                    <f:if condition="{config.showThumbnails}">
+                        <f:render partial="Flipbook/Thumbnails" arguments="{images: images, document: document, uniqueId: uniqueId}" />
+                    </f:if>
+
+                    <!-- Page Navigation -->
+                    <f:if condition="{config.showPageNumbers}">
+                        <f:render partial="Flipbook/PageNavigation" arguments="{document: document, uniqueId: uniqueId}" />
+                    </f:if>
+                </div>
+
+                <!-- Fullscreen Overlay -->
+                <f:if condition="{config.enableFullscreen}">
+                    <div class="flipbook-fullscreen-overlay" id="fullscreen-{uniqueId}" style="display: none;">
+                        <div class="flipbook-fullscreen-content">
+                            <!-- Fullscreen content will be cloned here -->
+                        </div>
+                        <button class="flipbook-fullscreen-close" data-target="{uniqueId}" aria-label="Exit Fullscreen">
+                            <span class="sr-only">Exit Fullscreen</span>
+                            ✕
+                        </button>
+                    </div>
+                </f:if>
+
+                <!-- Error Messages -->
+                <div class="flipbook-error" id="error-{uniqueId}" style="display: none;">
+                    <div class="error-icon">⚠</div>
+                    <div class="error-message">
+                        <!-- Error messages will be inserted here -->
+                    </div>
+                    <button class="error-retry" data-target="{uniqueId}">
+                        Retry
+                    </button>
+                </div>
+            </div>
+
+            <!-- Accessibility Features -->
+            <div class="flipbook-accessibility sr-only" aria-live="polite" id="accessibility-{uniqueId}">
+                <!-- Screen reader announcements -->
+            </div>
+
+            <!-- Schema.org Structured Data -->
+            <script type="application/ld+json">
+            {
+                "@context": "http://schema.org",
+                "@type": "DigitalDocument",
+                "name": "{document.title -> f:format.json()}",
+                "description": "{document.description -> f:format.stripTags() -> f:format.json()}",
+                "numberOfPages": {document.totalPages},
+                "fileFormat": "application/pdf",
+                "encodingFormat": "text/html"
+            }
+            </script>
+
+        </f:then>
+        <f:else>
+            <!-- No Document Selected -->
+            <div class="flipbook-no-document">
+                <div class="alert alert-warning">
+                    <h4><f:translate key="error.no_document.title" extensionName="flipbook_converter" /></h4>
+                    <p><f:translate key="error.no_document.message" extensionName="flipbook_converter" /></p>
+                </div>
+            </div>
+        </f:else>
+    </f:if>
+</f:section>
+
+</html>

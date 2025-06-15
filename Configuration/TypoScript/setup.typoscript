@@ -1,0 +1,214 @@
+# Flipbook Converter Setup
+
+plugin.tx_flipbookconverter_flipbook {
+    view {
+        templateRootPaths.0 = EXT:flipbook_converter/Resources/Private/Templates/
+        templateRootPaths.1 = {$plugin.tx_flipbookconverter.view.templateRootPath}
+        partialRootPaths.0 = EXT:flipbook_converter/Resources/Private/Partials/
+        partialRootPaths.1 = {$plugin.tx_flipbookconverter.view.partialRootPath}
+        layoutRootPaths.0 = EXT:flipbook_converter/Resources/Private/Layouts/
+        layoutRootPaths.1 = {$plugin.tx_flipbookconverter.view.layoutRootPath}
+    }
+    
+    persistence {
+        storagePid = {$plugin.tx_flipbookconverter.persistence.storagePid}
+        classes {
+            Gmbit\FlipbookConverter\Domain\Model\FlipbookDocument {
+                mapping {
+                    tableName = tx_flipbookconverter_document
+                }
+            }
+        }
+    }
+    
+    features {
+        skipDefaultArguments = 1
+        ignoreAllEnableFieldsInBe = 0
+        requireCHashArgumentForActionArguments = 1
+    }
+    
+    mvc {
+        callDefaultActionIfActionCantBeResolved = 1
+    }
+    
+    settings {
+        # Default display settings
+        defaultWidth = {$plugin.tx_flipbookconverter.settings.defaultWidth}
+        defaultHeight = {$plugin.tx_flipbookconverter.settings.defaultHeight}
+        defaultBackgroundColor = {$plugin.tx_flipbookconverter.settings.defaultBackgroundColor}
+        
+        # Feature toggles
+        responsive = {$plugin.tx_flipbookconverter.settings.responsive}
+        showControls = {$plugin.tx_flipbookconverter.settings.showControls}
+        showPageNumbers = {$plugin.tx_flipbookconverter.settings.showPageNumbers}
+        enableZoom = {$plugin.tx_flipbookconverter.settings.enableZoom}
+        enableFullscreen = {$plugin.tx_flipbookconverter.settings.enableFullscreen}
+        enableKeyboard = {$plugin.tx_flipbookconverter.settings.enableKeyboard}
+        enableTouch = {$plugin.tx_flipbookconverter.settings.enableTouch}
+        
+        # Animation settings
+        animationDuration = {$plugin.tx_flipbookconverter.settings.animationDuration}
+        animationType = {$plugin.tx_flipbookconverter.settings.animationType}
+        
+        # Performance settings
+        lazyLoading = {$plugin.tx_flipbookconverter.settings.lazyLoading}
+        preloadPages = {$plugin.tx_flipbookconverter.settings.preloadPages}
+        showLoadingIndicator = {$plugin.tx_flipbookconverter.settings.showLoadingIndicator}
+        
+        # Asset paths
+        cssFile = {$plugin.tx_flipbookconverter.settings.cssFile}
+        jsFile = {$plugin.tx_flipbookconverter.settings.jsFile}
+        
+        # Processing settings
+        defaultImageQuality = {$plugin.tx_flipbookconverter.settings.defaultImageQuality}
+        maxFileSize = {$plugin.tx_flipbookconverter.settings.maxFileSize}
+        processingTimeout = {$plugin.tx_flipbookconverter.settings.processingTimeout}
+        
+        # Cache settings
+        cacheLifetime = {$plugin.tx_flipbookconverter.settings.cacheLifetime}
+        enableImageCache = {$plugin.tx_flipbookconverter.settings.enableImageCache}
+    }
+}
+
+# Content element configuration
+tt_content.flipbookconverter_flipbook =< plugin.tx_flipbookconverter_flipbook
+tt_content.flipbookconverter_flipbook {
+    templateName = Show
+}
+
+# Simple content element (direct document selection)
+tt_content.flipbookconverter_flipbook_simple =< plugin.tx_flipbookconverter_flipbook
+tt_content.flipbookconverter_flipbook_simple {
+    templateName = Simple
+    
+    # Map direct document field to plugin settings
+    20 = USER
+    20 {
+        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+        vendorName = Gmbit
+        extensionName = FlipbookConverter
+        pluginName = Flipbook
+        controller = Flipbook
+        action = show
+        
+        settings {
+            documentUid.field = tx_flipbookconverter_document
+        }
+    }
+}
+
+# Backend Module Configuration
+module.tx_flipbookconverter_flipbook {
+    view {
+        templateRootPaths.0 = EXT:flipbook_converter/Resources/Private/Templates/Backend/
+        templateRootPaths.1 = {$module.tx_flipbookconverter.view.templateRootPath}
+        partialRootPaths.0 = EXT:flipbook_converter/Resources/Private/Partials/Backend/
+        partialRootPaths.1 = {$module.tx_flipbookconverter.view.partialRootPath}
+        layoutRootPaths.0 = EXT:flipbook_converter/Resources/Private/Layouts/
+        layoutRootPaths.1 = {$module.tx_flipbookconverter.view.layoutRootPath}
+    }
+    
+    persistence < plugin.tx_flipbookconverter_flipbook.persistence
+    
+    settings {
+        itemsPerPage = {$module.tx_flipbookconverter.settings.itemsPerPage}
+        enableBulkOperations = {$module.tx_flipbookconverter.settings.enableBulkOperations}
+        showStatistics = {$module.tx_flipbookconverter.settings.showStatistics}
+        autoProcess = {$module.tx_flipbookconverter.settings.autoProcess}
+    }
+}
+
+# Page configuration for AJAX requests
+flipbook_ajax = PAGE
+flipbook_ajax {
+    typeNum = 1668759512
+    config {
+        disableAllHeaderCode = 1
+        xhtml_cleaning = 0
+        admPanel = 0
+        debug = 0
+        no_cache = 1
+        additionalHeaders.10.header = Content-Type: application/json; charset=utf-8
+        additionalHeaders.20.header = Cache-Control: no-cache, no-store, must-revalidate
+    }
+    
+    10 = USER
+    10 {
+        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+        vendorName = Gmbit
+        extensionName = FlipbookConverter
+        pluginName = Flipbook
+        controller = Flipbook
+        action = render
+    }
+}
+
+# Assets inclusion
+page {
+    includeCSS {
+        flipbook_converter = {$plugin.tx_flipbookconverter.settings.cssFile}
+        flipbook_converter {
+            media = all
+            forceOnTop = 0
+        }
+    }
+    
+    includeJSFooter {
+        flipbook_converter = {$plugin.tx_flipbookconverter.settings.jsFile}
+        flipbook_converter {
+            forceOnTop = 0
+            async = 1
+        }
+    }
+}
+
+# RTE configuration for description fields
+RTE.config.tx_flipbookconverter_document.description {
+    proc {
+        allowTags = p,br,strong,em,u,a,ul,ol,li
+        denyTags = *
+        allowTagsOutside = 
+        HTMLparser_db {
+            allowTags = p,br,strong,em,u,a,ul,ol,li
+            rmTagIfNoAttrib = br
+        }
+    }
+}
+
+# Image processing configuration
+TYPO3\CMS\Core\Imaging\GraphicalFunctions {
+    processor = ImageMagick
+    processor_path = /usr/bin/
+    processor_path_lzw = /usr/bin/
+    
+    # Flipbook specific image processing
+    flipbook {
+        quality = 90
+        format = png
+        resolution = 150
+        colorspace = RGB
+        
+        # Thumbnail settings
+        thumbnail {
+            width = 200
+            height = 200
+            quality = 80
+        }
+        
+        # Preview settings  
+        preview {
+            width = 800
+            height = 600
+            quality = 85
+        }
+    }
+}
+
+# Cache configuration
+config.cache {
+    flipbook_converter = 1
+    flipbook_converter {
+        lifetime = {$plugin.tx_flipbookconverter.settings.cacheLifetime}
+        tags = flipbook_converter
+    }
+}

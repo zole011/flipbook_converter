@@ -1,0 +1,310 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Backend" />
+
+<f:section name="Content">
+    
+    <!-- Page Header -->
+    <div class="module-docheader">
+        <div class="module-docheader-bar">
+            <div class="module-docheader-bar-column-left">
+                <div class="module-docheader-bar-navigation">
+                    <f:link.action action="list" class="btn btn-default">
+                        <core:icon identifier="actions-view-list-expand" size="small" />
+                        <f:translate key="module.back_to_list" extensionName="flipbook_converter" />
+                    </f:link.action>
+                </div>
+            </div>
+            <div class="module-docheader-bar-column-right">
+                <div class="module-docheader-bar-buttons">
+                    <div class="btn-group">
+                        <be:link.editRecord table="tx_flipbookconverter_document" 
+                                            uid="{document.uid}" 
+                                            class="btn btn-default"
+                                            title="{f:translate(key: 'action.edit', extensionName: 'flipbook_converter')}">
+                            <core:icon identifier="actions-edit" size="small" />
+                            <f:translate key="action.edit" extensionName="flipbook_converter" />
+                        </be:link.editRecord>
+                        
+                        <f:if condition="{canReprocess}">
+                            <f:link.action action="process" 
+                                           arguments="{document: document}" 
+                                           class="btn btn-warning"
+                                           title="{f:translate(key: 'action.reprocess', extensionName: 'flipbook_converter')}">
+                                <core:icon identifier="actions-refresh" size="small" />
+                                <f:translate key="action.reprocess" extensionName="flipbook_converter" />
+                            </f:link.action>
+                        </f:if>
+                        
+                        <f:if condition="{document.isCompleted}">
+                            <f:link.action action="preview" 
+                                           arguments="{document: document}" 
+                                           class="btn btn-info"
+                                           title="{f:translate(key: 'action.preview', extensionName: 'flipbook_converter')}">
+                                <core:icon identifier="actions-view" size="small" />
+                                <f:translate key="action.preview" extensionName="flipbook_converter" />
+                            </f:link.action>
+                        </f:if>
+                        
+                        <f:if condition="{canDelete}">
+                            <f:link.action action="delete" 
+                                           arguments="{document: document}" 
+                                           class="btn btn-danger"
+                                           title="{f:translate(key: 'action.delete', extensionName: 'flipbook_converter')}"
+                                           onclick="return confirm('{f:translate(key: 'action.delete.confirm', extensionName: 'flipbook_converter')}')">
+                                <core:icon identifier="actions-delete" size="small" />
+                                <f:translate key="action.delete" extensionName="flipbook_converter" />
+                            </f:link.action>
+                        </f:if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Details -->
+    <div class="flipbook-document-details">
+        
+        <!-- Main Info Panel -->
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <f:render partial="Backend/StatusBadge" arguments="{document: document}" />
+                    {document.title}
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <dl class="dl-horizontal">
+                            <dt><f:translate key="document.title" extensionName="flipbook_converter" />:</dt>
+                            <dd>{document.title}</dd>
+                            
+                            <f:if condition="{document.description}">
+                                <dt><f:translate key="document.description" extensionName="flipbook_converter" />:</dt>
+                                <dd><f:format.html>{document.description}</f:format.html></dd>
+                            </f:if>
+                            
+                            <dt><f:translate key="document.status" extensionName="flipbook_converter" />:</dt>
+                            <dd>{document.statusLabel}</dd>
+                            
+                            <dt><f:translate key="document.created" extensionName="flipbook_converter" />:</dt>
+                            <dd><f:format.date date="{document.crdate}" format="d.m.Y H:i" /></dd>
+                            
+                            <f:if condition="{document.lastProcessed}">
+                                <dt><f:translate key="document.last_processed" extensionName="flipbook_converter" />:</dt>
+                                <dd>
+                                    <f:format.date date="{document.lastProcessed}" format="d.m.Y H:i" />
+                                    <f:if condition="{document.processingTime}">
+                                        <span class="text-muted">({document.processingTime}ms)</span>
+                                    </f:if>
+                                </dd>
+                            </f:if>
+                        </dl>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <dl class="dl-horizontal">
+                            <f:if condition="{document.totalPages}">
+                                <dt><f:translate key="document.total_pages" extensionName="flipbook_converter" />:</dt>
+                                <dd><span class="badge badge-info">{document.totalPages}</span></dd>
+                            </f:if>
+                            
+                            <f:if condition="{document.fileSize}">
+                                <dt><f:translate key="document.file_size" extensionName="flipbook_converter" />:</dt>
+                                <dd>{document.fileSizeFormatted}</dd>
+                            </f:if>
+                            
+                            <f:if condition="{document.fileHash}">
+                                <dt><f:translate key="document.file_hash" extensionName="flipbook_converter" />:</dt>
+                                <dd><code class="small">{document.fileHash -> f:format.crop(maxCharacters: 16)}...</code></dd>
+                            </f:if>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing Information -->
+        <f:if condition="{document.processingLog}">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <core:icon identifier="actions-document-info" size="small" />
+                        <f:translate key="document.processing_log" extensionName="flipbook_converter" />
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="flipbook-processing-log">
+                        <f:for each="{processingLog}" as="logEntry">
+                            <f:if condition="{logEntry}">
+                                <div class="log-entry">
+                                    <code>{logEntry}</code>
+                                </div>
+                            </f:if>
+                        </f:for>
+                    </div>
+                </div>
+            </div>
+        </f:if>
+
+        <!-- Configuration Panel -->
+        <f:if condition="{config}">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <core:icon identifier="actions-system-options-view" size="small" />
+                        <f:translate key="document.configuration" extensionName="flipbook_converter" />
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5><f:translate key="config.display" extensionName="flipbook_converter" /></h5>
+                            <dl class="dl-horizontal">
+                                <dt><f:translate key="config.width" extensionName="flipbook_converter" />:</dt>
+                                <dd>{config.width}px</dd>
+                                <dt><f:translate key="config.height" extensionName="flipbook_converter" />:</dt>
+                                <dd>{config.height}px</dd>
+                                <dt><f:translate key="config.background_color" extensionName="flipbook_converter" />:</dt>
+                                <dd>
+                                    <span class="color-preview" style="background-color: {config.backgroundColor}; width: 20px; height: 20px; display: inline-block; border: 1px solid #ccc;"></span>
+                                    {config.backgroundColor}
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <h5><f:translate key="config.features" extensionName="flipbook_converter" /></h5>
+                            <dl class="dl-horizontal">
+                                <dt><f:translate key="config.show_controls" extensionName="flipbook_converter" />:</dt>
+                                <dd><f:if condition="{config.showControls}"><span class="text-success">✓</span><f:else><span class="text-muted">✗</span></f:else></f:if></dd>
+                                <dt><f:translate key="config.enable_zoom" extensionName="flipbook_converter" />:</dt>
+                                <dd><f:if condition="{config.enableZoom}"><span class="text-success">✓</span><f:else><span class="text-muted">✗</span></f:else></f:if></dd>
+                                <dt><f:translate key="config.enable_fullscreen" extensionName="flipbook_converter" />:</dt>
+                                <dd><f:if condition="{config.enableFullscreen}"><span class="text-success">✓</span><f:else><span class="text-muted">✗</span></f:else></f:if></dd>
+                                <dt><f:translate key="config.autoplay" extensionName="flipbook_converter" />:</dt>
+                                <dd><f:if condition="{config.autoplay}"><span class="text-success">✓</span><f:else><span class="text-muted">✗</span></f:else></f:if></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </f:if>
+
+        <!-- Images Gallery -->
+        <f:if condition="{images}">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <core:icon identifier="actions-image" size="small" />
+                        <f:translate key="document.processed_images" extensionName="flipbook_converter" />
+                        <span class="badge">{f:count(subject: images)}</span>
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="flipbook-images-gallery">
+                        <div class="row">
+                            <f:for each="{images}" as="image" iteration="iterator">
+                                <div class="col-sm-6 col-md-4 col-lg-3">
+                                    <div class="flipbook-image-card">
+                                        <div class="flipbook-image-thumbnail">
+                                            <f:if condition="{image.thumbnail}">
+                                                <f:then>
+                                                    <img src="{image.thumbnail.publicUrl}" 
+                                                         alt="Page {image.page} thumbnail"
+                                                         class="img-responsive" 
+                                                         style="max-height: 150px;" />
+                                                </f:then>
+                                                <f:else>
+                                                    <img src="{image.publicUrl}" 
+                                                         alt="Page {image.page}"
+                                                         class="img-responsive" 
+                                                         style="max-height: 150px;" />
+                                                </f:else>
+                                            </f:if>
+                                        </div>
+                                        <div class="flipbook-image-info">
+                                            <div class="page-number">
+                                                <f:translate key="document.page" arguments="{0: image.page}" extensionName="flipbook_converter" />
+                                            </div>
+                                            <div class="image-dimensions text-muted small">
+                                                {image.width} × {image.height}
+                                            </div>
+                                        </div>
+                                        <div class="flipbook-image-actions">
+                                            <a href="{image.publicUrl}" target="_blank" class="btn btn-xs btn-default">
+                                                <core:icon identifier="actions-view" size="small" />
+                                                <f:translate key="action.view_full" extensionName="flipbook_converter" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Break row every 4 items on large screens -->
+                                <f:if condition="{iterator.index} % 4 == 3">
+                                    <div class="clearfix visible-lg-block"></div>
+                                </f:if>
+                                <!-- Break row every 3 items on medium screens -->
+                                <f:if condition="{iterator.index} % 3 == 2">
+                                    <div class="clearfix visible-md-block"></div>
+                                </f:if>
+                                <!-- Break row every 2 items on small screens -->
+                                <f:if condition="{iterator.index} % 2 == 1">
+                                    <div class="clearfix visible-sm-block"></div>
+                                </f:if>
+                            </f:for>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </f:if>
+
+        <!-- PDF File Information -->
+        <f:if condition="{document.pdfFile}">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <core:icon identifier="mimetypes-pdf" size="small" />
+                        <f:translate key="document.pdf_file" extensionName="flipbook_converter" />
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <div class="flipbook-pdf-info">
+                        <dl class="dl-horizontal">
+                            <dt><f:translate key="file.name" extensionName="flipbook_converter" />:</dt>
+                            <dd>{document.pdfFile.originalResource.name}</dd>
+                            <dt><f:translate key="file.size" extensionName="flipbook_converter" />:</dt>
+                            <dd>{document.fileSizeFormatted}</dd>
+                            <dt><f:translate key="file.type" extensionName="flipbook_converter" />:</dt>
+                            <dd>{document.pdfFile.originalResource.mimeType}</dd>
+                            <dt><f:translate key="file.uploaded" extensionName="flipbook_converter" />:</dt>
+                            <dd><f:format.date date="{document.pdfFile.originalResource.creationDate}" format="d.m.Y H:i" /></dd>
+                        </dl>
+                        
+                        <div class="flipbook-pdf-actions">
+                            <a href="{document.pdfFile.originalResource.publicUrl}" 
+                               target="_blank" 
+                               class="btn btn-primary">
+                                <core:icon identifier="actions-document-view" size="small" />
+                                <f:translate key="action.view_pdf" extensionName="flipbook_converter" />
+                            </a>
+                            <a href="{document.pdfFile.originalResource.publicUrl}" 
+                               download="{document.pdfFile.originalResource.name}"
+                               class="btn btn-default">
+                                <core:icon identifier="actions-download" size="small" />
+                                <f:translate key="action.download_pdf" extensionName="flipbook_converter" />
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </f:if>
+
+    </div>
+
+</f:section>
+
+</html>

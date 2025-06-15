@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="sr" datatype="plaintext" original="EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf" date="2024-01-01T00:00:00Z" product-name="flipbook_converter">
+        <header/>
+        <body>
+            <!-- Module Labels -->
+            <trans-unit id="module.title" resname="module.title">
+                <source>Flipbook Converter</source>
+                <target>Flipbook Konverter</target>
+            </trans-unit>
+            <trans-unit id="module.description" resname="module.description">
+                <source>Manage PDF documents and convert them to flipbooks</source>
+                <target>Upravljajte PDF dokumentima i konvertujte ih u flipbook-ove</target>
+            </trans-unit>
+            
+            <!-- Navigation -->
+            <trans-unit id="nav.documents" resname="nav.documents">
+                <source>Documents</source>
+                <target>Dokumenti</target>
+            </trans-unit>
+            <trans-unit id="nav.upload" resname="nav.upload">
+                <source>Upload</source>
+                <target>Otpremi</target>
+            </trans-unit>
+            <trans-unit id="nav.settings" resname="nav.settings">
+                <source>Settings</source>
+                <target>Podešavanja</target>
+            </trans-unit>
+            <trans-unit id="nav.statistics" resname="nav.statistics">
+                <source>Statistics</source>
+                <target>Statistike</target>
+            </trans-unit>
+            
+            <!-- Actions -->
+            <trans-unit id="action.new" resname="action.new">
+                <source>New Document</source>
+                <target>Novi dokument</target>
+            </trans-unit>
+            <trans-unit id="action.upload" resname="action.upload">
+                <source>Upload PDF</source>
+                <target>Otpremi PDF</target>
+            </trans-unit>
+            <trans-unit id="action.process" resname="action.process">
+                <source>Process</source>
+                <target>Procesiraj</target>
+            </trans-unit>
+            <trans-unit id="action.processAll" resname="action.processAll">
+                <source>Process All Pending</source>
+                <target>Procesiraj sve na čekanju</target>
+            </trans-unit>
+            <trans-unit id="action.edit" resname="action.edit">
+                <source>Edit</source>
+                <target>Izmeni</target>
+            </trans-unit>
+            <trans-unit id="action.delete" resname="action.delete">
+                <source>Delete</source>
+                <target>Obriši</target>
+            </trans-unit>
+            <trans-unit id="action.preview" resname="action.preview">
+                <source>Preview</source>
+                <target>Pregled</target>
+            </trans-unit>
+            <trans-unit id="action.refresh" resname="action.refresh">
+                <source>Refresh</source>
+                <target>Osveži</target>
+            </trans-unit>
+            <trans-unit id="action.bulkActions" resname="action.bulkActions">
+                <source>Bulk Actions</source>
+                <target>Grupne akcije</target>
+            </trans-unit>
+            <trans-unit id="action.export" resname="action.export">
+                <source>Export</source>
+                <target>Izvezi</target>
+            </trans-unit>
+            <trans-unit id="action.clearCache" resname="action.clearCache">
+                <source>Clear Cache</source>
+                <target>Obriši keš</target>
+            </trans-unit>
+            
+            <!-- Table Headers -->
+            <trans-unit id="table.select" resname="table.select">
+                <source>Select</source>
+                <target>Izaberi</target>
+            </trans-unit>
+            <trans-unit id="table.title" resname="table.title">
+                <source>Title</source>
+                <target>Naslov</target>
+            </trans-unit>
+            <trans-unit id="table.filename" resname="table.filename">
+                <source>Filename</source>
+                <target>Naziv fajla</target>
+            </trans-unit>
+            <trans-unit id="table.pages" resname="table.pages">
+                <source>Pages</source>
+                <target>Stranice</target>
+            </trans-unit>
+            <trans-unit id="table.size" resname="table.size">
+                <source>Size</source>
+                <target>Veličina</target>
+            </trans-unit>
+            <trans-unit id="table.status" resname="table.status">
+                <source>Status</source>
+                <target>Status</target>
+            </trans-unit>
+            <trans-unit id="table.created" resname="table.created">
+                <source>Created</source>
+                <target>Kreirano</target>
+            </trans-unit>
+            <trans-unit id="table.modified" resname="table.modified">
+                <source>Modified</source>
+                <target>Izmenjeno</target>
+            </trans-unit>
+            <trans-unit id="table.actions" resname="table.actions">
+                <source>Actions</source>
+                <target>Akcije</target>
+            </trans-unit>
+            
+            <!-- Filter Labels -->
+            <trans-unit id="filter.all" resname="filter.all">
+                <source>All Documents</source>
+                <target>Svi dokumenti</target>
+            </trans-unit>
+            <trans-unit id="filter.status" resname="filter.status">
+                <source>Status</source>
+                <target>Status</target>
+            </trans-unit>
+            <trans-unit id="filter.search" resname="filter.search">
+                <source>Search...</source>
+                <target>Pretraži...</target>
+            </trans-unit>
+            <trans-unit id="filter.dateRange" resname="filter.dateRange">
+                <source>Date Range</source>
+                <target>Opseg datuma</target>
+            </trans-unit>
+            <trans-unit id="filter.apply" resname="filter.apply">
+                <source>Apply Filters</source>
+                <target>Primeni filtere</target>
+            </trans-unit>
+            <trans-unit id="filter.clear" resname="filter.clear">
+                <source>Clear</source>
+                <target>Obriši</target>
+            </trans-unit>
+            
+            <!-- Statistics -->
+            <trans-unit id="stats.totalDocuments" resname="stats.totalDocuments">
+                <source>Total Documents</source>
+                <target>Ukupno dokumenata</target>
+            </trans-unit>
+            <trans-unit id="stats.pending" resname="stats.pending">
+                <source>Pending</source>
+                <target>Na čekanju</target>
+            </trans-unit>
+            <trans-unit id="stats.processing" resname="stats.processing">
+                <source>Processing</source>
+                <target>Procesiranje</target>
+            </trans-unit>
+            <trans-unit id="stats.completed" resname="stats.completed">
+                <source>Completed</source>
+                <target>Završeno</target>
+            </trans-unit>
+            <trans-unit id="stats.errors" resname="stats.errors">
+                <source>Errors</source>
+                <target>Greške</target>
+            </trans-unit>
+            <trans-unit id="stats.totalPages" resname="stats.totalPages">
+                <source>Total Pages</source>
+                <target>Ukupno stranica</target>
+            </trans-unit>
+            <trans-unit id="stats.diskUsage" resname="stats.diskUsage">
+                <source>Disk Usage</source>
+                <target>Korišćenje diska</target>
+            </trans-unit>
+            <trans-unit id="stats.averageProcessingTime" resname="stats.averageProcessingTime">
+                <source>Avg. Processing Time</source>
+                <target>Prosečno vreme procesiranja</target>
+            </trans-unit>
+            
+            <!-- Form Labels -->
+            <trans-unit id="form.title" resname="form.title">
+                <source>Title</source>
+                <target>Naslov</target>
+            </trans-unit>
+            <trans-unit id="form.description" resname="form.description">
+                <source>Description</source>
+                <target>Opis</target>
+            </trans-unit>
+            <trans-unit id="form.pdfFile" resname="form.pdfFile">
+                <source>PDF File</source>
+                <target>PDF fajl</target>
+            </trans-unit>
+            <trans-unit id="form.configuration" resname="form.configuration">
+                <source>Configuration</source>
+                <target>Konfiguracija</target>
+            </trans-unit>
+            <trans-unit id="form.selectFile" resname="form.selectFile">
+                <source>Select File</source>
+                <target>Izaberi fajl</target>
+            </trans-unit>
+            <trans-unit id="form.dragDrop" resname="form.dragDrop">
+                <source>or drag and drop PDF files here</source>
+                <target>ili prevucite PDF fajlove ovde</target>
+            </trans-unit>
+            <trans-unit id="form.maxFileSize" resname="form.maxFileSize">
+                <source>Maximum file size: %s MB</source>
+                <target>Maksimalna veličina fajla: %s MB</target>
+            </trans-unit>
+            <trans-unit id="form.allowedFormats" resname="form.allowedFormats">
+                <source>Allowed formats: PDF</source>
+                <target>Dozvoljeni formati: PDF</target>
+            </trans-unit>
+            
+            <!-- Messages -->
+            <trans-unit id="message.uploadSuccess" resname="message.uploadSuccess">
+                <source>Document uploaded successfully</source>
+                <target>Dokument uspešno otpremljen</target>
+            </trans-unit>
+            <trans-unit id="message.uploadError" resname="message.uploadError">
+                <source>Error uploading document</source>
+                <target>Greška pri otpremanju dokumenta</target>
+            </trans-unit>
+            <trans-unit id="message.processingStarted" resname="message.processingStarted">
+                <source>Processing started for %s document(s)</source>
+                <target>Procesiranje započeto za %s dokument(a)</target>
+            </trans-unit>
+            <trans-unit id="message.processingComplete" resname="message.processingComplete">
+                <source>Processing completed</source>
+                <target>Procesiranje završeno</target>
+            </trans-unit>
+            <trans-unit id="message.deleteConfirm" resname="message.deleteConfirm">
+                <source>Are you sure you want to delete this document?</source>
+                <target>Da li ste sigurni da želite da obrišete ovaj dokument?</target>
+            </trans-unit>
+            <trans-unit id="message.bulkDeleteConfirm" resname="message.bulkDeleteConfirm">
+                <source>Are you sure you want to delete %s selected document(s)?</source>
+                <target>Da li ste sigurni da želite da obrišete %s izabranih dokumenata?</target>
+            </trans-unit>
+            <trans-unit id="message.deleted" resname="message.deleted">
+                <source>Document(s) deleted successfully</source>
+                <target>Dokument(i) uspešno obrisani</target>
+            </trans-unit>
+            <trans-unit id="message.saved" resname="message.saved">
+                <source>Changes saved successfully</source>
+                <target>Izmene uspešno sačuvane</target>
+            </trans-unit>
+            <trans-unit id="message.cacheCleared" resname="message.cacheCleared">
+                <source>Cache cleared successfully</source>
+                <target>Keš uspešno obrisan</target>
+            </trans-unit>
+            <trans-unit id="message.noSelection" resname="message.noSelection">
+                <source>Please select at least one document</source>
+                <target>Molimo izaberite bar jedan dokument</target>
+            </trans-unit>
+            
+            <!-- Validation Messages -->
+            <trans-unit id="validation.required" resname="validation.required">
+                <source>This field is required</source>
+                <target>Ovo polje je obavezno</target>
+            </trans-unit>
+            <trans-unit id="validation.invalidFile" resname="validation.invalidFile">
+                <source>Invalid file format. Please upload a PDF file.</source>
+                <target>Nevažeći format fajla. Molimo otpremite PDF fajl.</target>
+            </trans-unit>
+            <trans-unit id="validation.fileTooLarge" resname="validation.fileTooLarge">
+                <source>File is too large. Maximum size is %s MB.</source>
+                <target>Fajl je prevelik. Maksimalna veličina je %s MB.</target>
+            </trans-unit>
+            <trans-unit id="validation.duplicateFile" resname="validation.duplicateFile">
+                <source>This file has already been uploaded</source>
+                <target>Ovaj fajl je već otpremljen</target>
+            </trans-unit>
+            
+            <!-- Empty States -->
+            <trans-unit id="empty.noDocuments" resname="empty.noDocuments">
+                <source>No documents found</source>
+                <target>Nema pronađenih dokumenata</target>
+            </trans-unit>
+            <trans-unit id="empty.uploadFirst" resname="empty.uploadFirst">
+                <source>Upload your first PDF document to get started</source>
+                <target>Otpremite svoj prvi PDF dokument da biste počeli</target>
+            </trans-unit>
+            <trans-unit id="empty.noResults" resname="empty.noResults">
+                <source>No results found for your search</source>
+                <target>Nema rezultata za vašu pretragu</target>
+            </trans-unit>
+            
+            <!-- Help Text -->
+            <trans-unit id="help.processing" resname="help.processing">
+                <source>Documents are processed automatically. Large PDFs may take several minutes.</source>
+                <target>Dokumenti se automatski procesiraju. Veliki PDF fajlovi mogu trajati nekoliko minuta.</target>
+            </trans-unit>
+            <trans-unit id="help.configuration" resname="help.configuration">
+                <source>Configure display settings for this flipbook</source>
+                <target>Konfigurišite podešavanja prikaza za ovaj flipbook</target>
+            </trans-unit>
+            <trans-unit id="help.bulkOperations" resname="help.bulkOperations">
+                <source>Select multiple documents to perform bulk operations</source>
+                <target>Izaberite više dokumenata za izvršavanje grupnih operacija</target>
+            </trans-unit>
+            
+            <!-- Tooltips -->
+            <trans-unit id="tooltip.process" resname="tooltip.process">
+                <source>Convert PDF to flipbook</source>
+                <target>Konvertuj PDF u flipbook</target>
+            </trans-unit>
+            <trans-unit id="tooltip.reprocess" resname="tooltip.reprocess">
+                <source>Reprocess document</source>
+                <target>Ponovo procesiraj dokument</target>
+            </trans-unit>
+            <trans-unit id="tooltip.viewLog" resname="tooltip.viewLog">
+                <source>View processing log</source>
+                <target>Prikaži log procesiranja</target>
+            </trans-unit>
+            <trans-unit id="tooltip.download" resname="tooltip.download">
+                <source>Download original PDF</source>
+                <target>Preuzmi originalni PDF</target>
+            </trans-unit>
+            <trans-unit id="tooltip.embedCode" resname="tooltip.embedCode">
+                <source>Get embed code</source>
+                <target>Preuzmi embed kod</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

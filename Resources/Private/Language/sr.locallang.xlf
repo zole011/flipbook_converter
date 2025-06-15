@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="EXT:flipbook_converter/Resources/Private/Language/locallang.xlf" date="2024-01-01T00:00:00Z" product-name="flipbook_converter">
+        <header/>
+        <body>
+            <!-- Extension Title and Description -->
+            <trans-unit id="extension.title" resname="extension.title">
+                <source>Flipbook Converter</source>
+            </trans-unit>
+            <trans-unit id="extension.description" resname="extension.description">
+                <source>Convert PDF documents to interactive flipbooks with page-turning effects</source>
+            </trans-unit>
+            
+            <!-- Content Element Titles -->
+            <trans-unit id="tt_content.CType.flipbookconverter_flipbook" resname="tt_content.CType.flipbookconverter_flipbook">
+                <source>Flipbook</source>
+            </trans-unit>
+            <trans-unit id="tt_content.CType.flipbookconverter_flipbook_simple" resname="tt_content.CType.flipbookconverter_flipbook_simple">
+                <source>Flipbook (Simple)</source>
+            </trans-unit>
+            
+            <!-- Wizard Descriptions -->
+            <trans-unit id="wizard.description.flipbook" resname="wizard.description.flipbook">
+                <source>Display PDF documents as interactive flipbooks with customizable settings</source>
+            </trans-unit>
+            <trans-unit id="wizard.description.flipbook_simple" resname="wizard.description.flipbook_simple">
+                <source>Simple flipbook with direct document selection</source>
+            </trans-unit>
+            
+            <!-- Frontend Labels -->
+            <trans-unit id="frontend.loading" resname="frontend.loading">
+                <source>Loading flipbook...</source>
+            </trans-unit>
+            <trans-unit id="frontend.error" resname="frontend.error">
+                <source>Error loading flipbook</source>
+            </trans-unit>
+            <trans-unit id="frontend.pageInfo" resname="frontend.pageInfo">
+                <source>Page %s of %s</source>
+            </trans-unit>
+            <trans-unit id="frontend.noDocument" resname="frontend.noDocument">
+                <source>No document selected</source>
+            </trans-unit>
+            
+            <!-- Navigation Labels -->
+            <trans-unit id="navigation.previous" resname="navigation.previous">
+                <source>Previous</source>
+            </trans-unit>
+            <trans-unit id="navigation.next" resname="navigation.next">
+                <source>Next</source>
+            </trans-unit>
+            <trans-unit id="navigation.first" resname="navigation.first">
+                <source>First Page</source>
+            </trans-unit>
+            <trans-unit id="navigation.last" resname="navigation.last">
+                <source>Last Page</source>
+            </trans-unit>
+            <trans-unit id="navigation.goToPage" resname="navigation.goToPage">
+                <source>Go to page</source>
+            </trans-unit>
+            
+            <!-- Control Labels -->
+            <trans-unit id="controls.zoomIn" resname="controls.zoomIn">
+                <source>Zoom In</source>
+            </trans-unit>
+            <trans-unit id="controls.zoomOut" resname="controls.zoomOut">
+                <source>Zoom Out</source>
+            </trans-unit>
+            <trans-unit id="controls.resetZoom" resname="controls.resetZoom">
+                <source>Reset Zoom</source>
+            </trans-unit>
+            <trans-unit id="controls.fullscreen" resname="controls.fullscreen">
+                <source>Fullscreen</source>
+            </trans-unit>
+            <trans-unit id="controls.exitFullscreen" resname="controls.exitFullscreen">
+                <source>Exit Fullscreen</source>
+            </trans-unit>
+            <trans-unit id="controls.download" resname="controls.download">
+                <source>Download PDF</source>
+            </trans-unit>
+            <trans-unit id="controls.share" resname="controls.share">
+                <source>Share</source>
+            </trans-unit>
+            <trans-unit id="controls.print" resname="controls.print">
+                <source>Print</source>
+            </trans-unit>
+            <trans-unit id="controls.thumbnails" resname="controls.thumbnails">
+                <source>Show Thumbnails</source>
+            </trans-unit>
+            <trans-unit id="controls.hideThumbnails" resname="controls.hideThumbnails">
+                <source>Hide Thumbnails</source>
+            </trans-unit>
+            <trans-unit id="controls.search" resname="controls.search">
+                <source>Search</source>
+            </trans-unit>
+            <trans-unit id="controls.autoplay" resname="controls.autoplay">
+                <source>Autoplay</source>
+            </trans-unit>
+            <trans-unit id="controls.stopAutoplay" resname="controls.stopAutoplay">
+                <source>Stop Autoplay</source>
+            </trans-unit>
+            
+            <!-- Keyboard Shortcuts -->
+            <trans-unit id="shortcuts.title" resname="shortcuts.title">
+                <source>Keyboard Shortcuts</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.help" resname="shortcuts.help">
+                <source>Show keyboard shortcuts</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.navigation" resname="shortcuts.navigation">
+                <source>Navigation</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.leftArrow" resname="shortcuts.leftArrow">
+                <source>Left Arrow - Previous page</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.rightArrow" resname="shortcuts.rightArrow">
+                <source>Right Arrow - Next page</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.home" resname="shortcuts.home">
+                <source>Home - First page</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.end" resname="shortcuts.end">
+                <source>End - Last page</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.pageUp" resname="shortcuts.pageUp">
+                <source>Page Up - Jump backward</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.pageDown" resname="shortcuts.pageDown">
+                <source>Page Down - Jump forward</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.zoom" resname="shortcuts.zoom">
+                <source>Zoom Controls</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.plus" resname="shortcuts.plus">
+                <source>+ - Zoom in</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.minus" resname="shortcuts.minus">
+                <source>- - Zoom out</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.zero" resname="shortcuts.zero">
+                <source>0 - Reset zoom</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.other" resname="shortcuts.other">
+                <source>Other</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.f" resname="shortcuts.f">
+                <source>F - Toggle fullscreen</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.t" resname="shortcuts.t">
+                <source>T - Toggle thumbnails</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.space" resname="shortcuts.space">
+                <source>Space - Toggle autoplay</source>
+            </trans-unit>
+            <trans-unit id="shortcuts.escape" resname="shortcuts.escape">
+                <source>Esc - Exit fullscreen/Close dialogs</source>
+            </trans-unit>
+            
+            <!-- Accessibility Labels -->
+            <trans-unit id="accessibility.flipbookViewer" resname="accessibility.flipbookViewer">
+                <source>Flipbook viewer</source>
+            </trans-unit>
+            <trans-unit id="accessibility.currentPage" resname="accessibility.currentPage">
+                <source>Current page</source>
+            </trans-unit>
+            <trans-unit id="accessibility.pageSlider" resname="accessibility.pageSlider">
+                <source>Page navigation slider</source>
+            </trans-unit>
+            <trans-unit id="accessibility.zoomLevel" resname="accessibility.zoomLevel">
+                <source>Current zoom level: %s%%</source>
+            </trans-unit>
+            <trans-unit id="accessibility.thumbnailGrid" resname="accessibility.thumbnailGrid">
+                <source>Page thumbnails</source>
+            </trans-unit>
+            <trans-unit id="accessibility.closeModal" resname="accessibility.closeModal">
+                <source>Close modal</source>
+            </trans-unit>
+            
+            <!-- Error Messages -->
+            <trans-unit id="error.loadingFailed" resname="error.loadingFailed">
+                <source>Failed to load flipbook. Please try again later.</source>
+            </trans-unit>
+            <trans-unit id="error.pageNotFound" resname="error.pageNotFound">
+                <source>Page not found</source>
+            </trans-unit>
+            <trans-unit id="error.invalidDocument" resname="error.invalidDocument">
+                <source>Invalid document</source>
+            </trans-unit>
+            <trans-unit id="error.processingFailed" resname="error.processingFailed">
+                <source>Document processing failed</source>
+            </trans-unit>
+            
+            <!-- Status Messages -->
+            <trans-unit id="status.pending" resname="status.pending">
+                <source>Pending</source>
+            </trans-unit>
+            <trans-unit id="status.processing" resname="status.processing">
+                <source>Processing</source>
+            </trans-unit>
+            <trans-unit id="status.completed" resname="status.completed">
+                <source>Completed</source>
+            </trans-unit>
+            <trans-unit id="status.error" resname="status.error">
+                <source>Error</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

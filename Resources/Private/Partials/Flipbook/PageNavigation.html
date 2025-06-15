@@ -1,0 +1,128 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      data-namespace-typo3-fluid="true">
+
+<!-- Page Navigation Partial -->
+<div class="flipbook-page-navigation" id="page-nav-{uniqueId}">
+    
+    <!-- Current Page Indicator -->
+    <div class="flipbook-page-indicator">
+        <span class="flipbook-current-page-text">
+            <f:translate key="navigation.page" extensionName="flipbook_converter" />
+        </span>
+        <span class="flipbook-current-page-number" id="current-page-{uniqueId}">1</span>
+        <span class="flipbook-page-separator"> / </span>
+        <span class="flipbook-total-pages-number">{document.totalPages}</span>
+    </div>
+
+    <!-- Page Dots Navigation (for smaller documents) -->
+    <f:if condition="{document.totalPages} <= 10">
+        <div class="flipbook-page-dots" id="page-dots-{uniqueId}">
+            <f:for each="{document.processedImages}" as="image" iteration="iterator">
+                <button class="flipbook-page-dot {f:if(condition: '{iterator.isFirst}', then: 'active', else: '')}" 
+                        data-action="gotoPage"
+                        data-page="{image.page}"
+                        data-target="{uniqueId}"
+                        aria-label="{f:translate(key: 'navigation.goto_page', arguments: '{0: image.page}', extensionName: 'flipbook_converter')}">
+                    <span class="sr-only">Page {image.page}</span>
+                </button>
+            </f:for>
+        </div>
+    </f:if>
+
+    <!-- Page Range Navigation (for larger documents) -->
+    <f:if condition="{document.totalPages} > 10">
+        <div class="flipbook-page-range" id="page-range-{uniqueId}">
+            
+            <!-- First Page -->
+            <button class="flipbook-page-range-btn" 
+                    data-action="gotoPage"
+                    data-page="1"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'navigation.first_page', extensionName: 'flipbook_converter')}">
+                1
+            </button>
+
+            <!-- Range Separator -->
+            <span class="flipbook-page-range-separator" id="range-start-sep-{uniqueId}" style="display: none;">…</span>
+
+            <!-- Dynamic Range Pages -->
+            <div class="flipbook-page-range-dynamic" id="page-range-dynamic-{uniqueId}">
+                <!-- Pages will be dynamically inserted here by JavaScript -->
+            </div>
+
+            <!-- Range Separator -->
+            <span class="flipbook-page-range-separator" id="range-end-sep-{uniqueId}" style="display: {f:if(condition: '{document.totalPages} > 5', then: 'inline', else: 'none')};">…</span>
+
+            <!-- Last Page -->
+            <f:if condition="{document.totalPages} > 1">
+                <button class="flipbook-page-range-btn" 
+                        data-action="gotoPage"
+                        data-page="{document.totalPages}"
+                        data-target="{uniqueId}"
+                        aria-label="{f:translate(key: 'navigation.last_page', extensionName: 'flipbook_converter')}">
+                    {document.totalPages}
+                </button>
+            </f:if>
+        </div>
+    </f:if>
+
+    <!-- Progress Bar -->
+    <div class="flipbook-page-progress">
+        <div class="flipbook-page-progress-bar" id="page-progress-{uniqueId}">
+            <div class="flipbook-page-progress-fill" 
+                 style="width: {f:if(condition: '{document.totalPages} > 0', then: '{100 / document.totalPages}%', else: '0%')}">
+            </div>
+            
+            <!-- Chapter Markers (if available) -->
+            <f:if condition="{document.chapters}">
+                <f:for each="{document.chapters}" as="chapter">
+                    <div class="flipbook-chapter-marker" 
+                         style="left: {chapter.startPage * 100 / document.totalPages}%"
+                         title="{chapter.title}">
+                    </div>
+                </f:for>
+            </f:if>
+        </div>
+    </div>
+
+    <!-- Quick Navigation Dropdown -->
+    <f:if condition="{document.totalPages} > 20">
+        <div class="flipbook-quick-nav">
+            <label for="quick-nav-{uniqueId}" class="flipbook-quick-nav-label">
+                <f:translate key="navigation.quick_nav" extensionName="flipbook_converter" />
+            </label>
+            <select class="flipbook-quick-nav-select" 
+                    id="quick-nav-{uniqueId}"
+                    data-action="quickGoto"
+                    data-target="{uniqueId}">
+                <f:for each="{document.processedImages}" as="image" iteration="iterator">
+                    <option value="{image.page}" {f:if(condition: '{iterator.isFirst}', then: 'selected', else: '')}>
+                        <f:translate key="navigation.page_option" arguments="{0: image.page}" extensionName="flipbook_converter" />
+                    </option>
+                </f:for>
+            </select>
+        </div>
+    </f:if>
+
+    <!-- Chapter Navigation (if chapters are defined) -->
+    <f:if condition="{document.chapters}">
+        <div class="flipbook-chapter-nav">
+            <label for="chapter-nav-{uniqueId}" class="flipbook-chapter-nav-label">
+                <f:translate key="navigation.chapters" extensionName="flipbook_converter" />
+            </label>
+            <select class="flipbook-chapter-nav-select" 
+                    id="chapter-nav-{uniqueId}"
+                    data-action="gotoChapter"
+                    data-target="{uniqueId}">
+                <f:for each="{document.chapters}" as="chapter" iteration="iterator">
+                    <option value="{chapter.startPage}" {f:if(condition: '{iterator.isFirst}', then: 'selected', else: '')}>
+                        {chapter.title} (Page {chapter.startPage})
+                    </option>
+                </f:for>
+            </select>
+        </div>
+    </f:if>
+
+</div>
+
+</html>

@@ -1,0 +1,41 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      data-namespace-typo3-fluid="true">
+
+<!DOCTYPE html>
+<html lang="{f:if(condition: '{TSFE.sys_language_uid}', then: '{TSFE.sys_language_isocode}', else: 'en')}">
+<head>
+    <!-- Flipbook specific meta tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- Flipbook CSS -->
+    <f:comment>CSS is included via TypoScript page.includeCSS</f:comment>
+    
+    <!-- Preload critical resources -->
+    <f:if condition="{document.processedImages.0}">
+        <link rel="preload" href="{document.processedImages.0.publicUrl}" as="image">
+    </f:if>
+</head>
+
+<body>
+    <!-- Main Content Area -->
+    <main class="flipbook-main-content" role="main">
+        <f:render section="Content" />
+    </main>
+
+    <!-- JavaScript -->
+    <f:comment>JavaScript is included via TypoScript page.includeJSFooter</f:comment>
+    
+    <!-- Flipbook initialization script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize flipbook when DOM is ready
+            if (typeof window.FlipbookConverter !== 'undefined') {
+                window.FlipbookConverter.init();
+            }
+        });
+    </script>
+</body>
+</html>
+
+</html>

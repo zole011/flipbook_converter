@@ -1,0 +1,151 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<!-- Actions Partial -->
+<div class="btn-group">
+    
+    <!-- View Details -->
+    <f:link.action action="show" 
+                   arguments="{document: document}" 
+                   class="btn btn-sm btn-default"
+                   title="{f:translate(key: 'action.view', extensionName: 'flipbook_converter')}">
+        <core:icon identifier="actions-view" size="small" />
+        <span class="sr-only"><f:translate key="action.view" extensionName="flipbook_converter" /></span>
+    </f:link.action>
+    
+    <!-- Edit Document -->
+    <be:link.editRecord table="tx_flipbookconverter_document" 
+                        uid="{document.uid}" 
+                        class="btn btn-sm btn-default"
+                        title="{f:translate(key: 'action.edit', extensionName: 'flipbook_converter')}">
+        <core:icon identifier="actions-edit" size="small" />
+        <span class="sr-only"><f:translate key="action.edit" extensionName="flipbook_converter" /></span>
+    </be:link.editRecord>
+    
+    <!-- Process/Reprocess (conditional) -->
+    <f:if condition="{document.isPending} || {document.hasError}">
+        <f:then>
+            <!-- Process -->
+            <f:link.action action="process" 
+                           arguments="{document: document}" 
+                           class="btn btn-sm btn-success"
+                           title="{f:translate(key: 'action.process', extensionName: 'flipbook_converter')}">
+                <core:icon identifier="actions-play" size="small" />
+                <span class="sr-only"><f:translate key="action.process" extensionName="flipbook_converter" /></span>
+            </f:link.action>
+        </f:then>
+        <f:else>
+            <f:if condition="{document.isCompleted}">
+                <!-- Reprocess -->
+                <f:link.action action="process" 
+                               arguments="{document: document}" 
+                               class="btn btn-sm btn-warning"
+                               title="{f:translate(key: 'action.reprocess', extensionName: 'flipbook_converter')}">
+                    <core:icon identifier="actions-refresh" size="small" />
+                    <span class="sr-only"><f:translate key="action.reprocess" extensionName="flipbook_converter" /></span>
+                </f:link.action>
+            </f:if>
+        </f:else>
+    </f:if>
+    
+    <!-- Preview (only for completed documents) -->
+    <f:if condition="{document.isCompleted}">
+        <f:link.action action="preview" 
+                       arguments="{document: document}" 
+                       class="btn btn-sm btn-info"
+                       title="{f:translate(key: 'action.preview', extensionName: 'flipbook_converter')}">
+            <core:icon identifier="actions-document-view" size="small" />
+            <span class="sr-only"><f:translate key="action.preview" extensionName="flipbook_converter" /></span>
+        </f:link.action>
+    </f:if>
+    
+    <!-- More Actions Dropdown -->
+    <div class="btn-group">
+        <button type="button" 
+                class="btn btn-sm btn-default dropdown-toggle" 
+                data-toggle="dropdown" 
+                aria-haspopup="true" 
+                aria-expanded="false"
+                title="{f:translate(key: 'action.more', extensionName: 'flipbook_converter')}">
+            <core:icon identifier="actions-menu" size="small" />
+            <span class="sr-only"><f:translate key="action.more" extensionName="flipbook_converter" /></span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-right">
+            
+            <!-- Download PDF -->
+            <f:if condition="{document.pdfFile}">
+                <li>
+                    <a href="{document.pdfFile.originalResource.publicUrl}" 
+                       download="{document.pdfFile.originalResource.name}"
+                       target="_blank">
+                        <core:icon identifier="actions-download" size="small" />
+                        <f:translate key="action.download_pdf" extensionName="flipbook_converter" />
+                    </a>
+                </li>
+            </f:if>
+            
+            <!-- Copy to Clipboard -->
+            <f:if condition="{document.isCompleted}">
+                <li>
+                    <a href="#" 
+                       class="flipbook-copy-embed" 
+                       data-document-uid="{document.uid}"
+                       data-toggle="tooltip"
+                       title="{f:translate(key: 'action.copy_embed.tooltip', extensionName: 'flipbook_converter')}">
+                        <core:icon identifier="actions-document-duplicates-select" size="small" />
+                        <f:translate key="action.copy_embed" extensionName="flipbook_converter" />
+                    </a>
+                </li>
+                <li class="divider"></li>
+            </f:if>
+            
+            <!-- Reset Processing -->
+            <f:if condition="{document.isCompleted} || {document.hasError}">
+                <li>
+                    <f:link.action action="process" 
+                                   arguments="{document: document, reset: 1}" 
+                                   onclick="return confirm('{f:translate(key: 'action.reset.confirm', extensionName: 'flipbook_converter')}')">
+                        <core:icon identifier="actions-system-refresh" size="small" />
+                        <f:translate key="action.reset" extensionName="flipbook_converter" />
+                    </f:link.action>
+                </li>
+            </f:if>
+            
+            <!-- Duplicate Document -->
+            <li>
+                <f:link.action action="duplicate" 
+                               arguments="{document: document}">
+                    <core:icon identifier="actions-document-duplicates-select" size="small" />
+                    <f:translate key="action.duplicate" extensionName="flipbook_converter" />
+                </f:link.action>
+            </li>
+            
+            <li class="divider"></li>
+            
+            <!-- Delete Document -->
+            <li>
+                <f:link.action action="delete" 
+                               arguments="{document: document}" 
+                               class="text-danger"
+                               onclick="return confirm('{f:translate(key: 'action.delete.confirm', extensionName: 'flipbook_converter')}')">
+                    <core:icon identifier="actions-delete" size="small" />
+                    <f:translate key="action.delete" extensionName="flipbook_converter" />
+                </f:link.action>
+            </li>
+        </ul>
+    </div>
+    
+</div>
+
+<!-- Hidden embed code for copy to clipboard -->
+<f:if condition="{document.isCompleted}">
+    <div class="flipbook-embed-code" 
+         id="embed-code-{document.uid}" 
+         style="display: none;"
+         data-embed-code='&lt;div data-flipbook-document="{document.uid}"&gt;&lt;/div&gt;'>
+    </div>
+</f:if>
+
+</html>

@@ -1,0 +1,88 @@
+# Flipbook Converter Constants
+
+plugin.tx_flipbookconverter {
+    # cat=plugin.tx_flipbookconverter/file; type=string; label=Path to flipbook assets
+    view {
+        # cat=plugin.tx_flipbookconverter/file; type=string; label=Path to template root (FE)
+        templateRootPath = EXT:flipbook_converter/Resources/Private/Templates/
+        # cat=plugin.tx_flipbookconverter/file; type=string; label=Path to template partials (FE)
+        partialRootPath = EXT:flipbook_converter/Resources/Private/Partials/
+        # cat=plugin.tx_flipbookconverter/file; type=string; label=Path to template layouts (FE)
+        layoutRootPath = EXT:flipbook_converter/Resources/Private/Layouts/
+    }
+    
+    # cat=plugin.tx_flipbookconverter/dims; type=int+; label=Default flipbook width in pixels
+    settings {
+        # cat=plugin.tx_flipbookconverter/dims; type=int+; label=Default flipbook width
+        defaultWidth = 800
+        # cat=plugin.tx_flipbookconverter/dims; type=int+; label=Default flipbook height
+        defaultHeight = 600
+        # cat=plugin.tx_flipbookconverter/color; type=color; label=Default background color
+        defaultBackgroundColor = #ffffff
+        
+        # cat=plugin.tx_flipbookconverter/enable; type=boolean; label=Enable responsive mode by default
+        responsive = 1
+        # cat=plugin.tx_flipbookconverter/enable; type=boolean; label=Show controls by default
+        showControls = 1
+        # cat=plugin.tx_flipbookconverter/enable; type=boolean; label=Show page numbers by default
+        showPageNumbers = 1
+        # cat=plugin.tx_flipbookconverter/enable; type=boolean; label=Enable zoom by default
+        enableZoom = 1
+        # cat=plugin.tx_flipbookconverter/enable; type=boolean; label=Enable fullscreen by default
+        enableFullscreen = 1
+        # cat=plugin.tx_flipbookconverter/enable; type=boolean; label=Enable keyboard navigation by default
+        enableKeyboard = 1
+        # cat=plugin.tx_flipbookconverter/enable; type=boolean; label=Enable touch navigation by default
+        enableTouch = 1
+        
+        # cat=plugin.tx_flipbookconverter/animation; type=int+; label=Default animation duration in milliseconds
+        animationDuration = 500
+        # cat=plugin.tx_flipbookconverter/animation; type=options[slide,fade,flip]; label=Default animation type
+        animationType = slide
+        
+        # cat=plugin.tx_flipbookconverter/performance; type=boolean; label=Enable lazy loading by default
+        lazyLoading = 1
+        # cat=plugin.tx_flipbookconverter/performance; type=int+; label=Number of pages to preload
+        preloadPages = 3
+        # cat=plugin.tx_flipbookconverter/performance; type=boolean; label=Show loading indicator
+        showLoadingIndicator = 1
+        
+        # cat=plugin.tx_flipbookconverter/assets; type=string; label=Path to CSS file
+        cssFile = EXT:flipbook_converter/Resources/Public/CSS/flipbook.css
+        # cat=plugin.tx_flipbookconverter/assets; type=string; label=Path to JavaScript file
+        jsFile = EXT:flipbook_converter/Resources/Public/JavaScript/FlipbookRenderer.js
+        
+        # cat=plugin.tx_flipbookconverter/processing; type=options[low,medium,high]; label=Default image quality for processing
+        defaultImageQuality = high
+        # cat=plugin.tx_flipbookconverter/processing; type=int+; label=Maximum file size in MB for PDF processing
+        maxFileSize = 100
+        # cat=plugin.tx_flipbookconverter/processing; type=int+; label=Processing timeout in seconds
+        processingTimeout = 300
+        
+        # cat=plugin.tx_flipbookconverter/cache; type=int+; label=Cache lifetime in seconds
+        cacheLifetime = 86400
+        # cat=plugin.tx_flipbookconverter/cache; type=boolean; label=Enable image caching
+        enableImageCache = 1
+    }
+}
+
+# Backend Module Constants
+module.tx_flipbookconverter {
+    # cat=module.tx_flipbookconverter/file; type=string; label=Path to backend template root
+    view {
+        templateRootPath = EXT:flipbook_converter/Resources/Private/Templates/Backend/
+        partialRootPath = EXT:flipbook_converter/Resources/Private/Partials/Backend/
+        layoutRootPath = EXT:flipbook_converter/Resources/Private/Layouts/
+    }
+    
+    # cat=module.tx_flipbookconverter/pagination; type=int+; label=Items per page in backend listing
+    settings {
+        itemsPerPage = 20
+        # cat=module.tx_flipbookconverter/enable; type=boolean; label=Enable bulk operations
+        enableBulkOperations = 1
+        # cat=module.tx_flipbookconverter/enable; type=boolean; label=Show processing statistics
+        showStatistics = 1
+        # cat=module.tx_flipbookconverter/enable; type=boolean; label=Enable automatic processing after upload
+        autoProcess = 1
+    }
+}

@@ -1,0 +1,201 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      data-namespace-typo3-fluid="true">
+
+<!-- Flipbook Controls Partial -->
+<div class="flipbook-controls flipbook-controls-{config.controlsPosition}" id="controls-{uniqueId}">
+    
+    <!-- Main Navigation Controls -->
+    <div class="flipbook-controls-main">
+        
+        <!-- Previous Page Button -->
+        <button class="flipbook-btn flipbook-btn-prev" 
+                data-action="prevPage"
+                data-target="{uniqueId}"
+                aria-label="{f:translate(key: 'controls.prev_page', extensionName: 'flipbook_converter')}"
+                disabled>
+            <span class="flipbook-icon flipbook-icon-prev" aria-hidden="true">⟨</span>
+            <span class="flipbook-btn-text">
+                <f:translate key="controls.prev" extensionName="flipbook_converter" />
+            </span>
+        </button>
+
+        <!-- Page Counter / Input -->
+        <div class="flipbook-page-counter">
+            <f:if condition="{config.showPageNumbers}">
+                <f:then>
+                    <input type="number" 
+                           class="flipbook-page-input" 
+                           id="page-input-{uniqueId}"
+                           min="1" 
+                           max="{document.totalPages}" 
+                           value="1"
+                           aria-label="{f:translate(key: 'controls.goto_page', extensionName: 'flipbook_converter')}" />
+                    <span class="flipbook-page-separator">/</span>
+                    <span class="flipbook-total-pages">{document.totalPages}</span>
+                </f:then>
+                <f:else>
+                    <span class="flipbook-page-display">
+                        <span class="flipbook-current-page">1</span> / <span class="flipbook-total-pages">{document.totalPages}</span>
+                    </span>
+                </f:else>
+            </f:if>
+        </div>
+
+        <!-- Next Page Button -->
+        <button class="flipbook-btn flipbook-btn-next" 
+                data-action="nextPage"
+                data-target="{uniqueId}"
+                aria-label="{f:translate(key: 'controls.next_page', extensionName: 'flipbook_converter')}"
+                {f:if(condition: '{document.totalPages} <= 1', then: 'disabled', else: '')}>
+            <span class="flipbook-btn-text">
+                <f:translate key="controls.next" extensionName="flipbook_converter" />
+            </span>
+            <span class="flipbook-icon flipbook-icon-next" aria-hidden="true">⟩</span>
+        </button>
+    </div>
+
+    <!-- Secondary Controls -->
+    <div class="flipbook-controls-secondary">
+        
+        <!-- Zoom Controls -->
+        <f:if condition="{config.enableZoom}">
+            <div class="flipbook-zoom-controls">
+                <button class="flipbook-btn flipbook-btn-zoom-out" 
+                        data-action="zoomOut"
+                        data-target="{uniqueId}"
+                        aria-label="{f:translate(key: 'controls.zoom_out', extensionName: 'flipbook_converter')}"
+                        disabled>
+                    <span class="flipbook-icon" aria-hidden="true">-</span>
+                </button>
+                
+                <span class="flipbook-zoom-level" id="zoom-level-{uniqueId}">100%</span>
+                
+                <button class="flipbook-btn flipbook-btn-zoom-in" 
+                        data-action="zoomIn"
+                        data-target="{uniqueId}"
+                        aria-label="{f:translate(key: 'controls.zoom_in', extensionName: 'flipbook_converter')}">
+                    <span class="flipbook-icon" aria-hidden="true">+</span>
+                </button>
+                
+                <button class="flipbook-btn flipbook-btn-zoom-reset" 
+                        data-action="zoomReset"
+                        data-target="{uniqueId}"
+                        aria-label="{f:translate(key: 'controls.zoom_reset', extensionName: 'flipbook_converter')}">
+                    <span class="flipbook-icon" aria-hidden="true">⌂</span>
+                </button>
+            </div>
+        </f:if>
+
+        <!-- Fullscreen Toggle -->
+        <f:if condition="{config.enableFullscreen}">
+            <button class="flipbook-btn flipbook-btn-fullscreen" 
+                    data-action="toggleFullscreen"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'controls.fullscreen', extensionName: 'flipbook_converter')}">
+                <span class="flipbook-icon flipbook-icon-fullscreen" aria-hidden="true">⛶</span>
+                <span class="flipbook-icon flipbook-icon-fullscreen-exit" aria-hidden="true" style="display: none;">⛷</span>
+            </button>
+        </f:if>
+
+        <!-- Autoplay Toggle -->
+        <f:if condition="{config.autoplay}">
+            <button class="flipbook-btn flipbook-btn-autoplay" 
+                    data-action="toggleAutoplay"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'controls.autoplay', extensionName: 'flipbook_converter')}"
+                    {f:if(condition: '{config.autoplay}', then: 'data-autoplay="true"', else: '')}>
+                <span class="flipbook-icon flipbook-icon-play" aria-hidden="true">▶</span>
+                <span class="flipbook-icon flipbook-icon-pause" aria-hidden="true" style="display: none;">⏸</span>
+            </button>
+        </f:if>
+
+        <!-- Download/Print (if enabled) -->
+        <f:if condition="{config.enableDownload}">
+            <button class="flipbook-btn flipbook-btn-download" 
+                    data-action="download"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'controls.download', extensionName: 'flipbook_converter')}">
+                <span class="flipbook-icon" aria-hidden="true">⬇</span>
+            </button>
+        </f:if>
+
+        <!-- Share (if enabled) -->
+        <f:if condition="{config.enableShare}">
+            <div class="flipbook-share-controls">
+                <button class="flipbook-btn flipbook-btn-share" 
+                        data-action="share"
+                        data-target="{uniqueId}"
+                        aria-label="{f:translate(key: 'controls.share', extensionName: 'flipbook_converter')}">
+                    <span class="flipbook-icon" aria-hidden="true">⤴</span>
+                </button>
+            </div>
+        </f:if>
+    </div>
+
+    <!-- Additional Controls Row -->
+    <f:if condition="{config.showThumbnails} || {config.enableSearch}">
+        <div class="flipbook-controls-additional">
+            
+            <!-- Thumbnails Toggle -->
+            <f:if condition="{config.showThumbnails}">
+                <button class="flipbook-btn flipbook-btn-thumbnails" 
+                        data-action="toggleThumbnails"
+                        data-target="{uniqueId}"
+                        aria-label="{f:translate(key: 'controls.thumbnails', extensionName: 'flipbook_converter')}">
+                    <span class="flipbook-icon" aria-hidden="true">⊞</span>
+                    <span class="flipbook-btn-text">
+                        <f:translate key="controls.thumbnails" extensionName="flipbook_converter" />
+                    </span>
+                </button>
+            </f:if>
+
+            <!-- Search (if enabled) -->
+            <f:if condition="{config.enableSearch}">
+                <div class="flipbook-search-controls">
+                    <input type="search" 
+                           class="flipbook-search-input" 
+                           id="search-input-{uniqueId}"
+                           placeholder="{f:translate(key: 'controls.search_placeholder', extensionName: 'flipbook_converter')}"
+                           aria-label="{f:translate(key: 'controls.search', extensionName: 'flipbook_converter')}" />
+                    <button class="flipbook-btn flipbook-btn-search" 
+                            data-action="search"
+                            data-target="{uniqueId}"
+                            aria-label="{f:translate(key: 'controls.search', extensionName: 'flipbook_converter')}">
+                        <span class="flipbook-icon" aria-hidden="true">🔍</span>
+                    </button>
+                </div>
+            </f:if>
+        </div>
+    </f:if>
+
+    <!-- Progress Bar -->
+    <f:if condition="{config.showProgress}">
+        <div class="flipbook-progress">
+            <div class="flipbook-progress-bar" id="progress-{uniqueId}">
+                <div class="flipbook-progress-fill" style="width: {f:if(condition: '{document.totalPages} > 0', then: '{100 / document.totalPages}%', else: '0%')}"></div>
+            </div>
+        </div>
+    </f:if>
+</div>
+
+<!-- Keyboard Shortcuts Help (Hidden by default) -->
+<f:if condition="{config.enableKeyboard}">
+    <div class="flipbook-keyboard-help" id="keyboard-help-{uniqueId}" style="display: none;">
+        <div class="flipbook-keyboard-help-content">
+            <h4><f:translate key="controls.keyboard_shortcuts" extensionName="flipbook_converter" /></h4>
+            <ul>
+                <li><kbd>←</kbd> / <kbd>→</kbd> - <f:translate key="controls.keyboard.arrow_keys" extensionName="flipbook_converter" /></li>
+                <li><kbd>Space</kbd> - <f:translate key="controls.keyboard.space" extensionName="flipbook_converter" /></li>
+                <li><kbd>Home</kbd> / <kbd>End</kbd> - <f:translate key="controls.keyboard.home_end" extensionName="flipbook_converter" /></li>
+                <li><kbd>+</kbd> / <kbd>-</kbd> - <f:translate key="controls.keyboard.zoom" extensionName="flipbook_converter" /></li>
+                <li><kbd>F</kbd> - <f:translate key="controls.keyboard.fullscreen" extensionName="flipbook_converter" /></li>
+                <li><kbd>Esc</kbd> - <f:translate key="controls.keyboard.escape" extensionName="flipbook_converter" /></li>
+            </ul>
+            <button class="flipbook-btn flipbook-btn-close-help" data-target="{uniqueId}">
+                <f:translate key="controls.close" extensionName="flipbook_converter" />
+            </button>
+        </div>
+    </div>
+</f:if>
+
+</html>

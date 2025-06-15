@@ -1,0 +1,236 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Backend" />
+
+<f:section name="Content">
+    
+    <!-- Page Header -->
+    <div class="module-docheader">
+        <div class="module-docheader-bar">
+            <div class="module-docheader-bar-column-left">
+                <div class="module-docheader-bar-navigation">
+                    <f:link.action action="list" class="btn btn-default">
+                        <core:icon identifier="actions-view-list-expand" size="small" />
+                        <f:translate key="module.back_to_list" extensionName="flipbook_converter" />
+                    </f:link.action>
+                    
+                    <f:if condition="{document.uid}">
+                        <f:link.action action="show" 
+                                       arguments="{document: document}" 
+                                       class="btn btn-default">
+                            <core:icon identifier="actions-view" size="small" />
+                            <f:translate key="action.view_details" extensionName="flipbook_converter" />
+                        </f:link.action>
+                    </f:if>
+                </div>
+            </div>
+            <div class="module-docheader-bar-column-right">
+                <div class="module-docheader-bar-buttons">
+                    <button type="submit" form="flipbook-edit-form" class="btn btn-primary">
+                        <core:icon identifier="actions-document-save" size="small" />
+                        <f:translate key="action.save" extensionName="flipbook_converter" />
+                    </button>
+                    
+                    <f:if condition="{document.uid}">
+                        <button type="submit" form="flipbook-edit-form" name="save_close" value="1" class="btn btn-default">
+                            <core:icon identifier="actions-document-save-close" size="small" />
+                            <f:translate key="action.save_close" extensionName="flipbook_converter" />
+                        </button>
+                    </f:if>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="flipbook-edit-form">
+        <f:form action="{f:if(condition: document.uid, then: 'update', else: 'create')}" 
+                object="{document}" 
+                name="document" 
+                id="flipbook-edit-form"
+                class="form-horizontal"
+                enctype="multipart/form-data">
+            
+            <f:if condition="{document.uid}">
+                <f:form.hidden property="uid" />
+            </f:if>
+            
+            <!-- Basic Information Panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <core:icon identifier="actions-document-info" size="small" />
+                        <f:translate key="edit.basic_information" extensionName="flipbook_converter" />
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <f:render partial="Backend/FormFields" arguments="{
+                        document: document,
+                        section: 'basic'
+                    }" />
+                </div>
+            </div>
+
+            <!-- PDF File Panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <core:icon identifier="mimetypes-pdf" size="small" />
+                        <f:translate key="edit.pdf_file" extensionName="flipbook_converter" />
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <f:render partial="Backend/FormFields" arguments="{
+                        document: document,
+                        section: 'file'
+                    }" />
+                    
+                    <!-- Current PDF Information -->
+                    <f:if condition="{document.pdfFile}">
+                        <div class="current-pdf-info">
+                            <h4><f:translate key="edit.current_pdf" extensionName="flipbook_converter" /></h4>
+                            <div class="well well-sm">
+                                <dl class="dl-horizontal">
+                                    <dt><f:translate key="file.name" extensionName="flipbook_converter" />:</dt>
+                                    <dd>{document.pdfFile.originalResource.name}</dd>
+                                    <dt><f:translate key="file.size" extensionName="flipbook_converter" />:</dt>
+                                    <dd>{document.fileSizeFormatted}</dd>
+                                    <dt><f:translate key="file.uploaded" extensionName="flipbook_converter" />:</dt>
+                                    <dd><f:format.date date="{document.pdfFile.originalResource.creationDate}" format="d.m.Y H:i" /></dd>
+                                </dl>
+                                <div class="current-pdf-actions">
+                                    <a href="{document.pdfFile.originalResource.publicUrl}" 
+                                       target="_blank" 
+                                       class="btn btn-sm btn-info">
+                                        <core:icon identifier="actions-document-view" size="small" />
+                                        <f:translate key="action.view_pdf" extensionName="flipbook_converter" />
+                                    </a>
+                                    <a href="{document.pdfFile.originalResource.publicUrl}" 
+                                       download="{document.pdfFile.originalResource.name}"
+                                       class="btn btn-sm btn-default">
+                                        <core:icon identifier="actions-download" size="small" />
+                                        <f:translate key="action.download" extensionName="flipbook_converter" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </f:if>
+                </div>
+            </div>
+
+            <!-- Configuration Panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <core:icon identifier="actions-system-options-view" size="small" />
+                        <f:translate key="edit.configuration" extensionName="flipbook_converter" />
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <f:render partial="Backend/FormFields" arguments="{
+                        document: document,
+                        section: 'configuration'
+                    }" />
+                </div>
+            </div>
+
+            <!-- Processing Information Panel (if document exists) -->
+            <f:if condition="{document.uid}">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <core:icon identifier="actions-system-refresh" size="small" />
+                            <f:translate key="edit.processing_information" extensionName="flipbook_converter" />
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <f:render partial="Backend/FormFields" arguments="{
+                            document: document,
+                            section: 'processing'
+                        }" />
+                        
+                        <!-- Processing Actions -->
+                        <f:if condition="{document.isPending} || {document.hasError}">
+                            <div class="processing-actions">
+                                <f:link.action action="process" 
+                                               arguments="{document: document}" 
+                                               class="btn btn-success">
+                                    <core:icon identifier="actions-play" size="small" />
+                                    <f:translate key="action.process_now" extensionName="flipbook_converter" />
+                                </f:link.action>
+                            </div>
+                        </f:if>
+                        
+                        <f:if condition="{document.isCompleted}">
+                            <div class="processing-actions">
+                                <f:link.action action="process" 
+                                               arguments="{document: document}" 
+                                               class="btn btn-warning">
+                                    <core:icon identifier="actions-refresh" size="small" />
+                                    <f:translate key="action.reprocess" extensionName="flipbook_converter" />
+                                </f:link.action>
+                                
+                                <f:link.action action="preview" 
+                                               arguments="{document: document}" 
+                                               class="btn btn-info"
+                                               target="_blank">
+                                    <core:icon identifier="actions-view" size="small" />
+                                    <f:translate key="action.preview" extensionName="flipbook_converter" />
+                                </f:link.action>
+                            </div>
+                        </f:if>
+                    </div>
+                </div>
+            </f:if>
+
+            <!-- Access Control Panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <core:icon identifier="actions-system-backend-user-emulate" size="small" />
+                        <f:translate key="edit.access_control" extensionName="flipbook_converter" />
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <f:render partial="Backend/FormFields" arguments="{
+                        document: document,
+                        section: 'access'
+                    }" />
+                </div>
+            </div>
+        </f:form>
+    </div>
+
+    <!-- Live Preview (for completed documents) -->
+    <f:if condition="{document.isCompleted}">
+        <div class="panel panel-default flipbook-live-preview">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    <core:icon identifier="actions-view" size="small" />
+                    <f:translate key="edit.live_preview" extensionName="flipbook_converter" />
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="flipbook-preview-container" 
+                     data-document-uid="{document.uid}"
+                     style="max-width: 600px; margin: 0 auto;">
+                    <!-- Preview will be loaded here via JavaScript -->
+                    <div class="text-center">
+                        <button type="button" 
+                                class="btn btn-default load-preview" 
+                                data-document-uid="{document.uid}">
+                            <core:icon identifier="actions-refresh" size="small" />
+                            <f:translate key="edit.load_preview" extensionName="flipbook_converter" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </f:if>
+
+</f:section>
+
+</html>

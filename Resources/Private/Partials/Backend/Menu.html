@@ -1,0 +1,332 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<!-- Backend Menu Partial -->
+<div class="flipbook-backend-menu">
+    
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+            <button type="button" 
+                    class="navbar-toggle collapsed" 
+                    data-toggle="collapse" 
+                    data-target="#flipbook-navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <span class="navbar-brand">
+                <core:icon identifier="flipbook-converter" size="small" />
+                <f:translate key="module.title" extensionName="flipbook_converter" />
+            </span>
+        </div>
+
+        <div class="collapse navbar-collapse" id="flipbook-navbar-collapse">
+            <ul class="nav navbar-nav">
+                
+                <!-- Documents List -->
+                <li class="{f:if(condition: '{currentAction} == \'list\'', then: 'active', else: '')}">
+                    <f:link.action action="list">
+                        <core:icon identifier="actions-view-list-expand" size="small" />
+                        <f:translate key="menu.documents" extensionName="flipbook_converter" />
+                        <f:if condition="{statistics.total}">
+                            <span class="badge">{statistics.total}</span>
+                        </f:if>
+                    </f:link.action>
+                </li>
+
+                <!-- New Document -->
+                <li class="{f:if(condition: '{currentAction} == \'new\' || {currentAction} == \'create\'', then: 'active', else: '')}">
+                    <f:link.action action="new">
+                        <core:icon identifier="actions-add" size="small" />
+                        <f:translate key="menu.new_document" extensionName="flipbook_converter" />
+                    </f:link.action>
+                </li>
+
+                <!-- Processing Queue -->
+                <f:if condition="{statistics.processing} > 0">
+                    <li class="processing-indicator">
+                        <a href="#" class="processing-status">
+                            <core:icon identifier="spinner-circle-light" size="small" />
+                            <f:translate key="menu.processing" extensionName="flipbook_converter" />
+                            <span class="badge badge-warning">{statistics.processing}</span>
+                        </a>
+                    </li>
+                </f:if>
+
+                <!-- Errors -->
+                <f:if condition="{statistics.error} > 0">
+                    <li class="error-indicator">
+                        <f:link.action action="list" arguments="{filter: 'error'}">
+                            <core:icon identifier="status-dialog-error" size="small" />
+                            <f:translate key="menu.errors" extensionName="flipbook_converter" />
+                            <span class="badge badge-danger">{statistics.error}</span>
+                        </f:link.action>
+                    </li>
+                </f:if>
+            </ul>
+
+            <!-- Right Side Menu -->
+            <ul class="nav navbar-nav navbar-right">
+                
+                <!-- Quick Filters Dropdown -->
+                <li class="dropdown">
+                    <a href="#" 
+                       class="dropdown-toggle" 
+                       data-toggle="dropdown" 
+                       role="button" 
+                       aria-haspopup="true" 
+                       aria-expanded="false">
+                        <core:icon identifier="actions-filter" size="small" />
+                        <f:translate key="menu.filters" extensionName="flipbook_converter" />
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <f:link.action action="list" arguments="{filter: 'all'}">
+                                <core:icon identifier="actions-view-list-expand" size="small" />
+                                <f:translate key="filter.all" extensionName="flipbook_converter" />
+                                <span class="pull-right badge">{statistics.total}</span>
+                            </f:link.action>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <f:link.action action="list" arguments="{filter: 'pending'}">
+                                <core:icon identifier="status-dialog-information" size="small" />
+                                <f:translate key="filter.pending" extensionName="flipbook_converter" />
+                                <span class="pull-right badge badge-info">{statistics.pending}</span>
+                            </f:link.action>
+                        </li>
+                        <li>
+                            <f:link.action action="list" arguments="{filter: 'processing'}">
+                                <core:icon identifier="spinner-circle-light" size="small" />
+                                <f:translate key="filter.processing" extensionName="flipbook_converter" />
+                                <span class="pull-right badge badge-warning">{statistics.processing}</span>
+                            </f:link.action>
+                        </li>
+                        <li>
+                            <f:link.action action="list" arguments="{filter: 'completed'}">
+                                <core:icon identifier="status-dialog-ok" size="small" />
+                                <f:translate key="filter.completed" extensionName="flipbook_converter" />
+                                <span class="pull-right badge badge-success">{statistics.completed}</span>
+                            </f:link.action>
+                        </li>
+                        <li>
+                            <f:link.action action="list" arguments="{filter: 'error'}">
+                                <core:icon identifier="status-dialog-error" size="small" />
+                                <f:translate key="filter.error" extensionName="flipbook_converter" />
+                                <span class="pull-right badge badge-danger">{statistics.error}</span>
+                            </f:link.action>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Tools Dropdown -->
+                <li class="dropdown">
+                    <a href="#" 
+                       class="dropdown-toggle" 
+                       data-toggle="dropdown" 
+                       role="button" 
+                       aria-haspopup="true" 
+                       aria-expanded="false">
+                        <core:icon identifier="actions-system-options-view" size="small" />
+                        <f:translate key="menu.tools" extensionName="flipbook_converter" />
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#" class="bulk-process-pending" data-action="process-pending">
+                                <core:icon identifier="actions-play" size="small" />
+                                <f:translate key="tools.process_pending" extensionName="flipbook_converter" />
+                                <f:if condition="{statistics.pending} > 0">
+                                    <span class="pull-right badge badge-info">{statistics.pending}</span>
+                                </f:if>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="cleanup-errors" data-action="cleanup-errors">
+                                <core:icon identifier="actions-system-refresh" size="small" />
+                                <f:translate key="tools.cleanup_errors" extensionName="flipbook_converter" />
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#" class="show-statistics" data-toggle="modal" data-target="#statistics-modal">
+                                <core:icon identifier="actions-chart-bar" size="small" />
+                                <f:translate key="tools.statistics" extensionName="flipbook_converter" />
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="export-data" data-action="export">
+                                <core:icon identifier="actions-download" size="small" />
+                                <f:translate key="tools.export" extensionName="flipbook_converter" />
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#" class="clear-cache" data-action="clear-cache">
+                                <core:icon identifier="actions-system-cache-clear" size="small" />
+                                <f:translate key="tools.clear_cache" extensionName="flipbook_converter" />
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- Help Dropdown -->
+                <li class="dropdown">
+                    <a href="#" 
+                       class="dropdown-toggle" 
+                       data-toggle="dropdown" 
+                       role="button" 
+                       aria-haspopup="true" 
+                       aria-expanded="false">
+                        <core:icon identifier="actions-system-help-open" size="small" />
+                        <f:translate key="menu.help" extensionName="flipbook_converter" />
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a href="#" class="show-documentation" target="_blank">
+                                <core:icon identifier="actions-document-view" size="small" />
+                                <f:translate key="help.documentation" extensionName="flipbook_converter" />
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="show-keyboard-shortcuts" data-toggle="modal" data-target="#shortcuts-modal">
+                                <core:icon identifier="actions-system-help-open" size="small" />
+                                <f:translate key="help.keyboard_shortcuts" extensionName="flipbook_converter" />
+                            </a>
+                        </li>
+                        <li class="divider"></li>
+                        <li>
+                            <a href="#" class="show-about" data-toggle="modal" data-target="#about-modal">
+                                <core:icon identifier="actions-document-info" size="small" />
+                                <f:translate key="help.about" extensionName="flipbook_converter" />
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Quick Status Bar -->
+    <div class="flipbook-status-bar">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Breadcrumbs -->
+                    <ol class="breadcrumb">
+                        <li>
+                            <f:link.action action="list">
+                                <core:icon identifier="actions-view-list-expand" size="small" />
+                                <f:translate key="breadcrumb.documents" extensionName="flipbook_converter" />
+                            </f:link.action>
+                        </li>
+                        <f:if condition="{currentAction} == 'show' && {document}">
+                            <li class="active">
+                                <core:icon identifier="flipbook-converter" size="small" />
+                                {document.title -> f:format.crop(maxCharacters: 30)}
+                            </li>
+                        </f:if>
+                        <f:if condition="{currentAction} == 'new'">
+                            <li class="active">
+                                <core:icon identifier="actions-add" size="small" />
+                                <f:translate key="breadcrumb.new_document" extensionName="flipbook_converter" />
+                            </li>
+                        </f:if>
+                        <f:if condition="{currentAction} == 'edit'">
+                            <li class="active">
+                                <core:icon identifier="actions-edit" size="small" />
+                                <f:translate key="breadcrumb.edit_document" extensionName="flipbook_converter" />
+                            </li>
+                        </f:if>
+                    </ol>
+                </div>
+                <div class="col-md-4">
+                    <!-- Quick Stats -->
+                    <div class="quick-stats text-right">
+                        <span class="stat-item">
+                            <core:icon identifier="status-dialog-ok" size="small" />
+                            {statistics.completed}
+                        </span>
+                        <f:if condition="{statistics.processing} > 0">
+                            <span class="stat-item processing">
+                                <core:icon identifier="spinner-circle-light" size="small" />
+                                {statistics.processing}
+                            </span>
+                        </f:if>
+                        <f:if condition="{statistics.error} > 0">
+                            <span class="stat-item error">
+                                <core:icon identifier="status-dialog-error" size="small" />
+                                {statistics.error}
+                            </span>
+                        </f:if>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Status Modals and other interactive elements would be defined here -->
+<div class="flipbook-menu-modals">
+    
+    <!-- Statistics Modal -->
+    <div class="modal fade" id="statistics-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <core:icon identifier="actions-chart-bar" size="small" />
+                        <f:translate key="statistics.detailed_title" extensionName="flipbook_converter" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <!-- Statistics content will be loaded here -->
+                    <div class="statistics-loading text-center">
+                        <core:icon identifier="spinner-circle-light" size="small" />
+                        Loading statistics...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal fade" id="shortcuts-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <core:icon identifier="actions-system-help-open" size="small" />
+                        <f:translate key="help.keyboard_shortcuts" extensionName="flipbook_converter" />
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <dl class="dl-horizontal">
+                        <dt><kbd>Ctrl</kbd> + <kbd>N</kbd></dt>
+                        <dd><f:translate key="shortcuts.new_document" extensionName="flipbook_converter" /></dd>
+                        <dt><kbd>Ctrl</kbd> + <kbd>S</kbd></dt>
+                        <dd><f:translate key="shortcuts.save_document" extensionName="flipbook_converter" /></dd>
+                        <dt><kbd>Ctrl</kbd> + <kbd>F</kbd></dt>
+                        <dd><f:translate key="shortcuts.search" extensionName="flipbook_converter" /></dd>
+                        <dt><kbd>Escape</kbd></dt>
+                        <dd><f:translate key="shortcuts.cancel" extensionName="flipbook_converter" /></dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>

@@ -1,0 +1,156 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      data-namespace-typo3-fluid="true">
+
+<!-- Flipbook Thumbnails Partial -->
+<div class="flipbook-thumbnails" id="thumbnails-{uniqueId}" style="display: none;">
+    
+    <!-- Thumbnails Header -->
+    <div class="flipbook-thumbnails-header">
+        <h4 class="flipbook-thumbnails-title">
+            <f:translate key="thumbnails.title" extensionName="flipbook_converter" />
+        </h4>
+        <button class="flipbook-thumbnails-close" 
+                data-action="closeThumbnails"
+                data-target="{uniqueId}"
+                aria-label="{f:translate(key: 'thumbnails.close', extensionName: 'flipbook_converter')}">
+            <span aria-hidden="true">×</span>
+        </button>
+    </div>
+
+    <!-- Thumbnails Container -->
+    <div class="flipbook-thumbnails-container">
+        <div class="flipbook-thumbnails-grid" id="thumbnails-grid-{uniqueId}">
+            
+            <f:for each="{images}" as="image" iteration="iterator">
+                <div class="flipbook-thumbnail-item {f:if(condition: '{iterator.isFirst}', then: 'active', else: '')}" 
+                     data-page="{image.page}"
+                     data-target="{uniqueId}">
+                    
+                    <!-- Thumbnail Image -->
+                    <div class="flipbook-thumbnail-image-container">
+                        <f:if condition="{image.thumbnail}">
+                            <f:then>
+                                <!-- Use thumbnail if available -->
+                                <img src="{image.thumbnail.publicUrl}" 
+                                     alt="{f:translate(key: 'thumbnails.page_alt', arguments: '{0: image.page, 1: document.title}', extensionName: 'flipbook_converter')}"
+                                     class="flipbook-thumbnail-image"
+                                     width="{image.thumbnail.width}"
+                                     height="{image.thumbnail.height}"
+                                     loading="lazy" />
+                            </f:then>
+                            <f:else>
+                                <!-- Fallback to main image -->
+                                <img src="{image.publicUrl}" 
+                                     alt="{f:translate(key: 'thumbnails.page_alt', arguments: '{0: image.page, 1: document.title}', extensionName: 'flipbook_converter')}"
+                                     class="flipbook-thumbnail-image"
+                                     style="max-width: 150px; max-height: 200px;"
+                                     loading="lazy" />
+                            </f:else>
+                        </f:if>
+                        
+                        <!-- Loading Overlay -->
+                        <div class="flipbook-thumbnail-loading" style="display: none;">
+                            <div class="loading-spinner-small"></div>
+                        </div>
+                        
+                        <!-- Error Overlay -->
+                        <div class="flipbook-thumbnail-error" style="display: none;">
+                            <span class="error-icon">⚠</span>
+                        </div>
+                    </div>
+
+                    <!-- Thumbnail Info -->
+                    <div class="flipbook-thumbnail-info">
+                        <div class="flipbook-thumbnail-page-number">
+                            <f:translate key="thumbnails.page_number" arguments="{0: image.page}" extensionName="flipbook_converter" />
+                        </div>
+                        
+                        <!-- Optional: Image dimensions -->
+                        <f:if condition="{config.showThumbnailDimensions}">
+                            <div class="flipbook-thumbnail-dimensions">
+                                {image.width} × {image.height}
+                            </div>
+                        </f:if>
+                    </div>
+
+                    <!-- Active Indicator -->
+                    <div class="flipbook-thumbnail-active-indicator" style="display: {f:if(condition: '{iterator.isFirst}', then: 'block', else: 'none')};">
+                        <span class="active-dot"></span>
+                    </div>
+
+                    <!-- Click Overlay -->
+                    <button class="flipbook-thumbnail-click-overlay" 
+                            data-action="gotoPage"
+                            data-page="{image.page}"
+                            data-target="{uniqueId}"
+                            aria-label="{f:translate(key: 'thumbnails.goto_page', arguments: '{0: image.page}', extensionName: 'flipbook_converter')}">
+                        <span class="sr-only">
+                            <f:translate key="thumbnails.goto_page" arguments="{0: image.page}" extensionName="flipbook_converter" />
+                        </span>
+                    </button>
+                </div>
+            </f:for>
+
+        </div>
+    </div>
+
+    <!-- Thumbnails Navigation (for large documents) -->
+    <f:if condition="{document.totalPages} > 20">
+        <div class="flipbook-thumbnails-navigation">
+            <button class="flipbook-btn flipbook-thumbnails-prev" 
+                    data-action="thumbnailsPrev"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'thumbnails.prev_set', extensionName: 'flipbook_converter')}"
+                    disabled>
+                <span aria-hidden="true">⟨</span>
+            </button>
+            
+            <div class="flipbook-thumbnails-page-info">
+                <span class="thumbnails-current-set">1</span> / 
+                <span class="thumbnails-total-sets">{f:format.number(value: '{document.totalPages / 20}', decimals: 0, decimalSeparator: '.', thousandsSeparator: '') -> f:format.mathCeil()}</span>
+            </div>
+            
+            <button class="flipbook-btn flipbook-thumbnails-next" 
+                    data-action="thumbnailsNext"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'thumbnails.next_set', extensionName: 'flipbook_converter')}"
+                    {f:if(condition: '{document.totalPages} <= 20', then: 'disabled', else: '')}>
+                <span aria-hidden="true">⟩</span>
+            </button>
+        </div>
+    </f:if>
+
+    <!-- Thumbnails Footer -->
+    <div class="flipbook-thumbnails-footer">
+        <div class="flipbook-thumbnails-info">
+            <f:translate key="thumbnails.total_pages" arguments="{0: document.totalPages}" extensionName="flipbook_converter" />
+        </div>
+        
+        <!-- Thumbnail Size Controls -->
+        <div class="flipbook-thumbnails-size-controls">
+            <button class="flipbook-btn flipbook-btn-small flipbook-thumbnail-size" 
+                    data-action="thumbnailSize"
+                    data-size="small"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'thumbnails.size_small', extensionName: 'flipbook_converter')}">
+                S
+            </button>
+            <button class="flipbook-btn flipbook-btn-medium flipbook-thumbnail-size active" 
+                    data-action="thumbnailSize"
+                    data-size="medium"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'thumbnails.size_medium', extensionName: 'flipbook_converter')}">
+                M
+            </button>
+            <button class="flipbook-btn flipbook-btn-large flipbook-thumbnail-size" 
+                    data-action="thumbnailSize"
+                    data-size="large"
+                    data-target="{uniqueId}"
+                    aria-label="{f:translate(key: 'thumbnails.size_large', extensionName: 'flipbook_converter')}">
+                L
+            </button>
+        </div>
+    </div>
+</div>
+
+</html>

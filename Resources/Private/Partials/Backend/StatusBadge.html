@@ -1,0 +1,55 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<!-- Status Badge Partial -->
+<f:switch expression="{document.status}">
+    
+    <!-- Pending Status -->
+    <f:case value="0">
+        <span class="label label-info flipbook-status-pending" 
+              title="{f:translate(key: 'status.pending.description', extensionName: 'flipbook_converter')}">
+            <core:icon identifier="status-dialog-information" size="small" />
+            <f:translate key="status.pending" extensionName="flipbook_converter" />
+        </span>
+    </f:case>
+    
+    <!-- Processing Status -->
+    <f:case value="1">
+        <span class="label label-warning flipbook-status-processing" 
+              title="{f:translate(key: 'status.processing.description', extensionName: 'flipbook_converter')}">
+            <core:icon identifier="spinner-circle-light" size="small" />
+            <f:translate key="status.processing" extensionName="flipbook_converter" />
+        </span>
+    </f:case>
+    
+    <!-- Completed Status -->
+    <f:case value="2">
+        <span class="label label-success flipbook-status-completed" 
+              title="{f:translate(key: 'status.completed.description', extensionName: 'flipbook_converter')}">
+            <core:icon identifier="status-dialog-ok" size="small" />
+            <f:translate key="status.completed" extensionName="flipbook_converter" />
+        </span>
+    </f:case>
+    
+    <!-- Error Status -->
+    <f:case value="3">
+        <span class="label label-danger flipbook-status-error" 
+              title="{f:translate(key: 'status.error.description', extensionName: 'flipbook_converter')}">
+            <core:icon identifier="status-dialog-error" size="small" />
+            <f:translate key="status.error" extensionName="flipbook_converter" />
+        </span>
+    </f:case>
+    
+    <!-- Default/Unknown Status -->
+    <f:defaultCase>
+        <span class="label label-default flipbook-status-unknown" 
+              title="{f:translate(key: 'status.unknown.description', extensionName: 'flipbook_converter')}">
+            <core:icon identifier="status-dialog-notification" size="small" />
+            <f:translate key="status.unknown" extensionName="flipbook_converter" />
+        </span>
+    </f:defaultCase>
+    
+</f:switch>
+
+</html>

@@ -1,0 +1,50 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+      xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<!DOCTYPE html>
+<html lang="{f:if(condition: '{be.getLanguage()}', then: '{be.getLanguage()}', else: 'en')}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <f:translate key="module.title" extensionName="flipbook_converter" /> - 
+        TYPO3 Backend
+    </title>
+    
+    <!-- Backend specific styles -->
+    <f:comment>CSS is included via PageRenderer in controller</f:comment>
+</head>
+
+<body class="flipbook-backend-module">
+    
+    <!-- Flash Messages -->
+    <f:flashMessages />
+    
+    <!-- Main Content -->
+    <div class="module-body">
+        <f:render section="Content" />
+    </div>
+
+    <!-- Backend JavaScript -->
+    <f:comment>JavaScript is included via PageRenderer in controller</f:comment>
+    
+    <!-- Module specific JavaScript initialization -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize backend module functionality
+            if (typeof FlipbookBackend !== 'undefined') {
+                FlipbookBackend.init();
+            }
+            
+            // Initialize bulk operations
+            if (typeof FlipbookBulkOperations !== 'undefined') {
+                FlipbookBulkOperations.init();
+            }
+        });
+    </script>
+</body>
+</html>
+
+</html>

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf" date="2024-01-01T00:00:00Z" product-name="flipbook_converter">
+        <header/>
+        <body>
+            <!-- Table Labels -->
+            <trans-unit id="tx_flipbookconverter_document" resname="tx_flipbookconverter_document">
+                <source>Flipbook Document</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_processing_queue" resname="tx_flipbookconverter_processing_queue">
+                <source>Processing Queue</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_statistics" resname="tx_flipbookconverter_statistics">
+                <source>Flipbook Statistics</source>
+            </trans-unit>
+            
+            <!-- Field Labels for tx_flipbookconverter_document -->
+            <trans-unit id="tx_flipbookconverter_document.title" resname="tx_flipbookconverter_document.title">
+                <source>Title</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.description" resname="tx_flipbookconverter_document.description">
+                <source>Description</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.pdf_file" resname="tx_flipbookconverter_document.pdf_file">
+                <source>PDF File</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.processed_images" resname="tx_flipbookconverter_document.processed_images">
+                <source>Processed Images</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.thumbnail" resname="tx_flipbookconverter_document.thumbnail">
+                <source>Thumbnail</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.status" resname="tx_flipbookconverter_document.status">
+                <source>Status</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.page_count" resname="tx_flipbookconverter_document.page_count">
+                <source>Page Count</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.file_size" resname="tx_flipbookconverter_document.file_size">
+                <source>File Size</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.file_hash" resname="tx_flipbookconverter_document.file_hash">
+                <source>File Hash</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.processing_log" resname="tx_flipbookconverter_document.processing_log">
+                <source>Processing Log</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.configuration" resname="tx_flipbookconverter_document.configuration">
+                <source>Configuration</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.view_count" resname="tx_flipbookconverter_document.view_count">
+                <source>View Count</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.last_viewed" resname="tx_flipbookconverter_document.last_viewed">
+                <source>Last Viewed</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.processing_time" resname="tx_flipbookconverter_document.processing_time">
+                <source>Processing Time</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.fe_group" resname="tx_flipbookconverter_document.fe_group">
+                <source>Frontend User Group</source>
+            </trans-unit>
+            
+            <!-- Status Options -->
+            <trans-unit id="tx_flipbookconverter_document.status.0" resname="tx_flipbookconverter_document.status.0">
+                <source>Pending</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.status.1" resname="tx_flipbookconverter_document.status.1">
+                <source>Processing</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.status.2" resname="tx_flipbookconverter_document.status.2">
+                <source>Completed</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.status.3" resname="tx_flipbookconverter_document.status.3">
+                <source>Error</source>
+            </trans-unit>
+            
+            <!-- Palettes -->
+            <trans-unit id="tx_flipbookconverter_document.palette.general" resname="tx_flipbookconverter_document.palette.general">
+                <source>General</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.palette.files" resname="tx_flipbookconverter_document.palette.files">
+                <source>Files</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.palette.processing" resname="tx_flipbookconverter_document.palette.processing">
+                <source>Processing</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.palette.statistics" resname="tx_flipbookconverter_document.palette.statistics">
+                <source>Statistics</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.palette.access" resname="tx_flipbookconverter_document.palette.access">
+                <source>Access</source>
+            </trans-unit>
+            
+            <!-- Tabs -->
+            <trans-unit id="tx_flipbookconverter_document.tab.general" resname="tx_flipbookconverter_document.tab.general">
+                <source>General</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.tab.files" resname="tx_flipbookconverter_document.tab.files">
+                <source>Files</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.tab.processing" resname="tx_flipbookconverter_document.tab.processing">
+                <source>Processing</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.tab.statistics" resname="tx_flipbookconverter_document.tab.statistics">
+                <source>Statistics</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.tab.access" resname="tx_flipbookconverter_document.tab.access">
+                <source>Access</source>
+            </trans-unit>
+            
+            <!-- FlexForm Labels -->
+            <trans-unit id="flexform.sheet.document" resname="flexform.sheet.document">
+                <source>Document Selection</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.display" resname="flexform.sheet.display">
+                <source>Display Settings</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.controls" resname="flexform.sheet.controls">
+                <source>Controls</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.navigation" resname="flexform.sheet.navigation">
+                <source>Navigation</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.zoom" resname="flexform.sheet.zoom">
+                <source>Zoom &amp; Fullscreen</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.animation" resname="flexform.sheet.animation">
+                <source>Animation</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.autoplay" resname="flexform.sheet.autoplay">
+                <source>Autoplay</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.performance" resname="flexform.sheet.performance">
+                <source>Performance</source>
+            </trans-unit>
+            <trans-unit id="flexform.sheet.accessibility" resname="flexform.sheet.accessibility">
+                <source>Accessibility</source>
+            </trans-unit>
+            
+            <!-- FlexForm Field Labels -->
+            <trans-unit id="flexform.document" resname="flexform.document">
+                <source>Select Document</source>
+            </trans-unit>
+            <trans-unit id="flexform.width" resname="flexform.width">
+                <source>Width</source>
+            </trans-unit>
+            <trans-unit id="flexform.height" resname="flexform.height">
+                <source>Height</source>
+            </trans-unit>
+            <trans-unit id="flexform.backgroundColor" resname="flexform.backgroundColor">
+                <source>Background Color</source>
+            </trans-unit>
+            <trans-unit id="flexform.theme" resname="flexform.theme">
+                <source>Theme</source>
+            </trans-unit>
+            <trans-unit id="flexform.theme.light" resname="flexform.theme.light">
+                <source>Light</source>
+            </trans-unit>
+            <trans-unit id="flexform.theme.dark" resname="flexform.theme.dark">
+                <source>Dark</source>
+            </trans-unit>
+            <trans-unit id="flexform.theme.custom" resname="flexform.theme.custom">
+                <source>Custom</source>
+            </trans-unit>
+            <trans-unit id="flexform.showNavigation" resname="flexform.showNavigation">
+                <source>Show Navigation Arrows</source>
+            </trans-unit>
+            <trans-unit id="flexform.showPageNumbers" resname="flexform.showPageNumbers">
+                <source>Show Page Numbers</source>
+            </trans-unit>
+            <trans-unit id="flexform.showThumbnails" resname="flexform.showThumbnails">
+                <source>Show Thumbnails</source>
+            </trans-unit>
+            <trans-unit id="flexform.showZoomControls" resname="flexform.showZoomControls">
+                <source>Show Zoom Controls</source>
+            </trans-unit>
+            <trans-unit id="flexform.showFullscreenButton" resname="flexform.showFullscreenButton">
+                <source>Show Fullscreen Button</source>
+            </trans-unit>
+            <trans-unit id="flexform.showDownloadButton" resname="flexform.showDownloadButton">
+                <source>Show Download Button</source>
+            </trans-unit>
+            <trans-unit id="flexform.showShareButton" resname="flexform.showShareButton">
+                <source>Show Share Button</source>
+            </trans-unit>
+            <trans-unit id="flexform.showSearchButton" resname="flexform.showSearchButton">
+                <source>Show Search Button</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableKeyboardNavigation" resname="flexform.enableKeyboardNavigation">
+                <source>Enable Keyboard Navigation</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableTouchGestures" resname="flexform.enableTouchGestures">
+                <source>Enable Touch Gestures</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableMouseWheel" resname="flexform.enableMouseWheel">
+                <source>Enable Mouse Wheel Navigation</source>
+            </trans-unit>
+            <trans-unit id="flexform.startPage" resname="flexform.startPage">
+                <source>Start Page</source>
+            </trans-unit>
+            <trans-unit id="flexform.pageMode" resname="flexform.pageMode">
+                <source>Page Mode</source>
+            </trans-unit>
+            <trans-unit id="flexform.pageMode.single" resname="flexform.pageMode.single">
+                <source>Single Page</source>
+            </trans-unit>
+            <trans-unit id="flexform.pageMode.double" resname="flexform.pageMode.double">
+                <source>Double Page</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableZoom" resname="flexform.enableZoom">
+                <source>Enable Zoom</source>
+            </trans-unit>
+            <trans-unit id="flexform.minZoom" resname="flexform.minZoom">
+                <source>Minimum Zoom (%)</source>
+            </trans-unit>
+            <trans-unit id="flexform.maxZoom" resname="flexform.maxZoom">
+                <source>Maximum Zoom (%)</source>
+            </trans-unit>
+            <trans-unit id="flexform.zoomStep" resname="flexform.zoomStep">
+                <source>Zoom Step (%)</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableFullscreen" resname="flexform.enableFullscreen">
+                <source>Enable Fullscreen</source>
+            </trans-unit>
+            <trans-unit id="flexform.animationDuration" resname="flexform.animationDuration">
+                <source>Animation Duration (ms)</source>
+            </trans-unit>
+            <trans-unit id="flexform.animationType" resname="flexform.animationType">
+                <source>Animation Type</source>
+            </trans-unit>
+            <trans-unit id="flexform.animationType.slide" resname="flexform.animationType.slide">
+                <source>Slide</source>
+            </trans-unit>
+            <trans-unit id="flexform.animationType.fade" resname="flexform.animationType.fade">
+                <source>Fade</source>
+            </trans-unit>
+            <trans-unit id="flexform.animationType.flip" resname="flexform.animationType.flip">
+                <source>Flip</source>
+            </trans-unit>
+            <trans-unit id="flexform.animationEasing" resname="flexform.animationEasing">
+                <source>Animation Easing</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableAutoplay" resname="flexform.enableAutoplay">
+                <source>Enable Autoplay</source>
+            </trans-unit>
+            <trans-unit id="flexform.autoplayDelay" resname="flexform.autoplayDelay">
+                <source>Autoplay Delay (seconds)</source>
+            </trans-unit>
+            <trans-unit id="flexform.autoplayLoop" resname="flexform.autoplayLoop">
+                <source>Loop Autoplay</source>
+            </trans-unit>
+            <trans-unit id="flexform.pauseOnHover" resname="flexform.pauseOnHover">
+                <source>Pause on Hover</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableLazyLoading" resname="flexform.enableLazyLoading">
+                <source>Enable Lazy Loading</source>
+            </trans-unit>
+            <trans-unit id="flexform.preloadPages" resname="flexform.preloadPages">
+                <source>Preload Pages</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableCache" resname="flexform.enableCache">
+                <source>Enable Cache</source>
+            </trans-unit>
+            <trans-unit id="flexform.imageQuality" resname="flexform.imageQuality">
+                <source>Image Quality</source>
+            </trans-unit>
+            <trans-unit id="flexform.imageQuality.low" resname="flexform.imageQuality.low">
+                <source>Low</source>
+            </trans-unit>
+            <trans-unit id="flexform.imageQuality.medium" resname="flexform.imageQuality.medium">
+                <source>Medium</source>
+            </trans-unit>
+            <trans-unit id="flexform.imageQuality.high" resname="flexform.imageQuality.high">
+                <source>High</source>
+            </trans-unit>
+            <trans-unit id="flexform.imageQuality.original" resname="flexform.imageQuality.original">
+                <source>Original</source>
+            </trans-unit>
+            <trans-unit id="flexform.enableAriaLabels" resname="flexform.enableAriaLabels">
+                <source>Enable ARIA Labels</source>
+            </trans-unit>
+            <trans-unit id="flexform.showKeyboardShortcuts" resname="flexform.showKeyboardShortcuts">
+                <source>Show Keyboard Shortcuts</source>
+            </trans-unit>
+            <trans-unit id="flexform.language" resname="flexform.language">
+                <source>Interface Language</source>
+            </trans-unit>
+            <trans-unit id="flexform.rtlSupport" resname="flexform.rtlSupport">
+                <source>RTL Support</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
