@@ -4,410 +4,314 @@ declare(strict_types=1);
 
 namespace Gmbit\FlipbookConverter\Controller;
 
-use Gmbit\FlipbookConverter\Domain\Model\FlipbookDocument;
-use Gmbit\FlipbookConverter\Domain\Repository\FlipbookDocumentRepository;
-use Gmbit\FlipbookConverter\Service\ConfigurationService;
-use TYPO3\CMS\Core\Page\PageRenderer;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
 
 /**
- * Frontend Controller za Flipbook prikaz
+ * KOMPLETNO NOVI Flipbook Controller
  */
 class FlipbookController extends ActionController
 {
-    protected FlipbookDocumentRepository $documentRepository;
-    protected ConfigurationService $configurationService;
-    protected PageRenderer $pageRenderer;
-
-    public function __construct(
-        FlipbookDocumentRepository $documentRepository,
-        ConfigurationService $configurationService,
-        PageRenderer $pageRenderer
-    ) {
-        $this->documentRepository = $documentRepository;
-        $this->configurationService = $configurationService;
-        $this->pageRenderer = $pageRenderer;
-    }
-
-    /**
-     * Glavna akcija za prikaz flipbook-a
-     *
-     * @return ResponseInterface
-     */
     public function showAction(): ResponseInterface
     {
-        // Dobiti konfiguraciju iz FlexForm
-        $flexFormData = $this->configurationManager->getContentObject()->data['pi_flexform'] ?? '';
-        $config = $this->configurationService->parseFlexFormData($flexFormData);
+        // FORCE LOG TO PROVE THIS IS THE NEW VERSION
+        error_log('*** KOMPLETNO NOVI CONTROLLER - VERSION 2.0 ***');
+        error_log('Timestamp: ' . date('Y-m-d H:i:s'));
         
-        $documentUid = (int)($config['document'] ?? 0);
+        $currentPageId = (int)($GLOBALS['TSFE']->id ?? 0);
+        error_log('Current page ID: ' . $currentPageId);
         
-        if (!$documentUid) {
-            $this->addFlashMessage(
-                'No document selected for flipbook display.',
-                'Configuration Error',
-                \TYPO3\CMS\Core\Messaging\AbstractMessage::ERROR
-            );
-            return $this->htmlResponse('');
+        // Get flipbook content element from current page
+        $contentElement = $this->getFlipbookContentElement($currentPageId);
+        
+        if (!$contentElement) {
+            error_log('No flipbook content element found on page');
+            $this->view->assign('error', 'No flipbook content element found');
+            return $this->htmlResponse();
         }
-
-        $document = $this->documentRepository->findByUid($documentUid);
         
-        if (!$document || !$document->isCompleted()) {
-            $this->addFlashMessage(
-                'Selected document is not available or not processed yet.',
-                'Document Error',
-                \TYPO3\CMS\Core\Messaging\AbstractMessage::ERROR
-            );
-            return $this->htmlResponse('');
+        $documentUid = (int)($contentElement['tx_flipbookconverter_document'] ?? 0);
+        error_log('Found content element UID ' . $contentElement['uid'] . ' with document UID: ' . $documentUid);
+        
+        if ($documentUid === 0) {
+            error_log('Content element has no document selected');
+            $this->view->assign('error', 'No document selected in content element');
+            return $this->htmlResponse();
         }
-
-        // Pripremi konfiguraciju za JavaScript
-        $flipbookConfig = $this->prepareFlipbookConfiguration($document, $config);
         
-        // Dodaj CSS i JavaScript fajlove
-        $this->addAssetsToPage();
+        // Load document
+        $document = $this->getDocument($documentUid);
         
-        // Dodaj inline JavaScript konfiguraciju
-        $this->addInlineJavaScript($flipbookConfig);
-
-        $this->view->assignMultiple([
-            'document' => $document,
-            'config' => $config,
-            'flipbookConfig' => $flipbookConfig,
-            'images' => $document->getProcessedImages(),
-            'uniqueId' => 'flipbook-' . $documentUid . '-' . uniqid()
-        ]);
-
+        if (!$document) {
+            error_log('Document UID ' . $documentUid . ' not found in database');
+            $this->view->assign('error', 'Document not found: ' . $documentUid);
+            return $this->htmlResponse();
+        }
+        
+        error_log('Loaded document: ' . $document['title'] . ' (UID: ' . $document['uid'] . ')');
+        error_log('Document total_pages: ' . ($document['total_pages'] ?? 'NULL'));
+        error_log('Document status: ' . ($document['status'] ?? 'NULL'));
+        error_log('Document file_size: ' . ($document['file_size'] ?? 'NULL'));
+        
+        $processedImagesField = $document['processed_images'] ?? '';
+        error_log('Document processed_images length: ' . strlen($processedImagesField));
+        error_log('Document processed_images preview: ' . substr($processedImagesField, 0, 500) . '...');
+        
+        // Also check if processed_images is empty or null
+        if (empty($processedImagesField)) {
+            error_log('WARNING: processed_images field is empty or null!');
+            
+            // Check if document processing actually completed
+            if ($document['status'] == 2) {
+                error_log('Document status is 2 (processed) but no processed_images data - possible processing issue');
+            }
+        }
+        
+        // Get images for this document
+        $images = $this->getDocumentImages($document);
+        error_log('Found ' . count($images) . ' real images for document');
+        
+        // FORCE TEST - try to load one specific file manually
+        $testPath = '/pep/public/fileadmin/flipbook_processed/document_1750184382_6851b1beb6152/page_0001.png';
+        error_log('FORCE TEST - checking specific file: ' . $testPath);
+        error_log('FORCE TEST - file exists: ' . (file_exists($testPath) ? 'YES' : 'NO'));
+        
+        if (file_exists($testPath)) {
+            error_log('FORCE TEST - file found, creating manual image entry');
+            $testImage = [
+                'page' => 999, // Unique page number for test
+                'filePath' => $testPath,
+                'publicUrl' => $this->createPublicUrl('/flipbook_processed/document_1750184382_6851b1beb6152/page_0001.png'),
+                'width' => 800,
+                'height' => 600,
+                'fileSize' => filesize($testPath),
+                'isManualTest' => true,
+            ];
+            array_unshift($images, $testImage); // Add to beginning
+            error_log('FORCE TEST - added test image, total images now: ' . count($images));
+        }
+        
+        // For debugging - create simple test images if none found
+        if (empty($images)) {
+            $images = $this->createSimpleTestImages($document['uid']);
+            error_log('Created ' . count($images) . ' test images');
+        } else {
+            error_log('Using real images from database');
+        }
+        
+        // Simple config
+        $config = [
+            'showControls' => true,
+            'showPageNumbers' => true,
+            'enableKeyboard' => true,
+            'width' => 800,
+            'height' => 600,
+        ];
+        
+        // Assign to view
+        $this->view->assign('document', $document);
+        $this->view->assign('images', $images);
+        $this->view->assign('config', $config);
+        $this->view->assign('hasImages', !empty($images));
+        $this->view->assign('documentUid', $documentUid);
+        $this->view->assign('contentElement', $contentElement);
+        $this->view->assign('uniqueId', 'flipbook_' . $document['uid']);
+        
+        // FORCE DEBUG INFO direct to template
+        $debugData = [
+            'controller_version' => 'VERSION 2.0',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'document_uid' => $document['uid'],
+            'document_total_pages' => $document['total_pages'],
+            'processed_images_length' => strlen($document['processed_images'] ?? ''),
+            'images_count_real' => count($this->getDocumentImages($document)),
+            'images_count_final' => count($images),
+            'using_test_images' => empty($this->getDocumentImages($document)),
+            'first_image_path' => $this->getFirstImagePath($document),
+            'current_working_dir' => getcwd(),
+            'document_root' => $_SERVER['DOCUMENT_ROOT'] ?? 'Unknown',
+        ];
+        $this->view->assign('debugData', $debugData);
+        
+        error_log('*** CONTROLLER FINISHED - RETURNING RESPONSE ***');
+        
         return $this->htmlResponse();
     }
-
-    /**
-     * AJAX akcija za renderovanje flipbook-a
-     *
-     * @return ResponseInterface
-     */
-    public function renderAction(): ResponseInterface
+    
+    protected function getFlipbookContentElement(int $pageId): ?array
     {
-        $documentUid = (int)($this->request->getArgument('document') ?? 0);
-        $page = (int)($this->request->getArgument('page') ?? 1);
+        if ($pageId === 0) return null;
         
-        if (!$documentUid) {
-            return $this->jsonArrayResponse(['error' => 'Document UID required']);
-        }
-
-        $document = $this->documentRepository->findByUid($documentUid);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('tt_content');
         
-        if (!$document || !$document->isCompleted()) {
-            return $this->jsonArrayResponse(['error' => 'Document not found or not processed']);
-        }
-
-        $images = $document->getProcessedImages();
-        
-        if ($page < 1 || $page > count($images)) {
-            return $this->jsonArrayResponse(['error' => 'Invalid page number']);
-        }
-
-        $pageData = $images[$page - 1] ?? null;
-        
-        if (!$pageData) {
-            return $this->jsonArrayResponse(['error' => 'Page data not found']);
-        }
-
-        return $this->jsonArrayResponse([
-            'success' => true,
-            'page' => $page,
-            'totalPages' => count($images),
-            'image' => $pageData,
-            'document' => [
-                'uid' => $document->getUid(),
-                'title' => $document->getTitle(),
-                'description' => $document->getDescription()
-            ]
-        ]);
+        $result = $queryBuilder
+            ->select('*')
+            ->from('tt_content')
+            ->where(
+                $queryBuilder->expr()->eq('pid', $queryBuilder->createNamedParameter($pageId)),
+                $queryBuilder->expr()->eq('CType', $queryBuilder->createNamedParameter('flipbookconverter_flipbook')),
+                $queryBuilder->expr()->eq('hidden', 0),
+                $queryBuilder->expr()->eq('deleted', 0)
+            )
+            ->orderBy('sorting', 'ASC')
+            ->setMaxResults(1)
+            ->executeQuery();
+            
+        return $result->fetchAssociative() ?: null;
     }
-
-    /**
-     * Akcija za lazy loading slika
-     *
-     * @return ResponseInterface
-     */
-    public function loadImageAction(): ResponseInterface
+    
+    protected function getDocument(int $documentUid): ?array
     {
-        $documentUid = (int)($this->request->getArgument('document') ?? 0);
-        $pageNumber = (int)($this->request->getArgument('page') ?? 1);
-        $imageType = $this->request->getArgument('type') ?? 'full'; // full, thumbnail
+        if ($documentUid === 0) return null;
         
-        if (!$documentUid) {
-            return $this->jsonArrayResponse(['error' => 'Document UID required']);
-        }
-
-        $document = $this->documentRepository->findByUid($documentUid);
+        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)
+            ->getQueryBuilderForTable('tx_flipbookconverter_document');
         
-        if (!$document || !$document->isCompleted()) {
-            return $this->jsonArrayResponse(['error' => 'Document not found or not processed']);
-        }
-
-        $images = $document->getProcessedImages();
-        $pageIndex = $pageNumber - 1;
-        
-        if (!isset($images[$pageIndex])) {
-            return $this->jsonArrayResponse(['error' => 'Page not found']);
-        }
-
-        $imageData = $images[$pageIndex];
-        
-        $responseData = [
-            'success' => true,
-            'page' => $pageNumber,
-            'url' => $imageType === 'thumbnail' && isset($imageData['thumbnail']) 
-                ? $imageData['thumbnail']['publicUrl'] 
-                : $imageData['publicUrl'],
-            'width' => $imageType === 'thumbnail' && isset($imageData['thumbnail'])
-                ? $imageData['thumbnail']['width']
-                : $imageData['width'],
-            'height' => $imageType === 'thumbnail' && isset($imageData['thumbnail'])
-                ? $imageData['thumbnail']['height']
-                : $imageData['height']
-        ];
-
-        return $this->jsonArrayResponse($responseData);
+        $result = $queryBuilder
+            ->select('*')
+            ->from('tx_flipbookconverter_document')
+            ->where(
+                $queryBuilder->expr()->eq('uid', $queryBuilder->createNamedParameter($documentUid)),
+                $queryBuilder->expr()->eq('deleted', 0)
+            )
+            ->executeQuery();
+            
+        return $result->fetchAssociative() ?: null;
     }
-
-    /**
-     * Akcija za search kroz dokument
-     *
-     * @return ResponseInterface
-     */
-    public function searchAction(): ResponseInterface
+    
+    protected function getDocumentImages(array $document): array
     {
-        $documentUid = (int)($this->request->getArgument('document') ?? 0);
-        $searchTerm = trim($this->request->getArgument('query') ?? '');
+        $images = [];
         
-        if (!$documentUid || empty($searchTerm)) {
-            return $this->jsonArrayResponse(['error' => 'Document UID and search query required']);
+        error_log('Getting images for document UID: ' . $document['uid']);
+        error_log('Processed images field: ' . ($document['processed_images'] ?? 'NULL'));
+        
+        if (empty($document['processed_images'])) {
+            error_log('No processed_images field data');
+            return $images;
         }
-
-        $document = $this->documentRepository->findByUid($documentUid);
         
-        if (!$document || !$document->isCompleted()) {
-            return $this->jsonResponse(['error' => 'Document not found or not processed']);
+        $processedImages = json_decode($document['processed_images'], true);
+        if (!is_array($processedImages)) {
+            error_log('Failed to decode processed_images JSON');
+            return $images;
         }
-
-        // Za sada vraćamo prazan rezultat - OCR funkcionalnost se može dodati kasnije
-        return $this->jsonArrayResponse([
-            'success' => true,
-            'query' => $searchTerm,
-            'results' => [],
-            'totalResults' => 0,
-            'message' => 'Search functionality will be available in future versions'
-        ]);
-    }
-
-    /**
-     * Pripremi konfiguraciju za flipbook JavaScript
-     *
-     * @param FlipbookDocument $document
-     * @param array $config
-     * @return array
-     */
-    protected function prepareFlipbookConfiguration(FlipbookDocument $document, array $config): array
-    {
-        $documentConfig = $document->getFlipbookConfig();
-        $images = $document->getProcessedImages();
         
-        // Mergirati konfiguracije: document config < FlexForm config
-        $mergedConfig = $this->configurationService->mergeConfigurations($documentConfig, $config);
+        error_log('Decoded processed_images: ' . print_r($processedImages, true));
         
-        return [
-            'documentUid' => $document->getUid(),
-            'totalPages' => count($images),
-            'images' => array_map(function($image) {
-                return [
-                    'page' => $image['page'],
-                    'src' => $image['publicUrl'],
-                    'width' => $image['width'],
-                    'height' => $image['height'],
-                    'thumbnail' => $image['thumbnail'] ?? null
-                ];
-            }, $images),
-            'config' => $this->configurationService->getJavaScriptConfiguration($mergedConfig),
-            'urls' => [
-                'ajax' => $this->uriBuilder->reset()
-                    ->setTargetPageUid($this->getTypoScriptFrontendController()->id)
-                    ->uriFor('render', [], 'Flipbook', 'FlipbookConverter', 'Flipbook'),
-                'loadImage' => $this->uriBuilder->reset()
-                    ->setTargetPageUid($this->getTypoScriptFrontendController()->id)
-                    ->uriFor('loadImage', [], 'Flipbook', 'FlipbookConverter', 'Flipbook'),
-                'search' => $this->uriBuilder->reset()
-                    ->setTargetPageUid($this->getTypoScriptFrontendController()->id)
-                    ->uriFor('search', [], 'Flipbook', 'FlipbookConverter', 'Flipbook')
-            ],
-            'labels' => [
-                'loading' => $mergedConfig['loadingText'] ?? 'Loading...',
-                'error' => 'Error loading page',
-                'prevPage' => 'Previous Page',
-                'nextPage' => 'Next Page',
-                'zoomIn' => 'Zoom In',
-                'zoomOut' => 'Zoom Out',
-                'fullscreen' => 'Fullscreen',
-                'exitFullscreen' => 'Exit Fullscreen',
-                'pageOf' => 'Page {current} of {total}'
-            ]
-        ];
-    }
-
-    /**
-     * Dodaj CSS i JavaScript assets na stranicu
-     *
-     * @return void
-     */
-    protected function addAssetsToPage(): void
-    {
-        // CSS fajlovi
-        $this->pageRenderer->addCssFile(
-            'EXT:flipbook_converter/Resources/Public/CSS/flipbook.css',
-            'stylesheet',
-            'all',
-            '',
-            false
-        );
-
-        // JavaScript fajlovi
-        $this->pageRenderer->addJsFooterFile(
-            'EXT:flipbook_converter/Resources/Public/JavaScript/FlipbookRenderer.js',
-            'text/javascript',
-            false,
-            false,
-            '',
-            true
-        );
-        
-        $this->pageRenderer->addJsFooterFile(
-            'EXT:flipbook_converter/Resources/Public/JavaScript/FlipbookControls.js',
-            'text/javascript',
-            false,
-            false,
-            '',
-            true
-        );
-    }
-
-    /**
-     * Dodaj inline JavaScript konfiguraciju
-     *
-     * @param array $config
-     * @return void
-     */
-    protected function addInlineJavaScript(array $config): void
-    {
-        $configJson = json_encode($config, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        
-        $script = "
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof FlipbookRenderer !== 'undefined') {
-                window.flipbookConfig_{$config['documentUid']} = {$configJson};
-                new FlipbookRenderer(window.flipbookConfig_{$config['documentUid']});
-            } else {
-                console.error('FlipbookRenderer not loaded');
+        foreach ($processedImages as $index => $imageData) {
+            error_log('Processing image ' . $index . ': ' . print_r($imageData, true));
+            
+            if (!is_array($imageData)) {
+                error_log('Image data is not array, skipping');
+                continue;
             }
+            
+            $path = $imageData['path'] ?? '';
+            $identifier = $imageData['identifier'] ?? '';
+            $page = (int)($imageData['page'] ?? ($index + 1));
+            
+            // Simple file check without conversions
+            error_log("Image {$index}: path={$path}, identifier={$identifier}, page={$page}");
+            
+            if (empty($path)) {
+                error_log('Empty path, skipping');
+                continue;
+            }
+            
+            $fileExists = file_exists($path);
+            error_log('File exists check for ' . $path . ': ' . ($fileExists ? 'YES' : 'NO'));
+            
+            if (!$fileExists) {
+                error_log('File does not exist, skipping: ' . $path);
+                continue;
+            }
+            
+            $publicUrl = $this->createPublicUrl($identifier);
+            error_log('Created public URL: ' . $publicUrl);
+            
+            $images[] = [
+                'page' => $page,
+                'filePath' => $path,
+                'publicUrl' => $publicUrl,
+                'width' => 800,
+                'height' => 600,
+                'fileSize' => filesize($path),
+            ];
+            
+            error_log('Added image for page ' . $page);
+        }
+        
+        // Sort by page number
+        usort($images, function($a, $b) {
+            return $a['page'] <=> $b['page'];
         });
-        ";
         
-        $this->pageRenderer->addJsFooterInlineCode(
-            'flipbook-config-' . $config['documentUid'],
-            $script
-        );
+        error_log('Final images count: ' . count($images));
+        
+        return $images;
     }
-
-    /**
-     * Return JSON response
-     */
-    protected function jsonResponse(?string $json = null): ResponseInterface
+    
+    protected function getFirstImagePath(array $document): string
     {
-        // Ako je prosleđen array kroz $this->data, konvertuj ga
-        if ($json === null && !empty($this->data)) {
-            $json = json_encode($this->data);
+        if (empty($document['processed_images'])) {
+            return 'No processed_images field';
         }
         
-        return parent::jsonResponse($json);
-    }
-
-    /**
-     * Helper method to return JSON response with array data
-     */
-    protected function jsonArrayResponse(array $data): ResponseInterface
-    {
-        return $this->jsonResponse(json_encode($data));
-    }
-
-    /**
-     * Dobiti TypoScriptFrontendController
-     *
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController(): TypoScriptFrontendController
-    {
-        return $GLOBALS['TSFE'];
-    }
-
-    /**
-     * Validirati request parametre
-     *
-     * @param array $requiredParams
-     * @return array|null Vraća null ako validacija nije uspešna
-     */
-    protected function validateRequestParams(array $requiredParams): ?array
-    {
-        $params = [];
-        
-        foreach ($requiredParams as $param => $type) {
-            $value = $this->request->hasArgument($param) ? $this->request->getArgument($param) : null;
-            
-            if ($value === null) {
-                return null;
-            }
-            
-            switch ($type) {
-                case 'int':
-                    $params[$param] = (int)$value;
-                    break;
-                case 'string':
-                    $params[$param] = (string)$value;
-                    break;
-                case 'bool':
-                    $params[$param] = (bool)$value;
-                    break;
-                default:
-                    $params[$param] = $value;
-                    break;
-            }
+        $processedImages = json_decode($document['processed_images'], true);
+        if (!is_array($processedImages) || empty($processedImages)) {
+            return 'Invalid or empty processed_images JSON';
         }
         
-        return $params;
+        $firstImage = $processedImages[0] ?? null;
+        if (!is_array($firstImage)) {
+            return 'First image is not array';
+        }
+        
+        $path = $firstImage['path'] ?? 'No path field';
+        $exists = is_string($path) ? (file_exists($path) ? 'EXISTS' : 'NOT FOUND') : 'Invalid path';
+        
+        return $path . ' (' . $exists . ')';
     }
-
-    /**
-     * Error handling za AJAX akcije
-     *
-     * @param string $message
-     * @param int $code
-     * @return ResponseInterface
-     */
-    protected function errorResponse(string $message, int $code = 400): ResponseInterface
+    
+    protected function createPublicUrl(string $identifier): string
     {
-        $response = $this->responseFactory->createResponse($code)
-            ->withHeader('Content-Type', 'application/json');
+        $siteUrl = GeneralUtility::getIndpEnv('TYPO3_SITE_URL');
+        return $siteUrl . 'fileadmin' . $identifier;
+    }
+    
+    protected function createSimpleTestImages(int $documentUid): array
+    {
+        $images = [];
         
-        $response->getBody()->write(json_encode([
-            'error' => true,
-            'message' => $message,
-            'code' => $code
-        ]));
+        // Kreiraj jednostavne SVG slike umesto placeholder.com
+        for ($i = 1; $i <= 3; $i++) {
+            $color = ['#FF6B6B', '#4ECDC4', '#45B7D1'][$i - 1];
+            
+            // Kreiraj SVG kao data URL
+            $svg = '<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">' .
+                   '<rect width="100%" height="100%" fill="' . $color . '"/>' .
+                   '<text x="50%" y="50%" text-anchor="middle" dy=".3em" font-family="Arial" font-size="48" fill="white">' .
+                   'DOC ' . $documentUid . ' PAGE ' . $i .
+                   '</text></svg>';
+            
+            $dataUrl = 'data:image/svg+xml;base64,' . base64_encode($svg);
+            
+            $images[] = [
+                'page' => $i,
+                'filePath' => '',
+                'publicUrl' => $dataUrl,
+                'width' => 800,
+                'height' => 600,
+                'fileSize' => 0,
+                'isTestImage' => true,
+            ];
+        }
         
-        return $response;
+        return $images;
     }
 }

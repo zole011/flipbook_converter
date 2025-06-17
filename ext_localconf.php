@@ -34,6 +34,9 @@ defined('TYPO3') or die();
     ExtensionManagementUtility::addTypoScriptSetup(
         '@import "EXT:flipbook_converter/Configuration/TypoScript/setup.typoscript"'
     );
+    ExtensionManagementUtility::addTypoScriptConstants(
+    '@import "EXT:flipbook_converter/Configuration/TypoScript/constants.typoscript"'
+    );
 
     // Scheduler task registracija (za batch processing)
     if (ExtensionManagementUtility::isLoaded('scheduler')) {

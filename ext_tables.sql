@@ -122,3 +122,8 @@ CREATE TABLE tx_flipbookconverter_statistics (
     KEY document_stats (document_uid,last_viewed),
     KEY page_stats (page_uid,last_viewed)
 );
+
+CREATE TABLE tt_content (
+    tx_flipbookconverter_document int(11) unsigned DEFAULT '0' NOT NULL,
+    KEY flipbook_document (tx_flipbookconverter_document)
+);
