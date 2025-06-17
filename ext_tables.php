@@ -30,4 +30,5 @@ defined('TYPO3') or die();
         'Configuration/TypoScript/',
         'Flipbook Converter'
     );
+
 })();

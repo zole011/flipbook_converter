@@ -12,6 +12,9 @@ use TYPO3\CMS\Extbase\Persistence\QueryResultInterface;
 /**
  * Repository za FlipbookDocument
  */
+/**
+ * @TYPO3\CMS\Extbase\Annotation\Entity(tableName="tx_flipbookconverter_document")
+ */
 class FlipbookDocumentRepository extends Repository
 {
     /**

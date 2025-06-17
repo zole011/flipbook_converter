@@ -13,7 +13,7 @@ return [
         'descriptionColumn' => 'description',
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
-        'cruser_id' => 'cruser_id',
+        // 'cruser_id' => 'cruser_id', // UKLONJENO - nije više evaluirano u TYPO3 13
         'delete' => 'deleted',
         'enablecolumns' => [
             'disabled' => 'hidden',
@@ -42,7 +42,7 @@ return [
         ],
     ],
     'interface' => [
-        'showRecordFieldList' => 'hidden,title,description,pdf_file,status,total_pages,file_size,processing_time,last_processed',
+        // 'showRecordFieldList' uklonjeno - nije više evaluirano u TYPO3 13
     ],
     'columns' => [
         'sys_language_uid' => [
@@ -59,7 +59,10 @@ return [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
                 'items' => [
-                    ['', 0],
+                    [
+                        'label' => '',
+                        'value' => 0,
+                    ],
                 ],
                 'foreign_table' => 'tx_flipbookconverter_document',
                 'foreign_table_where' => 'AND tx_flipbookconverter_document.pid=###CURRENT_PID### AND tx_flipbookconverter_document.sys_language_uid IN (-1,0)',
@@ -85,8 +88,8 @@ return [
                 'renderType' => 'checkboxToggle',
                 'items' => [
                     [
-                        0 => '',
-                        1 => '',
+                        'label' => '',
+                        'value' => '',
                         'invertStateDisplay' => true,
                     ],
                 ],
@@ -96,9 +99,7 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.starttime',
             'config' => [
-                'type' => 'input',
-                'renderType' => 'inputDateTime',
-                'eval' => 'datetime,int',
+                'type' => 'datetime',
                 'default' => 0,
             ],
         ],
@@ -106,9 +107,7 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.endtime',
             'config' => [
-                'type' => 'input',
-                'renderType' => 'inputDateTime',
-                'eval' => 'datetime,int',
+                'type' => 'datetime',
                 'default' => 0,
                 'range' => [
                     'upper' => mktime(0, 0, 0, 1, 1, 2038),
@@ -125,16 +124,16 @@ return [
                 'maxitems' => 20,
                 'items' => [
                     [
-                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hide_at_login',
-                        -1,
+                        'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.hide_at_login',
+                        'value' => -1,
                     ],
                     [
-                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.any_login',
-                        -2,
+                        'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.any_login',
+                        'value' => -2,
                     ],
                     [
-                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.usergroups',
-                        '--div--',
+                        'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.usergroups',
+                        'value' => '--div--',
                     ],
                 ],
                 'exclusiveKeys' => '-1,-2',
@@ -148,8 +147,9 @@ return [
             'config' => [
                 'type' => 'input',
                 'size' => 30,
-                'eval' => 'trim,required',
+                'eval' => 'trim',
                 'max' => 255,
+                'required' => true, // Zamenjeno iz eval="required"
             ],
         ],
         'description' => [
@@ -192,10 +192,22 @@ return [
                 'type' => 'select',
                 'renderType' => 'selectSingle',
                 'items' => [
-                    ['LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.pending', 0],
-                    ['LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.processing', 1],
-                    ['LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.completed', 2],
-                    ['LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.error', 3],
+                    [
+                        'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.pending',
+                        'value' => 0,
+                    ],
+                    [
+                        'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.processing',
+                        'value' => 1,
+                    ],
+                    [
+                        'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.completed',
+                        'value' => 2,
+                    ],
+                    [
+                        'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.status.error',
+                        'value' => 3,
+                    ],
                 ],
                 'default' => 0,
                 'readOnly' => true,
@@ -227,9 +239,8 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.total_pages',
             'config' => [
-                'type' => 'input',
+                'type' => 'number',
                 'size' => 10,
-                'eval' => 'int',
                 'readOnly' => true,
                 'default' => 0,
             ],
@@ -238,9 +249,8 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.file_size',
             'config' => [
-                'type' => 'input',
+                'type' => 'number',
                 'size' => 15,
-                'eval' => 'int',
                 'readOnly' => true,
                 'default' => 0,
             ],
@@ -269,9 +279,8 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.processing_time',
             'config' => [
-                'type' => 'input',
+                'type' => 'number',
                 'size' => 10,
-                'eval' => 'int',
                 'readOnly' => true,
                 'default' => 0,
             ],
@@ -280,9 +289,7 @@ return [
             'exclude' => true,
             'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.last_processed',
             'config' => [
-                'type' => 'input',
-                'renderType' => 'inputDateTime',
-                'eval' => 'datetime,int',
+                'type' => 'datetime',
                 'readOnly' => true,
                 'default' => 0,
             ],

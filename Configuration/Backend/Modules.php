@@ -11,6 +11,7 @@ return [
         'iconIdentifier' => 'extension-flipbook-converter',
         'labels' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf',
         'navigationComponent' => '@typo3/backend/navigation/page-tree/page-tree-element',
+        'inheritNavigationComponentFromMainModule' => false,
         'extensionName' => 'FlipbookConverter',
         'routes' => [
             '_default' => [

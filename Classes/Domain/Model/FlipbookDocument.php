@@ -11,6 +11,9 @@ use TYPO3\CMS\Extbase\Persistence\ObjectStorage;
 /**
  * Model za FlipbookDocument
  */
+/**
+ * @TYPO3\CMS\Extbase\Annotation\Entity(tableName="tx_flipbookconverter_document")
+ */
 class FlipbookDocument extends AbstractEntity
 {
     /**
