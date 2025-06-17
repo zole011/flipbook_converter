@@ -305,7 +305,11 @@ class ImageUtility
     {
         $output = [];
         $returnCode = 0;
-        exec('which ' . escapeshellarg($command), $output, $returnCode);
+        
+        // Windows compatibility
+        $cmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'where' : 'which';
+        exec($cmd . ' ' . escapeshellarg($command), $output, $returnCode);
+        
         return $returnCode === 0;
     }
 

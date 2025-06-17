@@ -1,3 +1,6 @@
+,
+        "ext-imagick": "*",
+        "ext-gd": "*"
 # Plan razvoja TYPO3 13 PDF u Flipbook Plugin
 
 ## 1. Analiza projekta i specifikacija

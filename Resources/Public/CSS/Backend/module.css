@@ -562,3 +562,56 @@
         border-radius: 0;
     }
   }
+  .flipbook-module {
+    padding: 15px;
+}
+
+.flipbook-header {
+    margin-bottom: 20px;
+}
+
+.flipbook-actions {
+    margin-bottom: 20px;
+}
+
+.btn-toolbar .btn {
+    margin-right: 5px;
+}
+
+.table .btn-group-sm .btn {
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+/* TYPO3 11 style labels */
+.label {
+    display: inline-block;
+    padding: .25em .6em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25rem;
+}
+
+.label-warning {
+    background-color: #f0ad4e;
+    color: #fff;
+}
+
+.label-info {
+    background-color: #5bc0de;
+    color: #fff;
+}
+
+.label-success {
+    background-color: #5cb85c;
+    color: #fff;
+}
+
+.label-danger {
+    background-color: #d9534f;
+    color: #fff;
+}

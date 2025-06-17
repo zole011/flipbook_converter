@@ -1,0 +1,47 @@
+# cat=basic/enable; type=boolean; label=Enable automatic PDF processing: When enabled, PDFs will be automatically processed after upload
+enableAutoProcessing = 1
+
+# cat=basic/enable; type=boolean; label=Enable debug mode: Shows additional debugging information
+enableDebugMode = 0
+
+# cat=basic//110; type=string; label=ImageMagick path: Path to ImageMagick binary (leave empty for auto-detection)
+imageMagickPath = 
+
+# cat=basic//120; type=int+; label=Max file size (MB): Maximum allowed PDF file size in megabytes
+maxFileSize = 100
+
+# cat=basic//130; type=int+; label=Processing timeout: Maximum time in seconds for processing a single PDF
+processingTimeout = 300
+
+# cat=basic//140; type=int+; label=Image quality: JPEG quality for generated images (1-100)
+imageQuality = 90
+
+# cat=basic//150; type=int+; label=Max image width: Maximum width for generated page images
+maxImageWidth = 2000
+
+# cat=basic//160; type=int+; label=Max image height: Maximum height for generated page images  
+maxImageHeight = 2000
+
+# cat=basic//170; type=int+; label=Thumbnail width: Width for thumbnail images
+thumbnailWidth = 200
+
+# cat=basic//180; type=int+; label=Thumbnail height: Height for thumbnail images
+thumbnailHeight = 283
+
+# cat=appearance//200; type=string; label=Default viewer width: Default width for flipbook viewer (e.g. 100% or 800px)
+defaultViewerWidth = 100%
+
+# cat=appearance//210; type=string; label=Default viewer height: Default height for flipbook viewer (e.g. 600px)
+defaultViewerHeight = 600px
+
+# cat=appearance//220; type=boolean; label=Enable keyboard navigation: Allow navigation with arrow keys
+enableKeyboardNavigation = 1
+
+# cat=appearance//230; type=boolean; label=Enable touch gestures: Enable swipe gestures on touch devices
+enableTouchGestures = 1
+
+# cat=appearance//240; type=int+; label=Animation duration (ms): Duration of page flip animation in milliseconds
+animationDuration = 300
+
+# cat=appearance//250; type=options[Slide=slide,Fade=fade,Flip=flip]; label=Animation type: Type of page transition animation
+animationType = slide

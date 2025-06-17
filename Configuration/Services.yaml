@@ -18,95 +18,27 @@ services:
     public: true
     tags: ['controller.service_arguments']
 
-  # Services
+  # Services with explicit configuration
   Gmbit\FlipbookConverter\Service\PdfProcessorService:
     public: true
-    arguments:
-      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
-      $storageRepository: '@TYPO3\CMS\Core\Resource\StorageRepository'
-      $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
-      $documentRepository: '@Gmbit\FlipbookConverter\Domain\Repository\FlipbookDocumentRepository'
 
   Gmbit\FlipbookConverter\Service\ConfigurationService:
     public: true
-    arguments:
-      $flexFormService: '@TYPO3\CMS\Core\Service\FlexFormService'
 
   # Repositories
   Gmbit\FlipbookConverter\Domain\Repository\FlipbookDocumentRepository:
-    public: true
-
-  # Utilities (when needed as services)
-  Gmbit\FlipbookConverter\Utility\ImageUtility:
-    public: true
-
-  Gmbit\FlipbookConverter\Utility\FileUtility:
     public: true
 
   # ViewHelpers
   Gmbit\FlipbookConverter\ViewHelpers\FlipbookViewHelper:
     public: true
 
-  # Event Listeners (for TYPO3 v12+ compatibility)
-  Gmbit\FlipbookConverter\EventListener\FileProcessingEventListener:
-    tags:
-      - name: event.listener
-        identifier: 'flipbook-file-processing'
-        method: 'processUploadedFile'
-        event: TYPO3\CMS\Core\Resource\Event\AfterFileAddedEvent
-
-  # Command Controllers
-  Gmbit\FlipbookConverter\Command\FlipbookProcessCommand:
-    tags:
-      - name: 'console.command'
-        command: 'flipbook:process'
-        description: 'Process pending flipbook documents'
-
-  Gmbit\FlipbookConverter\Command\FlipbookCleanupCommand:
-    tags:
-      - name: 'console.command'
-        command: 'flipbook:cleanup'
-        description: 'Cleanup old flipbook processing data'
-
-  # Task for Scheduler
-  Gmbit\FlipbookConverter\Task\ProcessPdfTask:
-    public: true
-
-  # Hooks and Processors
-  Gmbit\FlipbookConverter\Hooks\FileProcessingHook:
-    public: true
-
-  Gmbit\FlipbookConverter\Resource\Processing\FlipbookProcessor:
-    public: true
-
-  # Context Menu Provider
-  Gmbit\FlipbookConverter\ContextMenu\ItemProvider:
-    public: true
-
-  # Form Elements
-  Gmbit\FlipbookConverter\Form\Element\FlipbookPreviewElement:
-    public: true
-
   # Preview Renderer
   Gmbit\FlipbookConverter\Preview\FlipbookPreviewRenderer:
     public: true
-
-  # Additional Services
-  TYPO3\CMS\Core\Resource\ResourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
-  TYPO3\CMS\Core\Resource\StorageRepository: '@TYPO3\CMS\Core\Resource\StorageRepository'
-  TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
-  TYPO3\CMS\Core\Service\FlexFormService: '@TYPO3\CMS\Core\Service\FlexFormService'
-  TYPO3\CMS\Core\Page\PageRenderer: '@TYPO3\CMS\Core\Page\PageRenderer'
-  TYPO3\CMS\Backend\Template\ModuleTemplateFactory: '@TYPO3\CMS\Backend\Template\ModuleTemplateFactory'
 
   # Cache Services
   cache.flipbook_converter:
     class: 'TYPO3\CMS\Core\Cache\Frontend\FrontendInterface'
     factory: ['@TYPO3\CMS\Core\Cache\CacheManager', 'getCache']
     arguments: ['flipbook_converter']
-
-  # Logger
-  logger.flipbook_converter:
-    class: 'Psr\Log\LoggerInterface'
-    factory: ['@TYPO3\CMS\Core\Log\LogManager', 'getLogger']
-    arguments: ['FlipbookConverter']

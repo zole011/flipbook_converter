@@ -255,16 +255,16 @@ return [
                 'readOnly' => true,
             ],
         ],
-        'flipbook_config' => [
-            'exclude' => false,
-            'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.flipbook_config',
-            'config' => [
-                'type' => 'flex',
-                'ds' => [
-                    'default' => 'FILE:EXT:flipbook_converter/Configuration/FlexForms/FlipbookDocumentConfiguration.xml',
-                ],
-            ],
-        ],
+        //'flipbook_config' => [
+        //    'exclude' => false,
+        //    'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.flipbook_config',
+        //    'config' => [
+        //        'type' => 'flex',
+        //        'ds' => [
+        //            'default' => 'FILE:EXT:flipbook_converter/Configuration/FlexForms/FlipbookDocumentConfiguration.xml',
+        //        ],
+        //    ],
+        //],
         'processing_time' => [
             'exclude' => true,
             'label' => 'LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tx_flipbookconverter_document.processing_time',
@@ -294,8 +294,6 @@ return [
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:general,
                     --palette--;;general,
                     --palette--;;file,
-                --div--;LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tabs.configuration,
-                    flipbook_config,
                 --div--;LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tabs.processing,
                     --palette--;;processing_status,
                     --palette--;;processing_info,
@@ -307,6 +305,8 @@ return [
                     --palette--;;access,
             ',
         ],
+        //Izmesteno iz show items--div--;LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_db.xlf:tabs.configuration,
+        //            flipbook_config,
     ],
     'palettes' => [
         'general' => [

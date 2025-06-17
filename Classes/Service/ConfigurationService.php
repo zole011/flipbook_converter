@@ -2,604 +2,372 @@
 
 declare(strict_types=1);
 
-namespace Gmbit\FlipbookConverter\Controller;
+namespace Gmbit\FlipbookConverter\Service;
 
-use Gmbit\FlipbookConverter\Domain\Model\FlipbookDocument;
-use Gmbit\FlipbookConverter\Domain\Repository\FlipbookDocumentRepository;
-use Gmbit\FlipbookConverter\Service\PdfProcessorService;
-use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
-use TYPO3\CMS\Backend\Utility\BackendUtility;
-use TYPO3\CMS\Core\Http\RedirectResponse;
-use TYPO3\CMS\Core\Messaging\AbstractMessage;
-use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Service\FlexFormService;
+use TYPO3\CMS\Core\SingletonInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Http\ForwardResponse;
-use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
-use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
-use TYPO3\CMS\Extbase\Utility\LocalizationUtility;
-use Psr\Http\Message\ResponseInterface;
 
 /**
- * Backend Controller za upravljanje flipbook dokumentima
+ * Servis za upravljanje konfiguracijom flipbook-a
  */
-class BackendController extends ActionController
+class ConfigurationService implements SingletonInterface
 {
-    protected FlipbookDocumentRepository $documentRepository;
-    protected PdfProcessorService $pdfProcessorService;
-    protected ModuleTemplateFactory $moduleTemplateFactory;
-    protected PersistenceManager $persistenceManager;
-    protected PageRenderer $pageRenderer;
+    protected FlexFormService $flexFormService;
 
-    public function __construct(
-        FlipbookDocumentRepository $documentRepository,
-        PdfProcessorService $pdfProcessorService,
-        ModuleTemplateFactory $moduleTemplateFactory,
-        PersistenceManager $persistenceManager,
-        PageRenderer $pageRenderer
-    ) {
-        $this->documentRepository = $documentRepository;
-        $this->pdfProcessorService = $pdfProcessorService;
-        $this->moduleTemplateFactory = $moduleTemplateFactory;
-        $this->persistenceManager = $persistenceManager;
-        $this->pageRenderer = $pageRenderer;
-    }
-
-    /**
-     * Inicijalizacija akcija
-     */
-    protected function initializeAction(): void
+    public function __construct(FlexFormService $flexFormService)
     {
-        parent::initializeAction();
-        
-        // Dodaj backend CSS/JS
-        $this->pageRenderer->addCssFile(
-            'EXT:flipbook_converter/Resources/Public/CSS/Backend/module.css'
-        );
-        $this->pageRenderer->addJsFile(
-            'EXT:flipbook_converter/Resources/Public/JavaScript/Backend/FlipbookModule.js'
-        );
+        $this->flexFormService = $flexFormService;
     }
 
     /**
-     * Lista svih dokumenata
+     * Parsirati FlexForm podatke
      *
-     * @return ResponseInterface
+     * @param string $flexFormData
+     * @return array
      */
-    public function listAction(): ResponseInterface
+    public function parseFlexFormData(string $flexFormData): array
     {
-        $filter = $this->request->hasArgument('filter') ? $this->request->getArgument('filter') : 'all';
-        $search = $this->request->hasArgument('search') ? trim($this->request->getArgument('search')) : '';
-        
-        // Dobiti dokumente na osnovu filtera
-        switch ($filter) {
-            case 'pending':
-                $documents = $this->documentRepository->findPendingDocuments();
-                break;
-            case 'processing':
-                $documents = $this->documentRepository->findProcessingDocuments();
-                break;
-            case 'completed':
-                $documents = $this->documentRepository->findCompletedDocuments();
-                break;
-            case 'error':
-                $documents = $this->documentRepository->findErrorDocuments();
-                break;
-            default:
-                if (!empty($search)) {
-                    $documents = $this->documentRepository->searchByTitle($search);
-                } else {
-                    $documents = $this->documentRepository->findAll();
-                }
-                break;
+        if (empty($flexFormData)) {
+            return $this->getDefaultConfiguration();
         }
 
-        // Statistike
-        $statistics = $this->documentRepository->getStatistics();
-
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->setTitle('Flipbook Documents');
+        $parsedData = $this->flexFormService->convertFlexFormContentToArray($flexFormData);
         
-        $this->view->assignMultiple([
-            'documents' => $documents,
-            'statistics' => $statistics,
-            'currentFilter' => $filter,
-            'searchTerm' => $search,
-            'totalFileSize' => $this->documentRepository->getTotalFileSize(),
-            'averageProcessingTime' => $this->documentRepository->getAverageProcessingTime()
-        ]);
-
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        return array_merge($this->getDefaultConfiguration(), $parsedData);
     }
 
     /**
-     * Prikaz pojedinačnog dokumenta
+     * Dobiti default konfiguraciju
      *
-     * @param FlipbookDocument|null $document
-     * @return ResponseInterface
+     * @return array
      */
-    public function showAction(?FlipbookDocument $document = null): ResponseInterface
+    public function getDefaultConfiguration(): array
     {
-        if (!$document) {
-            $this->addFlashMessage(
-                'Document not found.',
-                'Error',
-                AbstractMessage::ERROR
-            );
-            return new ForwardResponse('list');
-        }
-
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->setTitle('Flipbook Document: ' . $document->getTitle());
-        
-        $this->view->assignMultiple([
-            'document' => $document,
-            'images' => $document->getProcessedImages(),
-            'config' => $document->getFlipbookConfig(),
-            'processingLog' => explode("\n", trim($document->getProcessingLog())),
-            'canReprocess' => $document->isCompleted() || $document->hasError(),
-            'canDelete' => true
-        ]);
-
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
-    }
-
-    /**
-     * Forma za kreiranje novog dokumenta
-     *
-     * @param FlipbookDocument|null $document
-     * @return ResponseInterface
-     */
-    public function newAction(?FlipbookDocument $document = null): ResponseInterface
-    {
-        if (!$document) {
-            $document = GeneralUtility::makeInstance(FlipbookDocument::class);
-        }
-
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->setTitle('New Flipbook Document');
-        
-        $this->view->assign('document', $document);
-
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
-    }
-
-    /**
-     * Kreiranje novog dokumenta
-     *
-     * @param FlipbookDocument $document
-     * @return ResponseInterface
-     */
-    public function createAction(FlipbookDocument $document): ResponseInterface
-    {
-        try {
-            // Validacija
-            if (empty($document->getTitle())) {
-                throw new \InvalidArgumentException('Title is required');
-            }
-
-            if (!$document->getPdfFile()) {
-                throw new \InvalidArgumentException('PDF file is required');
-            }
-
-            // Postaviti default status
-            $document->setStatus(FlipbookDocument::STATUS_PENDING);
+        return [
+            // Basic settings
+            'document' => 0,
             
-            // Sačuvati dokument
-            $this->documentRepository->add($document);
-            $this->persistenceManager->persistAll();
-
-            $this->addFlashMessage(
-                'Document "' . $document->getTitle() . '" has been created successfully.',
-                'Success',
-                AbstractMessage::OK
-            );
-
-            // Pokušati automatsko procesiranje
-            if ($this->pdfProcessorService->processDocument($document)) {
-                $this->addFlashMessage(
-                    'Document has been processed successfully.',
-                    'Processing Complete',
-                    AbstractMessage::OK
-                );
-            } else {
-                $this->addFlashMessage(
-                    'Document was created but processing failed. You can retry processing from the document details.',
-                    'Processing Failed',
-                    AbstractMessage::WARNING
-                );
-            }
-
-            return $this->redirect('show', null, null, ['document' => $document]);
-
-        } catch (\Exception $e) {
-            $this->addFlashMessage(
-                'Error creating document: ' . $e->getMessage(),
-                'Error',
-                AbstractMessage::ERROR
-            );
+            // Display settings
+            'width' => 800,
+            'height' => 600,
+            'backgroundColor' => '#ffffff',
+            'responsive' => true,
             
-            return new ForwardResponse('new', null, null, ['document' => $document]);
-        }
+            // Controls
+            'showControls' => true,
+            'showPageNumbers' => true,
+            'showThumbnails' => false,
+            'controlsPosition' => 'bottom', // top, bottom, overlay
+            
+            // Navigation
+            'enableKeyboard' => true,
+            'enableTouch' => true,
+            'enableMouseWheel' => true,
+            'swipeThreshold' => 50,
+            
+            // Zoom and fullscreen
+            'enableZoom' => true,
+            'maxZoom' => 3.0,
+            'enableFullscreen' => true,
+            'zoomStep' => 0.1,
+            
+            // Animation
+            'animationDuration' => 500,
+            'animationType' => 'slide', // slide, fade, flip
+            'easingFunction' => 'ease-in-out',
+            
+            // Autoplay
+            'autoplay' => false,
+            'autoplayDelay' => 3000,
+            'autoplayPauseOnHover' => true,
+            
+            // Loading
+            'preloadPages' => 3,
+            'showLoadingIndicator' => true,
+            'loadingText' => 'Loading...',
+            
+            // Accessibility
+            'enableKeyboardNavigation' => true,
+            'ariaLabels' => true,
+            'altTextFromContent' => true,
+            
+            // Performance
+            'lazyLoading' => true,
+            'imageQuality' => 'high', // low, medium, high
+            'cacheImages' => true,
+        ];
     }
 
     /**
-     * Forma za editovanje dokumenta
+     * Validirati konfiguraciju
      *
-     * @param FlipbookDocument $document
-     * @return ResponseInterface
+     * @param array $config
+     * @return array Validated configuration
+     * @throws \InvalidArgumentException
      */
-    public function editAction(FlipbookDocument $document): ResponseInterface
+    public function validateConfiguration(array $config): array
     {
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->setTitle('Edit Flipbook Document: ' . $document->getTitle());
-        
-        $this->view->assign('document', $document);
+        $validated = [];
+        $defaults = $this->getDefaultConfiguration();
 
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
-    }
-
-    /**
-     * Ažuriranje dokumenta
-     *
-     * @param FlipbookDocument $document
-     * @return ResponseInterface
-     */
-    public function updateAction(FlipbookDocument $document): ResponseInterface
-    {
-        try {
-            // Validacija
-            if (empty($document->getTitle())) {
-                throw new \InvalidArgumentException('Title is required');
-            }
-
-            $this->documentRepository->update($document);
-            $this->persistenceManager->persistAll();
-
-            $this->addFlashMessage(
-                'Document "' . $document->getTitle() . '" has been updated successfully.',
-                'Success',
-                AbstractMessage::OK
-            );
-
-            return $this->redirect('show', null, null, ['document' => $document]);
-
-        } catch (\Exception $e) {
-            $this->addFlashMessage(
-                'Error updating document: ' . $e->getMessage(),
-                'Error',
-                AbstractMessage::ERROR
-            );
-            
-            return new ForwardResponse('edit', null, null, ['document' => $document]);
-        }
-    }
-
-    /**
-     * Brisanje dokumenta
-     *
-     * @param FlipbookDocument $document
-     * @return ResponseInterface
-     */
-    public function deleteAction(FlipbookDocument $document): ResponseInterface
-    {
-        try {
-            $title = $document->getTitle();
-            
-            // Obrisati processed images
-            $this->pdfProcessorService->deleteProcessedImages($document);
-            
-            // Obrisati dokument
-            $this->documentRepository->remove($document);
-            $this->persistenceManager->persistAll();
-
-            $this->addFlashMessage(
-                'Document "' . $title . '" has been deleted successfully.',
-                'Success',
-                AbstractMessage::OK
-            );
-
-        } catch (\Exception $e) {
-            $this->addFlashMessage(
-                'Error deleting document: ' . $e->getMessage(),
-                'Error',
-                AbstractMessage::ERROR
-            );
+        // Document ID validation
+        $validated['document'] = (int)($config['document'] ?? 0);
+        if ($validated['document'] <= 0) {
+            throw new \InvalidArgumentException('Valid document ID is required');
         }
 
-        return $this->redirect('list');
-    }
+        // Dimension validation
+        $validated['width'] = $this->validateDimension($config['width'] ?? $defaults['width'], 200, 2000);
+        $validated['height'] = $this->validateDimension($config['height'] ?? $defaults['height'], 150, 1500);
 
-    /**
-     * Procesiranje/reprocessiranje dokumenta
-     *
-     * @param FlipbookDocument $document
-     * @return ResponseInterface
-     */
-    public function processAction(FlipbookDocument $document): ResponseInterface
-    {
-        try {
-            $isReprocessing = $document->isCompleted() || $document->hasError();
-            
-            if ($isReprocessing) {
-                $success = $this->pdfProcessorService->reprocessDocument($document);
-                $action = 'reprocessed';
-            } else {
-                $success = $this->pdfProcessorService->processDocument($document);
-                $action = 'processed';
-            }
+        // Color validation
+        $validated['backgroundColor'] = $this->validateColor($config['backgroundColor'] ?? $defaults['backgroundColor']);
 
-            if ($success) {
-                $this->addFlashMessage(
-                    'Document "' . $document->getTitle() . '" has been ' . $action . ' successfully.',
-                    'Processing Complete',
-                    AbstractMessage::OK
-                );
-            } else {
-                $this->addFlashMessage(
-                    'Processing failed for document "' . $document->getTitle() . '". Check the processing log for details.',
-                    'Processing Failed',
-                    AbstractMessage::ERROR
-                );
-            }
-
-        } catch (\Exception $e) {
-            $this->addFlashMessage(
-                'Error processing document: ' . $e->getMessage(),
-                'Processing Error',
-                AbstractMessage::ERROR
-            );
-        }
-
-        return $this->redirect('show', null, null, ['document' => $document]);
-    }
-
-    /**
-     * Preview dokumenta
-     *
-     * @param FlipbookDocument $document
-     * @return ResponseInterface
-     */
-    public function previewAction(FlipbookDocument $document): ResponseInterface
-    {
-        if (!$document->isCompleted()) {
-            $this->addFlashMessage(
-                'Document is not processed yet. Preview is not available.',
-                'Preview Unavailable',
-                AbstractMessage::WARNING
-            );
-            return $this->redirect('show', null, null, ['document' => $document]);
-        }
-
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        $moduleTemplate->setTitle('Preview: ' . $document->getTitle());
-        
-        // Pripremi flipbook konfiguraciju za preview
-        $flipbookConfig = [
-            'documentUid' => $document->getUid(),
-            'totalPages' => $document->getTotalPages(),
-            'images' => array_map(function($image) {
-                return [
-                    'page' => $image['page'],
-                    'src' => $image['publicUrl'],
-                    'width' => $image['width'],
-                    'height' => $image['height'],
-                    'thumbnail' => $image['thumbnail'] ?? null
-                ];
-            }, $document->getProcessedImages()),
-            'config' => array_merge($document->getFlipbookConfig(), [
-                'width' => 800,
-                'height' => 600,
-                'showControls' => true,
-                'enableZoom' => true,
-                'enableFullscreen' => true
-            ])
+        // Boolean settings
+        $booleanSettings = [
+            'responsive', 'showControls', 'showPageNumbers', 'showThumbnails',
+            'enableKeyboard', 'enableTouch', 'enableMouseWheel', 'enableZoom',
+            'enableFullscreen', 'autoplay', 'autoplayPauseOnHover', 'preloadPages',
+            'showLoadingIndicator', 'enableKeyboardNavigation', 'ariaLabels',
+            'altTextFromContent', 'lazyLoading', 'cacheImages'
         ];
 
-        // Dodaj preview assets
-        $this->addPreviewAssets($flipbookConfig);
-        
-        $this->view->assignMultiple([
-            'document' => $document,
-            'flipbookConfig' => $flipbookConfig,
-            'images' => $document->getProcessedImages()
-        ]);
+        foreach ($booleanSettings as $setting) {
+            $validated[$setting] = (bool)($config[$setting] ?? $defaults[$setting]);
+        }
 
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        // Numeric validations
+        $validated['swipeThreshold'] = $this->validateRange((int)($config['swipeThreshold'] ?? $defaults['swipeThreshold']), 10, 200);
+        $validated['maxZoom'] = $this->validateRange((float)($config['maxZoom'] ?? $defaults['maxZoom']), 1.0, 10.0);
+        $validated['animationDuration'] = $this->validateRange((int)($config['animationDuration'] ?? $defaults['animationDuration']), 0, 2000);
+        $validated['autoplayDelay'] = $this->validateRange((int)($config['autoplayDelay'] ?? $defaults['autoplayDelay']), 1000, 30000);
+        $validated['preloadPages'] = $this->validateRange((int)($config['preloadPages'] ?? $defaults['preloadPages']), 0, 10);
+        $validated['zoomStep'] = $this->validateRange((float)($config['zoomStep'] ?? $defaults['zoomStep']), 0.05, 1.0);
+
+        // Enum validations
+        $validated['controlsPosition'] = $this->validateEnum($config['controlsPosition'] ?? $defaults['controlsPosition'], ['top', 'bottom', 'overlay']);
+        $validated['animationType'] = $this->validateEnum($config['animationType'] ?? $defaults['animationType'], ['slide', 'fade', 'flip']);
+        $validated['easingFunction'] = $this->validateEnum($config['easingFunction'] ?? $defaults['easingFunction'], ['linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out']);
+        $validated['imageQuality'] = $this->validateEnum($config['imageQuality'] ?? $defaults['imageQuality'], ['low', 'medium', 'high']);
+
+        // String settings
+        $validated['loadingText'] = trim($config['loadingText'] ?? $defaults['loadingText']);
+        if (empty($validated['loadingText'])) {
+            $validated['loadingText'] = $defaults['loadingText'];
+        }
+
+        return $validated;
     }
 
     /**
-     * AJAX akcija za bulk operacije
+     * Kreirati FlexForm XML iz konfiguracije
      *
-     * @return ResponseInterface
+     * @param array $config
+     * @return string
      */
-    public function bulkAction(): ResponseInterface
+    public function createFlexFormXml(array $config): string
     {
-        $action = $this->request->getArgument('bulkAction') ?? '';
-        $documentUids = $this->request->getArgument('documents') ?? [];
-        
-        if (empty($documentUids) || !is_array($documentUids)) {
-            return $this->jsonResponse(['success' => false, 'message' => 'No documents selected']);
+        $xml = '<?xml version="1.0" encoding="utf-8" standalone="yes"?>';
+        $xml .= '<T3FlexForms>';
+        $xml .= '<data>';
+        $xml .= '<sheet index="sDEF">';
+        $xml .= '<language index="lDEF">';
+
+        foreach ($config as $key => $value) {
+            $xml .= '<field index="' . htmlspecialchars($key) . '">';
+            $xml .= '<value index="vDEF">' . htmlspecialchars((string)$value) . '</value>';
+            $xml .= '</field>';
         }
 
-        $documentUids = array_map('intval', $documentUids);
-        $results = ['success' => 0, 'failed' => 0, 'messages' => []];
+        $xml .= '</language>';
+        $xml .= '</sheet>';
+        $xml .= '</data>';
+        $xml .= '</T3FlexForms>';
 
-        try {
-            switch ($action) {
-                case 'process':
-                    $results = $this->bulkProcess($documentUids);
-                    break;
-                case 'delete':
-                    $results = $this->bulkDelete($documentUids);
-                    break;
-                case 'reset':
-                    $results = $this->bulkReset($documentUids);
-                    break;
-                default:
-                    return $this->jsonResponse(['success' => false, 'message' => 'Invalid bulk action']);
-            }
-
-            return $this->jsonResponse([
-                'success' => true,
-                'results' => $results,
-                'message' => "Bulk action completed: {$results['success']} successful, {$results['failed']} failed"
-            ]);
-
-        } catch (\Exception $e) {
-            return $this->jsonResponse(['success' => false, 'message' => 'Bulk operation failed: ' . $e->getMessage()]);
-        }
+        return $xml;
     }
 
     /**
-     * Bulk processing dokumenata
+     * Dobiti konfiguraciju za JavaScript
      *
-     * @param array $documentUids
+     * @param array $config
      * @return array
      */
-    protected function bulkProcess(array $documentUids): array
+    public function getJavaScriptConfiguration(array $config): array
     {
-        $results = ['success' => 0, 'failed' => 0, 'messages' => []];
-        
-        foreach ($documentUids as $uid) {
-            try {
-                $document = $this->documentRepository->findByUid($uid);
-                if (!$document) {
-                    $results['failed']++;
-                    $results['messages'][] = "Document {$uid} not found";
-                    continue;
-                }
-
-                if ($this->pdfProcessorService->processDocument($document)) {
-                    $results['success']++;
-                } else {
-                    $results['failed']++;
-                    $results['messages'][] = "Processing failed for document: {$document->getTitle()}";
-                }
-            } catch (\Exception $e) {
-                $results['failed']++;
-                $results['messages'][] = "Error processing document {$uid}: {$e->getMessage()}";
-            }
-        }
-        
-        return $results;
+        return [
+            'dimensions' => [
+                'width' => $config['width'],
+                'height' => $config['height'],
+                'responsive' => $config['responsive']
+            ],
+            'appearance' => [
+                'backgroundColor' => $config['backgroundColor'],
+                'showControls' => $config['showControls'],
+                'showPageNumbers' => $config['showPageNumbers'],
+                'showThumbnails' => $config['showThumbnails'],
+                'controlsPosition' => $config['controlsPosition']
+            ],
+            'navigation' => [
+                'enableKeyboard' => $config['enableKeyboard'],
+                'enableTouch' => $config['enableTouch'],
+                'enableMouseWheel' => $config['enableMouseWheel'],
+                'swipeThreshold' => $config['swipeThreshold']
+            ],
+            'zoom' => [
+                'enableZoom' => $config['enableZoom'],
+                'maxZoom' => $config['maxZoom'],
+                'zoomStep' => $config['zoomStep'],
+                'enableFullscreen' => $config['enableFullscreen']
+            ],
+            'animation' => [
+                'duration' => $config['animationDuration'],
+                'type' => $config['animationType'],
+                'easing' => $config['easingFunction']
+            ],
+            'autoplay' => [
+                'enabled' => $config['autoplay'],
+                'delay' => $config['autoplayDelay'],
+                'pauseOnHover' => $config['autoplayPauseOnHover']
+            ],
+            'loading' => [
+                'preloadPages' => $config['preloadPages'],
+                'showIndicator' => $config['showLoadingIndicator'],
+                'loadingText' => $config['loadingText'],
+                'lazyLoading' => $config['lazyLoading']
+            ],
+            'accessibility' => [
+                'keyboardNavigation' => $config['enableKeyboardNavigation'],
+                'ariaLabels' => $config['ariaLabels'],
+                'altTextFromContent' => $config['altTextFromContent']
+            ]
+        ];
     }
 
     /**
-     * Bulk brisanje dokumenata
+     * Validirati dimenziju
      *
-     * @param array $documentUids
+     * @param mixed $value
+     * @param int $min
+     * @param int $max
+     * @return int
+     */
+    protected function validateDimension($value, int $min, int $max): int
+    {
+        $value = (int)$value;
+        return max($min, min($max, $value));
+    }
+
+    /**
+     * Validirati color vrednost
+     *
+     * @param mixed $value
+     * @return string
+     */
+    protected function validateColor($value): string
+    {
+        $value = (string)$value;
+        
+        // Hex color validation
+        if (preg_match('/^#[a-fA-F0-9]{6}$/', $value)) {
+            return $value;
+        }
+        
+        // RGB/RGBA validation
+        if (preg_match('/^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/', $value)) {
+            return $value;
+        }
+        
+        // Named colors
+        $namedColors = ['white', 'black', 'red', 'green', 'blue', 'yellow', 'cyan', 'magenta', 'gray', 'transparent'];
+        if (in_array(strtolower($value), $namedColors)) {
+            return strtolower($value);
+        }
+        
+        return '#ffffff'; // Default to white
+    }
+
+    /**
+     * Validirati range vrednost
+     *
+     * @param mixed $value
+     * @param float $min
+     * @param float $max
+     * @return float
+     */
+    protected function validateRange($value, float $min, float $max): float
+    {
+        $value = (float)$value;
+        return max($min, min($max, $value));
+    }
+
+    /**
+     * Validirati enum vrednost
+     *
+     * @param mixed $value
+     * @param array $allowedValues
+     * @return string
+     */
+    protected function validateEnum($value, array $allowedValues): string
+    {
+        $value = (string)$value;
+        return in_array($value, $allowedValues) ? $value : $allowedValues[0];
+    }
+
+    /**
+     * Mergirati konfiguracije sa prioritetom
+     *
+     * @param array $baseConfig
+     * @param array $overrideConfig
      * @return array
      */
-    protected function bulkDelete(array $documentUids): array
+    public function mergeConfigurations(array $baseConfig, array $overrideConfig): array
     {
-        $results = ['success' => 0, 'failed' => 0, 'messages' => []];
+        $merged = $baseConfig;
         
-        foreach ($documentUids as $uid) {
-            try {
-                $document = $this->documentRepository->findByUid($uid);
-                if (!$document) {
-                    $results['failed']++;
-                    $results['messages'][] = "Document {$uid} not found";
-                    continue;
-                }
-
-                $this->pdfProcessorService->deleteProcessedImages($document);
-                $this->documentRepository->remove($document);
-                $results['success']++;
-            } catch (\Exception $e) {
-                $results['failed']++;
-                $results['messages'][] = "Error deleting document {$uid}: {$e->getMessage()}";
+        foreach ($overrideConfig as $key => $value) {
+            if ($value !== null && $value !== '') {
+                $merged[$key] = $value;
             }
         }
         
-        $this->persistenceManager->persistAll();
-        return $results;
+        return $merged;
     }
 
     /**
-     * Bulk reset dokumenata na pending status
+     * Dobiti responsive breakpoints
      *
-     * @param array $documentUids
      * @return array
      */
-    protected function bulkReset(array $documentUids): array
+    public function getResponsiveBreakpoints(): array
     {
-        $results = ['success' => 0, 'failed' => 0, 'messages' => []];
-        
-        foreach ($documentUids as $uid) {
-            try {
-                $document = $this->documentRepository->findByUid($uid);
-                if (!$document) {
-                    $results['failed']++;
-                    $results['messages'][] = "Document {$uid} not found";
-                    continue;
-                }
-
-                $document->setStatus(FlipbookDocument::STATUS_PENDING);
-                $document->setProcessedImages([]);
-                $document->setProcessingLog('');
-                $this->documentRepository->update($document);
-                $results['success']++;
-            } catch (\Exception $e) {
-                $results['failed']++;
-                $results['messages'][] = "Error resetting document {$uid}: {$e->getMessage()}";
-            }
-        }
-        
-        $this->persistenceManager->persistAll();
-        return $results;
-    }
-
-    /**
-     * Dodaj preview assets
-     *
-     * @param array $flipbookConfig
-     * @return void
-     */
-    protected function addPreviewAssets(array $flipbookConfig): void
-    {
-        $this->pageRenderer->addCssFile(
-            'EXT:flipbook_converter/Resources/Public/CSS/flipbook.css'
-        );
-        
-        $this->pageRenderer->addJsFooterFile(
-            'EXT:flipbook_converter/Resources/Public/JavaScript/FlipbookRenderer.js'
-        );
-        
-        $configJson = json_encode($flipbookConfig, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-        
-        $script = "
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof FlipbookRenderer !== 'undefined') {
-                new FlipbookRenderer({$configJson});
-            }
-        });
-        ";
-        
-        $this->pageRenderer->addJsFooterInlineCode(
-            'flipbook-preview-' . $flipbookConfig['documentUid'],
-            $script
-        );
-    }
-
-    /**
-     * Helper method za JSON response
-     *
-     * @param array $data
-     * @return ResponseInterface
-     */
-    protected function jsonResponse(array $data): ResponseInterface
-    {
-        $response = $this->responseFactory->createResponse()
-            ->withHeader('Content-Type', 'application/json');
-        
-        $response->getBody()->write(json_encode($data));
-        
-        return $response;
+        return [
+            'mobile' => [
+                'maxWidth' => 767,
+                'config' => [
+                    'width' => '100%',
+                    'height' => 'auto',
+                    'showThumbnails' => false,
+                    'controlsPosition' => 'overlay'
+                ]
+            ],
+            'tablet' => [
+                'maxWidth' => 1024,
+                'config' => [
+                    'width' => '100%',
+                    'height' => 'auto',
+                    'showThumbnails' => true,
+                    'controlsPosition' => 'bottom'
+                ]
+            ],
+            'desktop' => [
+                'minWidth' => 1025,
+                'config' => [
+                    'showThumbnails' => true,
+                    'controlsPosition' => 'bottom'
+                ]
+            ]
+        ];
     }
 }

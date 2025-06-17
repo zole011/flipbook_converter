@@ -13,7 +13,15 @@ use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Log\LogManager;
 use TYPO3\CMS\Core\Log\Logger;
+use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
+use TYPO3\CMS\Core\Core\Environment;
+use TYPO3\CMS\Core\Resource\FileRepository;
+
+
+use TYPO3\CMS\Core\Resource\FileReference as CoreFileReference;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference as ExtbaseFileReference;
+
 
 /**
  * Servis za processing PDF dokumenata u flipbook format
@@ -30,13 +38,15 @@ class PdfProcessorService
         ResourceFactory $resourceFactory,
         StorageRepository $storageRepository,
         PersistenceManager $persistenceManager,
-        FlipbookDocumentRepository $documentRepository
+        FlipbookDocumentRepository $documentRepository,
+        LoggerInterface $logger,
     ) {
         $this->logger = GeneralUtility::makeInstance(LogManager::class)->getLogger(__CLASS__);
         $this->resourceFactory = $resourceFactory;
         $this->storageRepository = $storageRepository;
         $this->persistenceManager = $persistenceManager;
         $this->documentRepository = $documentRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -45,25 +55,54 @@ class PdfProcessorService
      * @param FlipbookDocument $document
      * @return bool
      */
-    public function processDocument(FlipbookDocument $document): bool
-    {
-        $startTime = microtime(true);
+public function processDocument(FlipbookDocument $document): bool
+{
+    $startTime = microtime(true);
+    
+    try {
+        $document->setStatus(FlipbookDocument::STATUS_PROCESSING);
+        $document->addToProcessingLog('Started processing PDF document');
+        $this->persistDocument($document);
+
+        // Dobiti PDF file
+        $pdfFile = $document->getPdfFile();
+        if (!$pdfFile) {
+            throw new \Exception('No PDF file attached to document');
+        }
+
+        // Dobiti File objekat preko TYPO3 FileReference
+        $originalFile = null;
         
-        try {
-            $document->setStatus(FlipbookDocument::STATUS_PROCESSING);
-            $document->addToProcessingLog('Started processing PDF document');
-            $this->persistDocument($document);
-
-            // Dobiti PDF file
-            $pdfFile = $document->getPdfFile();
-            if (!$pdfFile) {
-                throw new \Exception('No PDF file attached to document');
+        if ($pdfFile instanceof \TYPO3\CMS\Extbase\Domain\Model\FileReference) {
+            // Dobiti Core FileReference
+            $coreFileReference = $pdfFile->getOriginalResource();
+            
+            if ($coreFileReference instanceof \TYPO3\CMS\Core\Resource\FileReference) {
+                // Dobiti File objekat
+                $originalFile = $coreFileReference->getOriginalFile();
             }
+        }
+        
+        if (!$originalFile instanceof \TYPO3\CMS\Core\Resource\File) {
+            // Debug informacije
+            $this->logger->error('Failed to get File object', [
+                'pdfFileClass' => get_class($pdfFile),
+                'hasOriginalResource' => method_exists($pdfFile, 'getOriginalResource'),
+                'coreFileReferenceClass' => isset($coreFileReference) ? get_class($coreFileReference) : 'not set'
+            ]);
+            throw new \Exception('Invalid PDF file reference - could not load file object');
+        }
 
-            $originalFile = $pdfFile->getOriginalResource();
-            if (!$originalFile instanceof File) {
-                throw new \Exception('Invalid PDF file reference');
-            }
+        // Proveri da li fajl stvarno postoji
+        if (!$originalFile->exists()) {
+            throw new \Exception('PDF file does not exist on disk');
+        }
+
+        $this->logger->info('Successfully loaded PDF file', [
+            'name' => $originalFile->getName(),
+            'size' => $originalFile->getSize(),
+            'path' => $originalFile->getForLocalProcessing(false)
+        ]);
 
             // Validacija PDF fajla
             $this->validatePdfFile($originalFile);
@@ -100,9 +139,21 @@ class PdfProcessorService
                 throw new \Exception('Failed to convert PDF to images');
             }
 
-            $document->setTotalPages(count($images));
-            $document->setProcessedImages($images);
-            $document->addToProcessingLog('Converted PDF to ' . count($images) . ' images');
+
+// Na kraju processDocument metode
+$document->setTotalPages(count($images));
+
+
+
+
+// Konvertuj PDF u slike
+$images = $this->convertPdfToImages($originalFile);
+$document->setTotalPages(count($images));
+
+// Prosledi array, NE JSON string
+$document->setProcessedImages($images); // Ovde prosledi array
+
+$document->addToProcessingLog('Converted PDF to ' . count($images) . ' images');
 
             // Kreirati thumbnails
             $document->addToProcessingLog('Generating thumbnails');
@@ -147,6 +198,16 @@ class PdfProcessorService
         }
     }
 
+    private function debugFileReference($pdfFile): void
+    {
+        $this->logger->info('FileReference debug', [
+            'class' => get_class($pdfFile),
+            'uid' => method_exists($pdfFile, 'getUid') ? $pdfFile->getUid() : 'no uid',
+            'uidLocal' => method_exists($pdfFile, 'getUidLocal') ? $pdfFile->getUidLocal() : 'no uidLocal',
+            'methods' => get_class_methods($pdfFile)
+        ]);
+    }
+
     /**
      * Konvertovati PDF u niz slika
      *
@@ -154,140 +215,198 @@ class PdfProcessorService
      * @return array
      * @throws \Exception
      */
-    protected function convertPdfToImages(File $pdfFile): array
-    {
-        $pdfPath = $pdfFile->getForLocalProcessing(false);
+private function convertPdfToImages(File $pdfFile): array
+{
+    $images = [];
+    $localFile = $pdfFile->getForLocalProcessing(false);
+    
+    $this->logger->info('Starting PDF to images conversion', [
+        'file' => $localFile,
+        'exists' => file_exists($localFile)
+    ]);
+    
+    // Kreirati privremeni folder za slike
+    $tempPath = Environment::getVarPath() . '/transient/flipbook_' . uniqid();
+    GeneralUtility::mkdir_deep($tempPath);
+    
+    try {
+        $converted = false;
         
-        if (!file_exists($pdfPath)) {
-            throw new \Exception('PDF file not found: ' . $pdfPath);
+        // Pokušaj 1: ImageMagick
+        try {
+            $converted = $this->convertWithImageMagick($localFile, $tempPath);
+        } catch (\Exception $e) {
+            $this->logger->warning('ImageMagick conversion failed, trying GhostScript', [
+                'error' => $e->getMessage()
+            ]);
         }
-
-        $images = [];
         
-        // Pokušati sa ImageMagick
-        if (extension_loaded('imagick')) {
-            $images = $this->convertWithImageMagick($pdfPath);
+        // Pokušaj 2: Direktno sa GhostScript
+        if (!$converted) {
+            $converted = $this->convertWithGhostScript($localFile, $tempPath);
         }
         
-        // Fallback na GhostScript ako ImageMagick nije uspeo
-        if (empty($images) && $this->isGhostScriptAvailable()) {
-            $images = $this->convertWithGhostScript($pdfPath);
-        }
-        
-        if (empty($images)) {
+        if (!$converted) {
             throw new \Exception('Failed to convert PDF with both ImageMagick and GhostScript');
         }
-
-        return $images;
-    }
-
-    /**
-     * Konvertovati PDF pomoću ImageMagick
-     *
-     * @param string $pdfPath
-     * @return array
-     */
-    protected function convertWithImageMagick(string $pdfPath): array
-    {
+        
+        // Pronađi sve generirane slike
+        $generatedFiles = glob($tempPath . DIRECTORY_SEPARATOR . 'page-*.png');
+        
+        if (empty($generatedFiles)) {
+            throw new \Exception('No images generated from PDF');
+        }
+        
+        $this->logger->info('PDF converted to images', ['count' => count($generatedFiles)]);
+        
+        // Premesti slike u fileadmin
+        $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
+        $storage = $resourceFactory->getDefaultStorage();
+        
+        // Kreiraj folder za processed images
         try {
-            $imagick = new \Imagick();
-            $imagick->setResolution(150, 150);
-            $imagick->readImage($pdfPath);
-            
-            $images = [];
-            $storage = $this->getFlipbookStorage();
-            $outputFolder = $this->createOutputFolder($storage);
-            
-            foreach ($imagick as $pageIndex => $page) {
-                $page->setImageFormat('png');
-                $page->setImageCompressionQuality(90);
-                
-                $filename = 'page_' . ($pageIndex + 1) . '.png';
-                $tempPath = GeneralUtility::tempnam('flipbook_page_', '.png');
-                
-                $page->writeImage($tempPath);
-                
-                // Preneti u storage
-                $file = $storage->addFile($tempPath, $outputFolder, $filename, 'replace');
-                $images[] = [
-                    'page' => $pageIndex + 1,
-                    'file' => $file->getUid(),
-                    'publicUrl' => $file->getPublicUrl(),
-                    'width' => $page->getImageWidth(),
-                    'height' => $page->getImageHeight()
-                ];
-                
-                unlink($tempPath);
-                $page->clear();
-            }
-            
-            $imagick->clear();
-            return $images;
-            
+            $targetFolder = $storage->getFolder('flipbook_processed');
         } catch (\Exception $e) {
-            $this->logger->warning('ImageMagick conversion failed', ['error' => $e->getMessage()]);
-            return [];
+            $targetFolder = $storage->createFolder('flipbook_processed');
+        }
+        
+        // Kreiraj podfolder za ovaj dokument
+        $documentFolder = $targetFolder->createFolder('document_' . time() . '_' . uniqid());
+        
+        $imageData = []; // Array za čuvanje podataka o slikama
+        
+        foreach ($generatedFiles as $index => $imagePath) {
+            $fileName = sprintf('page_%04d.png', $index + 1);
+            $newFile = $storage->addFile($imagePath, $documentFolder, $fileName);
+            
+            // Sačuvaj podatke o slici kao array, ne kao File objekat
+            $imageData[] = [
+                'uid' => $newFile->getUid(),
+                'path' => $newFile->getPublicUrl(),
+                'identifier' => $newFile->getIdentifier(),
+                'name' => $newFile->getName(),
+                'page' => $index + 1
+            ];
+        }
+        
+        // Obriši temp folder
+        GeneralUtility::rmdir($tempPath, true);
+        
+        return $imageData;
+        
+    } catch (\Exception $e) {
+        // Cleanup on error
+        if (is_dir($tempPath)) {
+            GeneralUtility::rmdir($tempPath, true);
+        }
+        
+        throw $e;
+    }
+}
+
+private function convertWithGhostScript(string $pdfPath, string $outputPath): bool
+{
+    // Pokušaj pronaći GhostScript
+    $gsPaths = [
+        'C:\\Program Files\\gs\\gs9.56.1\\bin\\gswin64c.exe',
+        'C:\\Program Files\\gs\\gs9.55.0\\bin\\gswin64c.exe',
+        'C:\\Program Files (x86)\\gs\\gs9.56.1\\bin\\gswin32c.exe',
+        'C:\\Program Files (x86)\\gs\\gs9.55.0\\bin\\gswin32c.exe',
+        'gswin64c.exe',
+        'gswin32c.exe'
+    ];
+    
+    $gsExecutable = null;
+    foreach ($gsPaths as $gsPath) {
+        if (file_exists($gsPath) || $this->isExecutable($gsPath)) {
+            $gsExecutable = $gsPath;
+            break;
         }
     }
-
-    /**
-     * Konvertovati PDF pomoću GhostScript
-     *
-     * @param string $pdfPath
-     * @return array
-     */
-    protected function convertWithGhostScript(string $pdfPath): array
-    {
-        try {
-            $storage = $this->getFlipbookStorage();
-            $outputFolder = $this->createOutputFolder($storage);
-            $tempDir = GeneralUtility::tempnam('flipbook_gs_', '');
-            mkdir($tempDir);
-            
-            $outputPattern = $tempDir . '/page_%d.png';
-            
-            $command = sprintf(
-                'gs -dNOPAUSE -dBATCH -sDEVICE=png16m -r150 -sOutputFile=%s %s',
-                escapeshellarg($outputPattern),
-                escapeshellarg($pdfPath)
-            );
-            
-            exec($command, $output, $returnCode);
-            
-            if ($returnCode !== 0) {
-                throw new \Exception('GhostScript command failed with code: ' . $returnCode);
-            }
-            
-            $images = [];
-            $pageFiles = glob($tempDir . '/page_*.png');
-            sort($pageFiles, SORT_NATURAL);
-            
-            foreach ($pageFiles as $index => $pageFile) {
-                $filename = 'page_' . ($index + 1) . '.png';
-                $file = $storage->addFile($pageFile, $outputFolder, $filename, 'replace');
-                
-                $imageSize = getimagesize($pageFile);
-                $images[] = [
-                    'page' => $index + 1,
-                    'file' => $file->getUid(),
-                    'publicUrl' => $file->getPublicUrl(),
-                    'width' => $imageSize[0] ?? 0,
-                    'height' => $imageSize[1] ?? 0
-                ];
-            }
-            
-            // Cleanup
-            array_map('unlink', $pageFiles);
-            rmdir($tempDir);
-            
-            return $images;
-            
-        } catch (\Exception $e) {
-            $this->logger->warning('GhostScript conversion failed', ['error' => $e->getMessage()]);
-            return [];
-        }
+    
+    if (!$gsExecutable) {
+        throw new \Exception('GhostScript not found');
     }
+    
+    $command = sprintf(
+        '"%s" -dNOPAUSE -dBATCH -sDEVICE=png16m -r150 -sOutputFile="%s\\page-%%04d.png" "%s"',
+        $gsExecutable,
+        $outputPath,
+        $pdfPath
+    );
+    
+    $this->logger->info('Executing GhostScript command', ['command' => $command]);
+    
+    $output = [];
+    $returnVar = 0;
+    exec($command . ' 2>&1', $output, $returnVar);
+    
+    if ($returnVar !== 0) {
+        $this->logger->error('GhostScript conversion failed', [
+            'command' => $command,
+            'output' => implode("\n", $output),
+            'returnVar' => $returnVar
+        ]);
+        return false;
+    }
+    
+    return true;
+}
 
+private function convertWithImageMagick(string $pdfPath, string $outputPath): bool
+{
+    $imageMagickPath = $GLOBALS['TYPO3_CONF_VARS']['GFX']['processor_path'] ?? '';
+    
+if (PHP_OS_FAMILY === 'Windows') {
+        $convert = rtrim($imageMagickPath, '/\\') . '\\magick.exe';
+        
+        if (!file_exists($convert)) {
+            throw new \Exception('ImageMagick not found at: ' . $convert);
+        }
+        
+        $command = sprintf(
+            '"%s" convert -density 150 -quality 90 "%s" "%s\\page-%%04d.png"',
+            $convert,
+            $pdfPath,
+            $outputPath
+        );
+    } else {
+        $convert = rtrim($imageMagickPath, '/') . '/convert';
+        
+        if (!is_executable($convert)) {
+            throw new \Exception('ImageMagick convert not found at: ' . $convert);
+        }
+        
+        $command = sprintf(
+            '%s -density 150 -quality 90 "%s" "%s/page-%%04d.png"',
+            $convert,
+            $pdfPath,
+            $outputPath
+        );
+    }
+    
+    $output = [];
+    $returnVar = 0;
+    exec($command . ' 2>&1', $output, $returnVar);
+    
+    if ($returnVar !== 0) {
+        throw new \Exception('ImageMagick failed: ' . implode("\n", $output));
+    }
+    
+    return true;
+}
+
+private function isExecutable(string $path): bool
+{
+if (PHP_OS_FAMILY === 'Windows') {
+        // Na Windows-u, proveri pomoću 'where' komande
+        $output = [];
+        $returnVar = 0;
+        exec('where ' . escapeshellarg($path) . ' 2>NUL', $output, $returnVar);
+        return $returnVar === 0;
+    }
+    return is_executable($path);
+}
     /**
      * Generisati thumbnails za slike
      *
@@ -486,7 +605,11 @@ class PdfProcessorService
     {
         $output = [];
         $returnCode = 0;
-        exec('which ' . escapeshellarg($command), $output, $returnCode);
+        
+        // Windows compatibility
+        $cmd = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' ? 'where' : 'which';
+        exec($cmd . ' ' . escapeshellarg($command), $output, $returnCode);
+        
         return $returnCode === 0;
     }
 
@@ -543,6 +666,8 @@ class PdfProcessorService
         }
     }
 
+
+    
     /**
      * Reprocessirati dokument
      *

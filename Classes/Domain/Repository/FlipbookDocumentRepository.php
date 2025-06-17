@@ -96,22 +96,6 @@ class FlipbookDocumentRepository extends Repository
     }
 
     /**
-     * Prebrojati dokumente po statusu
-     *
-     * @param int $status
-     * @return int
-     */
-    public function countByStatus(int $status): int
-    {
-        $query = $this->createQuery();
-        $query->matching(
-            $query->equals('status', $status)
-        );
-        
-        return $query->execute()->count();
-    }
-
-    /**
      * Dobiti statistike
      *
      * @return array
@@ -294,5 +278,41 @@ class FlipbookDocumentRepository extends Repository
         );
         
         return $query->execute(true);
+    }
+    /**
+     * Count all documents
+     */
+    public function countAll(): int
+    {
+        $documents = $this->findAll();
+        return count($documents);
+    }
+
+    /**
+     * Find recent documents
+     */
+    public function findRecent(int $limit = 10): QueryResultInterface
+    {
+        $query = $this->createQuery();
+        $query->setOrderings(['crdate' => QueryInterface::ORDER_DESCENDING]);
+        $query->setLimit($limit);
+        return $query->execute();
+    }
+
+    /**
+     * Count documents by status
+     *
+     * @param int $status
+     * @return int
+     */
+    public function countByStatus(int $status): int
+    {
+        $query = $this->createQuery();
+        $query->statement(
+            'SELECT COUNT(*) AS count FROM tx_flipbookconverter_document WHERE status = ? AND deleted = 0',
+            [$status]
+        );
+        $result = $query->execute(true);
+        return (!empty($result) && isset($result[0]['count'])) ? (int)$result[0]['count'] : 0;
     }
 }

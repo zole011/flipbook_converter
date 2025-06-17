@@ -289,6 +289,16 @@
             <trans-unit id="flexform.rtlSupport" resname="flexform.rtlSupport">
                 <source>RTL Support</source>
             </trans-unit>
+            <!-- Field Descriptions -->
+            <trans-unit id="tx_flipbookconverter_document.title.description" resname="tx_flipbookconverter_document.title.description">
+                <source>The title of the flipbook document (required)</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.pdf_file.description" resname="tx_flipbookconverter_document.pdf_file.description">
+                <source>Select the original PDF file for conversion</source>
+            </trans-unit>
+            <trans-unit id="tx_flipbookconverter_document.status.icon.0" resname="tx_flipbookconverter_document.status.icon.0">
+                <source>Pending</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

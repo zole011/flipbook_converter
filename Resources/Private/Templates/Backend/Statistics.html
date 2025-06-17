@@ -1,0 +1,150 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<div class="module-body">
+    <div class="flipbook-module">
+        <div class="flipbook-header">
+            <h1>
+                <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.title" default="Flipbook Statistics" />
+            </h1>
+            <f:link.action action="list" class="btn btn-default">
+                <core:icon identifier="actions-arrow-left" size="small" />
+                <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:action.back" default="Back to List" />
+            </f:link.action>
+        </div>
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-body text-center">
+                        <h2>{totalDocuments}</h2>
+                        <p><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.totalDocuments" default="Total Documents" /></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="panel panel-success">
+                    <div class="panel-body text-center">
+                        <h2>{processingStats.totalProcessed}</h2>
+                        <p><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.processed" default="Processed" /></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="panel panel-warning">
+                    <div class="panel-body text-center">
+                        <h2>{processingStats.totalPending}</h2>
+                        <p><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.pending" default="Pending" /></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="panel panel-danger">
+                    <div class="panel-body text-center">
+                        <h2>{processingStats.totalFailed}</h2>
+                        <p><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.failed" default="Failed" /></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.storageInfo" default="Storage Information" />
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            <dt><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.totalSize" default="Total Size" /></dt>
+                            <dd>{storageStats.totalSize}</dd>
+                            
+                            <dt><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.totalPages" default="Total Pages" /></dt>
+                            <dd>{storageStats.totalPages}</dd>
+                            
+                            <dt><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.averageSize" default="Average Size" /></dt>
+                            <dd>{storageStats.averageSize}</dd>
+                            
+                            <dt><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.averagePages" default="Average Pages" /></dt>
+                            <dd>{storageStats.averagePages}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">
+                            <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.processingInfo" default="Processing Information" />
+                        </h3>
+                    </div>
+                    <div class="panel-body">
+                        <dl class="dl-horizontal">
+                            <dt><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.successRate" default="Success Rate" /></dt>
+                            <dd>{processingStats.successRate}%</dd>
+                            
+                            <dt><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.processing" default="Currently Processing" /></dt>
+                            <dd>{processingStats.totalProcessing}</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <f:if condition="{recentDocuments}">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:statistics.recentDocuments" default="Recent Documents" />
+                    </h3>
+                </div>
+                <div class="table-fit">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.title" default="Title" /></th>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.status" default="Status" /></th>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.created" default="Created" /></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <f:for each="{recentDocuments}" as="document">
+                                <tr>
+                                    <td>{document.title}</td>
+                                    <td>
+                                        <f:switch expression="{document.status}">
+                                            <f:case value="0"><span class="label label-warning">Pending</span></f:case>
+                                            <f:case value="1"><span class="label label-info">Processing</span></f:case>
+                                            <f:case value="2"><span class="label label-success">Completed</span></f:case>
+                                            <f:case value="3"><span class="label label-danger">Failed</span></f:case>
+                                        </f:switch>
+                                    </td>
+                                    <td><f:format.date format="d.m.Y H:i">{document.crdate}</f:format.date></td>
+                                </tr>
+                            </f:for>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </f:if>
+    </div>
+<f:form action="bulkAction" method="post">
+  <f:for each="{recentDocuments}" as="doc">
+    <label>
+      <input type="checkbox" name="documents[]" value="{doc.uid}" />
+      {doc.title}
+    </label><br />
+  </f:for>
+  <input type="hidden" name="bulkAction" value="process" />
+  <f:form.submit value="Bulk Reprocess" />
+</f:form>
+</div>
+
+</html>

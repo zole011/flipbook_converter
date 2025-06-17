@@ -1,309 +1,133 @@
-<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" 
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
       xmlns:be="http://typo3.org/ns/TYPO3/CMS/Backend/ViewHelpers"
       xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
       data-namespace-typo3-fluid="true">
 
-<f:layout name="Backend" />
+<f:comment>No layout needed for TYPO3 13</f:comment>
 
-<f:section name="Content">
-    
-    <!-- Page Header -->
-    <div class="module-docheader">
-        <div class="module-docheader-bar">
-            <div class="module-docheader-bar-column-left">
-                <h1 class="module-title">
-                    <core:icon identifier="flipbook-converter" size="small" />
-                    <f:translate key="module.title" extensionName="flipbook_converter" />
-                </h1>
-            </div>
-            <div class="module-docheader-bar-column-right">
-                <div class="module-docheader-bar-buttons">
-                    <be:link.newRecord table="tx_flipbookconverter_document" 
-                                       class="btn btn-primary" 
-                                       title="{f:translate(key: 'module.new_document', extensionName: 'flipbook_converter')}">
-                        <core:icon identifier="actions-add" size="small" />
-                        <f:translate key="module.new_document" extensionName="flipbook_converter" />
-                    </be:link.newRecord>
-                </div>
+<div class="module-body">
+    <div class="flipbook-module">
+        <div class="flipbook-header">
+            <h1>
+                <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:module.title" default="Flipbook Converter" />
+            </h1>
+        </div>
+
+        <div class="flipbook-actions">
+            <div class="btn-toolbar">
+                <f:link.action action="upload" class="btn btn-primary">
+                    <core:icon identifier="actions-add" size="small" />
+                    <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:action.upload" default="Upload New PDF" />
+                </f:link.action>
+                
+                <f:link.action action="statistics" class="btn btn-default">
+                    <core:icon identifier="actions-chart-line" size="small" />
+                    <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:action.statistics" default="Statistics" />
+                </f:link.action>
             </div>
         </div>
-    </div>
 
-    <!-- Statistics Panel -->
-    <f:if condition="{showStatistics}">
-        <div class="flipbook-statistics panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">
-                    <core:icon identifier="actions-chart-bar" size="small" />
-                    <f:translate key="statistics.title" extensionName="flipbook_converter" />
-                </h3>
-            </div>
-            <div class="panel-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="statistic-item">
-                            <div class="statistic-number">{statistics.total}</div>
-                            <div class="statistic-label">
-                                <f:translate key="statistics.total_documents" extensionName="flipbook_converter" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="statistic-item status-completed">
-                            <div class="statistic-number">{statistics.completed}</div>
-                            <div class="statistic-label">
-                                <f:translate key="statistics.completed" extensionName="flipbook_converter" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="statistic-item status-processing">
-                            <div class="statistic-number">{statistics.processing}</div>
-                            <div class="statistic-label">
-                                <f:translate key="statistics.processing" extensionName="flipbook_converter" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="statistic-item status-error">
-                            <div class="statistic-number">{statistics.error}</div>
-                            <div class="statistic-label">
-                                <f:translate key="statistics.errors" extensionName="flipbook_converter" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="statistic-item">
-                            <div class="statistic-number">{totalFileSize -> f:format.bytes(decimals: 2)}</div>
-                            <div class="statistic-label">
-                                <f:translate key="statistics.total_size" extensionName="flipbook_converter" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="statistic-item">
-                            <div class="statistic-number">{averageProcessingTime -> f:format.number(decimals: 2)}ms</div>
-                            <div class="statistic-label">
-                                <f:translate key="statistics.avg_processing_time" extensionName="flipbook_converter" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </f:if>
+        <f:flashMessages />
 
-    <!-- Filters and Search -->
-    <div class="flipbook-filters panel panel-default">
-        <div class="panel-body">
-            <f:form action="list" method="get" class="form-inline">
-                <div class="form-group">
-                    <label for="filter" class="control-label">
-                        <f:translate key="filter.status" extensionName="flipbook_converter" />
-                    </label>
-                    <f:form.select name="filter" 
-                                   id="filter"
-                                   value="{currentFilter}" 
-                                   class="form-control">
-                        <f:form.select.option value="all">
-                            <f:translate key="filter.all" extensionName="flipbook_converter" />
-                        </f:form.select.option>
-                        <f:form.select.option value="pending">
-                            <f:translate key="filter.pending" extensionName="flipbook_converter" />
-                        </f:form.select.option>
-                        <f:form.select.option value="processing">
-                            <f:translate key="filter.processing" extensionName="flipbook_converter" />
-                        </f:form.select.option>
-                        <f:form.select.option value="completed">
-                            <f:translate key="filter.completed" extensionName="flipbook_converter" />
-                        </f:form.select.option>
-                        <f:form.select.option value="error">
-                            <f:translate key="filter.error" extensionName="flipbook_converter" />
-                        </f:form.select.option>
-                    </f:form.select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="search" class="control-label">
-                        <f:translate key="search.title" extensionName="flipbook_converter" />
-                    </label>
-                    <f:form.textfield name="search" 
-                                      id="search"
-                                      value="{searchTerm}" 
-                                      placeholder="{f:translate(key: 'search.placeholder', extensionName: 'flipbook_converter')}"
-                                      class="form-control" />
-                </div>
-                
-                <f:form.submit value="{f:translate(key: 'search.submit', extensionName: 'flipbook_converter')}" 
-                               class="btn btn-default" />
-                
-                <f:if condition="{searchTerm} || {currentFilter} != 'all'">
-                    <f:link.action action="list" class="btn btn-link">
-                        <f:translate key="search.clear" extensionName="flipbook_converter" />
-                    </f:link.action>
-                </f:if>
-            </f:form>
-        </div>
-    </div>
-
-    <!-- Documents Table -->
-    <div class="flipbook-documents">
         <f:if condition="{documents}">
             <f:then>
-                
-                <!-- Bulk Actions -->
-                <f:if condition="{enableBulkOperations}">
-                    <div class="flipbook-bulk-actions">
-                        <f:form action="bulk" method="post" id="bulk-form">
-                            <div class="form-inline">
-                                <div class="form-group">
-                                    <label class="control-label">
-                                        <f:translate key="bulk.selected" extensionName="flipbook_converter" />:
-                                        <span id="selected-count">0</span>
-                                    </label>
-                                </div>
-                                <div class="form-group">
-                                    <f:form.select name="bulkAction" class="form-control">
-                                        <f:form.select.option value="">
-                                            <f:translate key="bulk.choose_action" extensionName="flipbook_converter" />
-                                        </f:form.select.option>
-                                        <f:form.select.option value="process">
-                                            <f:translate key="bulk.process" extensionName="flipbook_converter" />
-                                        </f:form.select.option>
-                                        <f:form.select.option value="reset">
-                                            <f:translate key="bulk.reset" extensionName="flipbook_converter" />
-                                        </f:form.select.option>
-                                        <f:form.select.option value="delete">
-                                            <f:translate key="bulk.delete" extensionName="flipbook_converter" />
-                                        </f:form.select.option>
-                                    </f:form.select>
-                                </div>
-                                <f:form.submit value="{f:translate(key: 'bulk.execute', extensionName: 'flipbook_converter')}" 
-                                               class="btn btn-warning"
-                                               id="bulk-submit" />
-                            </div>
-                        </f:form>
-                    </div>
-                </f:if>
-
-                <!-- Documents Table -->
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover flipbook-documents-table">
+                <div class="table-fit">
+                    <table class="table table-striped table-hover">
                         <thead>
                             <tr>
-                                <f:if condition="{enableBulkOperations}">
-                                    <th class="col-checkbox">
-                                        <input type="checkbox" id="select-all" title="{f:translate(key: 'table.select_all', extensionName: 'flipbook_converter')}" />
-                                    </th>
-                                </f:if>
-                                <th class="col-status">
-                                    <f:translate key="table.status" extensionName="flipbook_converter" />
-                                </th>
-                                <th class="col-title">
-                                    <f:translate key="table.title" extensionName="flipbook_converter" />
-                                </th>
-                                <th class="col-pages">
-                                    <f:translate key="table.pages" extensionName="flipbook_converter" />
-                                </th>
-                                <th class="col-size">
-                                    <f:translate key="table.file_size" extensionName="flipbook_converter" />
-                                </th>
-                                <th class="col-processed">
-                                    <f:translate key="table.last_processed" extensionName="flipbook_converter" />
-                                </th>
-                                <th class="col-actions">
-                                    <f:translate key="table.actions" extensionName="flipbook_converter" />
-                                </th>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.title" default="Title" /></th>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.status" default="Status" /></th>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.pages" default="Pages" /></th>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.created" default="Created" /></th>
+                                <th><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:field.actions" default="Actions" /></th>
                             </tr>
                         </thead>
                         <tbody>
                             <f:for each="{documents}" as="document">
-                                <tr class="document-row status-{document.status}" data-uid="{document.uid}">
-                                    <f:if condition="{enableBulkOperations}">
-                                        <td>
-                                            <input type="checkbox" 
-                                                   name="documents[]" 
-                                                   value="{document.uid}" 
-                                                   class="document-checkbox" />
-                                        </td>
-                                    </f:if>
-                                    <td class="status-cell">
-                                        <f:render partial="Backend/StatusBadge" arguments="{document: document}" />
-                                    </td>
-                                    <td class="title-cell">
-                                        <f:link.action action="show" arguments="{document: document}" class="document-title-link">
-                                            {document.title}
-                                        </f:link.action>
+                                <tr>
+                                    <td>
+                                        <strong>{document.title}</strong>
                                         <f:if condition="{document.description}">
-                                            <div class="document-description text-muted">
-                                                {document.description -> f:format.crop(maxCharacters: 100)}
-                                            </div>
+                                            <br><small class="text-muted">{document.description}</small>
                                         </f:if>
                                     </td>
-                                    <td class="pages-cell">
-                                        <f:if condition="{document.totalPages}">
-                                            <f:then>
-                                                <span class="badge badge-info">{document.totalPages}</span>
-                                            </f:then>
-                                            <f:else>
-                                                <span class="text-muted">-</span>
-                                            </f:else>
-                                        </f:if>
+                                    <td>
+                                        <f:switch expression="{document.status}">
+                                            <f:case value="0">
+                                                <span class="label label-warning">
+                                                    <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:status.pending" default="Pending" />
+                                                </span>
+                                            </f:case>
+                                            <f:case value="1">
+                                                <span class="label label-info">
+                                                    <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:status.processing" default="Processing" />
+                                                </span>
+                                            </f:case>
+                                            <f:case value="2">
+                                                <span class="label label-success">
+                                                    <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:status.completed" default="Completed" />
+                                                </span>
+                                            </f:case>
+                                            <f:case value="3">
+                                                <span class="label label-danger">
+                                                    <f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:status.failed" default="Failed" />
+                                                </span>
+                                            </f:case>
+                                        </f:switch>
                                     </td>
-                                    <td class="size-cell">
-                                        <f:if condition="{document.fileSize}">
-                                            <f:then>
-                                                {document.fileSizeFormatted}
-                                            </f:then>
-                                            <f:else>
-                                                <span class="text-muted">-</span>
-                                            </f:else>
-                                        </f:if>
-                                    </td>
-                                    <td class="processed-cell">
-                                        <f:if condition="{document.lastProcessed}">
-                                            <f:then>
-                                                <f:format.date date="{document.lastProcessed}" format="d.m.Y H:i" />
-                                                <f:if condition="{document.processingTime}">
-                                                    <div class="text-muted small">
-                                                        ({document.processingTime}ms)
-                                                    </div>
-                                                </f:if>
-                                            </f:then>
-                                            <f:else>
-                                                <span class="text-muted">-</span>
-                                            </f:else>
-                                        </f:if>
-                                    </td>
-                                    <td class="actions-cell">
-                                        <f:render partial="Backend/Actions" arguments="{document: document}" />
+                                    <td>{document.pageCount}</td>
+                                    <td><f:format.date format="d.m.Y H:i">{document.crdate}</f:format.date></td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <f:if condition="{document.status} == 2">
+                                                <a href="#" class="btn btn-default" title="Preview" onclick="window.open('{document.previewUrl}', 'flipbook-preview', 'width=1200,height=800'); return false;">
+                                                    <core:icon identifier="actions-view" size="small" />
+                                                </a>
+                                            </f:if>
+                                            
+                                            <f:if condition="{document.status} == 0 || {document.status} == 3">
+                                                <f:link.action 
+                                                    action="process" 
+                                                    arguments="{document: document}" 
+                                                    class="btn btn-warning" 
+                                                    title="Process this document">
+                                                    <core:icon identifier="actions-refresh" size="small" />
+                                                </f:link.action>
+                                            </f:if>
+                                            
+                                            <f:link.action 
+                                                action="delete" 
+                                                arguments="{document: document}" 
+                                                class="btn btn-danger" 
+                                                title="Delete" 
+                                                onclick="return confirm('Are you sure you want to delete this document?');">
+                                                <core:icon identifier="actions-delete" size="small" />
+                                            </f:link.action>
+                                        </div>
                                     </td>
                                 </tr>
                             </f:for>
                         </tbody>
                     </table>
                 </div>
-
+                
+                <f:if condition="{pagination}">
+                    <f:render partial="Pagination" arguments="{pagination: pagination, paginator: paginator}" />
+                </f:if>
             </f:then>
             <f:else>
-                <!-- No Documents -->
-                <div class="flipbook-no-documents">
-                    <div class="alert alert-info text-center">
-                        <core:icon identifier="flipbook-converter" size="large" />
-                        <h4><f:translate key="list.no_documents.title" extensionName="flipbook_converter" /></h4>
-                        <p><f:translate key="list.no_documents.message" extensionName="flipbook_converter" /></p>
-                        <be:link.newRecord table="tx_flipbookconverter_document" class="btn btn-primary">
-                            <core:icon identifier="actions-add" size="small" />
-                            <f:translate key="list.no_documents.create_first" extensionName="flipbook_converter" />
-                        </be:link.newRecord>
+                <div class="callout callout-info">
+                    <div class="callout-body">
+                        <h4><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:no_documents" default="No documents found" /></h4>
+                        <p><f:translate key="LLL:EXT:flipbook_converter/Resources/Private/Language/locallang_backend.xlf:no_documents.description" default="Upload your first PDF document to get started." /></p>
+                        <f:link.action action="upload" class="btn btn-primary">
+                            <core:icon identifier="actions-plus" size="small" /> Upload PDF
+                        </f:link.action>
                     </div>
                 </div>
             </f:else>
         </f:if>
     </div>
-
-</f:section>
+</div>
 
 </html>

@@ -1,0 +1,63 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers"
+      xmlns:core="http://typo3.org/ns/TYPO3/CMS/Core/ViewHelpers"
+      data-namespace-typo3-fluid="true">
+
+<f:layout name="Backend/Default" />
+
+<f:section name="Content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Upload PDF Document</h3>
+        </div>
+        <div class="card-body">
+            <f:form action="upload" 
+                    method="post" 
+                    enctype="multipart/form-data" 
+                    class="form-horizontal">
+                
+                <div class="form-group">
+                    <label for="pdfFile" class="control-label">PDF File <span class="text-danger">*</span></label>
+                    <input type="file" 
+                           name="pdfFile" 
+                           id="pdfFile" 
+                           class="form-control" 
+                           accept="application/pdf" 
+                           required="required" />
+                    <small class="form-text text-muted">Maximum file size: 100MB</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="title" class="control-label">Title</label>
+                    <f:form.textfield name="title" 
+                                      id="title" 
+                                      class="form-control" 
+                                      placeholder="Leave empty to use filename" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="control-label">Description</label>
+                    <f:form.textarea name="description" 
+                                     id="description" 
+                                     class="form-control" 
+                                     rows="3" />
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                            <f:form.checkbox name="processImmediately" value="1" />
+                            Process immediately after upload
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <f:form.submit value="Upload PDF" class="btn btn-primary" />
+                    <f:link.action action="list" class="btn btn-default">Cancel</f:link.action>
+                </div>
+            </f:form>
+        </div>
+    </div>
+</f:section>
+
+</html>

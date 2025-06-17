@@ -96,28 +96,28 @@ class FlipbookController extends ActionController
         $page = (int)($this->request->getArgument('page') ?? 1);
         
         if (!$documentUid) {
-            return $this->jsonResponse(['error' => 'Document UID required']);
+            return $this->jsonArrayResponse(['error' => 'Document UID required']);
         }
 
         $document = $this->documentRepository->findByUid($documentUid);
         
         if (!$document || !$document->isCompleted()) {
-            return $this->jsonResponse(['error' => 'Document not found or not processed']);
+            return $this->jsonArrayResponse(['error' => 'Document not found or not processed']);
         }
 
         $images = $document->getProcessedImages();
         
         if ($page < 1 || $page > count($images)) {
-            return $this->jsonResponse(['error' => 'Invalid page number']);
+            return $this->jsonArrayResponse(['error' => 'Invalid page number']);
         }
 
         $pageData = $images[$page - 1] ?? null;
         
         if (!$pageData) {
-            return $this->jsonResponse(['error' => 'Page data not found']);
+            return $this->jsonArrayResponse(['error' => 'Page data not found']);
         }
 
-        return $this->jsonResponse([
+        return $this->jsonArrayResponse([
             'success' => true,
             'page' => $page,
             'totalPages' => count($images),
@@ -142,20 +142,20 @@ class FlipbookController extends ActionController
         $imageType = $this->request->getArgument('type') ?? 'full'; // full, thumbnail
         
         if (!$documentUid) {
-            return $this->jsonResponse(['error' => 'Document UID required']);
+            return $this->jsonArrayResponse(['error' => 'Document UID required']);
         }
 
         $document = $this->documentRepository->findByUid($documentUid);
         
         if (!$document || !$document->isCompleted()) {
-            return $this->jsonResponse(['error' => 'Document not found or not processed']);
+            return $this->jsonArrayResponse(['error' => 'Document not found or not processed']);
         }
 
         $images = $document->getProcessedImages();
         $pageIndex = $pageNumber - 1;
         
         if (!isset($images[$pageIndex])) {
-            return $this->jsonResponse(['error' => 'Page not found']);
+            return $this->jsonArrayResponse(['error' => 'Page not found']);
         }
 
         $imageData = $images[$pageIndex];
@@ -174,7 +174,7 @@ class FlipbookController extends ActionController
                 : $imageData['height']
         ];
 
-        return $this->jsonResponse($responseData);
+        return $this->jsonArrayResponse($responseData);
     }
 
     /**
@@ -188,7 +188,7 @@ class FlipbookController extends ActionController
         $searchTerm = trim($this->request->getArgument('query') ?? '');
         
         if (!$documentUid || empty($searchTerm)) {
-            return $this->jsonResponse(['error' => 'Document UID and search query required']);
+            return $this->jsonArrayResponse(['error' => 'Document UID and search query required']);
         }
 
         $document = $this->documentRepository->findByUid($documentUid);
@@ -198,7 +198,7 @@ class FlipbookController extends ActionController
         }
 
         // Za sada vraćamo prazan rezultat - OCR funkcionalnost se može dodati kasnije
-        return $this->jsonResponse([
+        return $this->jsonArrayResponse([
             'success' => true,
             'query' => $searchTerm,
             'results' => [],
@@ -324,20 +324,24 @@ class FlipbookController extends ActionController
     }
 
     /**
-     * Helper method za JSON response
-     *
-     * @param array $data
-     * @return ResponseInterface
+     * Return JSON response
      */
-    protected function jsonResponse(array $data): ResponseInterface
+    protected function jsonResponse(?string $json = null): ResponseInterface
     {
-        $response = $this->responseFactory->createResponse()
-            ->withHeader('Content-Type', 'application/json')
-            ->withHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        // Ako je prosleđen array kroz $this->data, konvertuj ga
+        if ($json === null && !empty($this->data)) {
+            $json = json_encode($this->data);
+        }
         
-        $response->getBody()->write(json_encode($data, JSON_UNESCAPED_UNICODE));
-        
-        return $response;
+        return parent::jsonResponse($json);
+    }
+
+    /**
+     * Helper method to return JSON response with array data
+     */
+    protected function jsonArrayResponse(array $data): ResponseInterface
+    {
+        return $this->jsonResponse(json_encode($data));
     }
 
     /**

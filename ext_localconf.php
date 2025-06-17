@@ -52,11 +52,6 @@ defined('TYPO3') or die();
     $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['extbase']['commandControllers'][] = 
         \Gmbit\FlipbookConverter\Command\FlipbookProcessCommand::class;
 
-    // File Abstraction Layer (FAL) processor registracija
-    $GLOBALS['TYPO3_CONF_VARS']['SYS']['fal']['processors']['FlipbookProcessor'] = [
-        'className' => \Gmbit\FlipbookConverter\Resource\Processing\FlipbookProcessor::class,
-        'before' => ['LocalImageProcessor'],
-    ];
 
     // Extension konfiguracija
     $extensionConfiguration = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(
@@ -94,5 +89,13 @@ defined('TYPO3') or die();
         \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
         ['source' => 'EXT:flipbook_converter/Resources/Public/Images/Icons/content-element-icon.svg']
     );
+
+// Registruj PDF kao format koji može biti procesiran
+$GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'] .= ',pdf,ai';
+
+// Osiguraj da je PDF podržan
+if (!str_contains($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], 'pdf')) {
+    $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'] .= ',pdf';
+}
 
 })();

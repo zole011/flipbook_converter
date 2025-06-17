@@ -1,11 +1,9 @@
 # New Content Element Wizard Configuration for Flipbook Converter
 
 mod.wizards.newContentElement.wizardItems {
-    
-    # Create new tab for flipbook elements
     flipbook {
         header = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:wizard.tab.flipbook
-        
+
         elements {
             flipbookconverter_flipbook {
                 iconIdentifier = content-flipbook
@@ -15,7 +13,7 @@ mod.wizards.newContentElement.wizardItems {
                     CType = flipbookconverter_flipbook
                 }
             }
-            
+
             flipbookconverter_flipbook_simple {
                 iconIdentifier = content-flipbook
                 title = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:wizard.flipbook_simple.title
@@ -25,11 +23,10 @@ mod.wizards.newContentElement.wizardItems {
                 }
             }
         }
-        
+
         show = flipbookconverter_flipbook,flipbookconverter_flipbook_simple
     }
-    
-    # Also add to existing "plugins" tab as alternative
+
     plugins {
         elements {
             flipbookconverter_flipbook {
@@ -40,7 +37,7 @@ mod.wizards.newContentElement.wizardItems {
                     CType = flipbookconverter_flipbook
                 }
             }
-            
+
             flipbookconverter_flipbook_simple {
                 iconIdentifier = content-flipbook
                 title = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:wizard.flipbook_simple.title
@@ -50,54 +47,39 @@ mod.wizards.newContentElement.wizardItems {
                 }
             }
         }
-        
+
         show := addToList(flipbookconverter_flipbook,flipbookconverter_flipbook_simple)
     }
 }
 
-# Backend layout configuration for flipbook elements
 mod.web_layout.tt_content.preview {
     flipbookconverter_flipbook = EXT:flipbook_converter/Resources/Private/Templates/Backend/Preview/Flipbook.html
     flipbookconverter_flipbook_simple = EXT:flipbook_converter/Resources/Private/Templates/Backend/Preview/FlipbookSimple.html
 }
 
-# Backend form configuration
-TCEFORM {
-    tt_content {
-        # Hide unused fields for flipbook content elements
-        CType {
-            removeItems := addToList(textmedia,textpic,image,bullets,table,uploads,menu,shortcut,list,div,html)
-            keepItems = flipbookconverter_flipbook,flipbookconverter_flipbook_simple
-            # Only apply to flipbook content elements
-            PAGE_TSCONFIG_ID = flipbook_converter
+TCEFORM.tt_content {
+    pi_flexform {
+        flipbookconverter_flipbook {
+            sheetTitle.sDEF = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.document
+            sheetTitle.sDisplay = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.display
+            sheetTitle.sControls = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.controls
+            sheetTitle.sNavigation = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.navigation
+            sheetTitle.sZoom = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.zoom
+            sheetTitle.sAnimation = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.animation
+            sheetTitle.sAutoplay = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.autoplay
+            sheetTitle.sPerformance = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.performance
+            sheetTitle.sAccessibility = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.accessibility
         }
-        
-        # Configure FlexForm for flipbook elements
-        pi_flexform {
-            flipbookconverter_flipbook {
-                sheetTitle.sDEF = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.document
-                sheetTitle.sDisplay = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.display
-                sheetTitle.sControls = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.controls
-                sheetTitle.sNavigation = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.navigation
-                sheetTitle.sZoom = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.zoom
-                sheetTitle.sAnimation = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.animation
-                sheetTitle.sAutoplay = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.autoplay
-                sheetTitle.sPerformance = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.performance
-                sheetTitle.sAccessibility = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:flexform.sheet.accessibility
-            }
-        }
-        
-        # Document selection for simple variant
-        tx_flipbookconverter_document {
-            PAGE_TSCONFIG_IDLIST = flipbookconverter_flipbook_simple
-            config {
-                foreign_table_where = AND tx_flipbookconverter_document.pid=###CURRENT_PID### AND tx_flipbookconverter_document.hidden=0 AND tx_flipbookconverter_document.deleted=0 AND tx_flipbookconverter_document.status=2 ORDER BY tx_flipbookconverter_document.title
-            }
+    }
+
+    tx_flipbookconverter_document {
+        PAGE_TSCONFIG_IDLIST = flipbookconverter_flipbook_simple
+        config {
+            foreign_table_where = AND tx_flipbookconverter_document.pid=###CURRENT_PID### AND tx_flipbookconverter_document.hidden=0 AND tx_flipbookconverter_document.deleted=0 AND tx_flipbookconverter_document.status=2 ORDER BY tx_flipbookconverter_document.title
         }
     }
 }
 
-# Context menu configuration
 options.contextMenu.table.tt_content.items {
     flipbook_edit {
         label = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:contextmenu.edit_flipbook
@@ -105,7 +87,7 @@ options.contextMenu.table.tt_content.items {
         displayCondition = record:CType:=:flipbookconverter_flipbook|flipbookconverter_flipbook_simple
         callbackAction = editRecord
     }
-    
+
     flipbook_preview {
         label = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:contextmenu.preview_flipbook
         iconIdentifier = actions-view
@@ -114,22 +96,18 @@ options.contextMenu.table.tt_content.items {
     }
 }
 
-# Default values for new content elements
-TCAdefaults {
-    tt_content {
-        flipbookconverter_flipbook {
-            header = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:default.header.flipbook
-            header_layout = 2
-        }
-        
-        flipbookconverter_flipbook_simple {
-            header = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:default.header.flipbook_simple
-            header_layout = 2
-        }
+TCAdefaults.tt_content {
+    flipbookconverter_flipbook {
+        header = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:default.header.flipbook
+        header_layout = 2
+    }
+
+    flipbookconverter_flipbook_simple {
+        header = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:default.header.flipbook_simple
+        header_layout = 2
     }
 }
 
-# Backend styling
 mod.web_layout.BackendLayouts {
     flipbook_enhanced {
         title = LLL:EXT:flipbook_converter/Resources/Private/Language/locallang.xlf:backend_layout.flipbook_enhanced
