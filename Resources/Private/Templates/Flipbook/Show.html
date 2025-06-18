@@ -18,21 +18,6 @@
                     <div style="margin-top: 10px; font-size: 14px; color: #999;">
                         Total Pages: {images -> f:count()} | Status: Processed | Document UID: {document.uid}
                     </div>
-                    
-                    <!-- QUICK DEBUG -->
-                    <div style="background: #ffffcc; padding: 10px; margin: 10px 0; font-size: 12px; border: 1px solid #ffcc00;">
-                        <strong>🔍 Quick Check:</strong> 
-                        Document "{document.title}" (UID: {document.uid}) | 
-                        Images: {images -> f:count()} | 
-                        <f:if condition="{images.0.isTestImage}">
-                            <f:then>
-                                <span style="color: red;">Using TEST images</span>
-                            </f:then>
-                            <f:else>
-                                <span style="color: green;">Using REAL images</span>
-                            </f:else>
-                        </f:if>
-                    </div>
                 </div>
 
                 <!-- Main Flipbook Area -->
@@ -167,22 +152,52 @@
                     </div>
                 </div>
 
-                <!-- Thumbnail Strip -->
+                <!-- CAROUSEL THUMBNAIL STRIP -->
                 <div style="margin-top: 30px; text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                     <h4 style="margin: 0 0 15px 0; color: #333;">Quick Navigation</h4>
-                    <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; max-width: 100%; overflow-x: auto; padding: 10px;">
-                        <f:for each="{images}" as="image" iteration="iterator">
-                            <div class="thumbnail-card" data-page="{image.page}" onclick="goToSpecificPage({image.page})" 
-                                 style="flex: 0 0 auto; cursor: pointer; border: 3px solid {f:if(condition: '{iterator.isFirst}', then: '#007cba', else: '#ddd')}; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
-                                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'" 
-                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.1)'">
-                                <img src="{image.publicUrl}" alt="Page {image.page}" 
-                                     style="width: 100px; height: 130px; object-fit: cover; display: block;" />
-                                <div style="text-align: center; padding: 8px; background: white; font-size: 12px; font-weight: bold; color: #333;">
-                                    Page {image.page}
-                                </div>
+                    
+                    <!-- Thumbnail Carousel Container -->
+                    <div class="thumbnail-carousel-container" style="position: relative; max-width: 100%; overflow: hidden; margin: 0 auto; padding: 0 10px;">
+                        
+                        <!-- Left Arrow -->
+                        <button id="carousel-prev" onclick="scrollThumbnails('left')" 
+                                style="position: absolute; left: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(0,124,186,0.9); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
+                                onmouseover="this.style.background='rgba(0,90,138,1)'" 
+                                onmouseout="this.style.background='rgba(0,124,186,0.9)'">
+                            ‹
+                        </button>
+                        
+                        <!-- Right Arrow -->
+                        <button id="carousel-next" onclick="scrollThumbnails('right')" 
+                                style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(0,124,186,0.9); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);"
+                                onmouseover="this.style.background='rgba(0,90,138,1)'" 
+                                onmouseout="this.style.background='rgba(0,124,186,0.9)'">
+                            ›
+                        </button>
+                        
+                        <!-- Scrollable Thumbnail Strip WRAPPER -->
+                        <div style="overflow: hidden; margin: 0 50px;">
+                            <!-- Scrollable Thumbnail Strip -->
+                            <div id="thumbnail-strip" style="display: flex; gap: 12px; padding: 10px 0; scroll-behavior: smooth; transition: transform 0.3s ease; width: max-content;">
+                                <f:for each="{images}" as="image" iteration="iterator">
+                                    <div class="thumbnail-card" data-page="{image.page}" onclick="goToSpecificPage({image.page})" 
+                                         style="flex: 0 0 auto; cursor: pointer; border: 3px solid {f:if(condition: '{iterator.isFirst}', then: '#007cba', else: '#ddd')}; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 120px;"
+                                         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'" 
+                                         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.1)'">
+                                        <img src="{image.publicUrl}" alt="Page {image.page}" 
+                                             style="width: 120px; height: 150px; object-fit: cover; display: block;" />
+                                        <div style="text-align: center; padding: 8px; background: white; font-size: 12px; font-weight: bold; color: #333;">
+                                            Page {image.page}
+                                        </div>
+                                    </div>
+                                </f:for>
                             </div>
-                        </f:for>
+                        </div>
+                        
+                        <!-- Scroll Indicator Dots -->
+                        <div id="carousel-dots" style="text-align: center; margin-top: 15px; display: flex; justify-content: center; gap: 8px;">
+                            <!-- Dots će biti dinamički generisani kroz JavaScript -->
+                        </div>
                     </div>
                 </div>
                 
@@ -196,21 +211,27 @@
         </f:if>
     </div>
 
-    <!-- Enhanced JavaScript with Book Effects -->
+    <!-- Enhanced JavaScript with Thumbnail Carousel -->
     <script>
-    console.log('Enhanced Flipbook loaded');
+    console.log('Enhanced Flipbook with Carousel loaded');
     
     var currentPage = 1;
-    var totalPages = 5; // Hardkodovano za sada - može se dinamički setovati
-    var viewMode = 'book'; // book, single, continuous
-    var transitionType = 'fade'; // fade, slide, flip
+    var totalPages = 5;
+    var viewMode = 'book';
+    var transitionType = 'fade';
     var zoomLevel = 1;
     var autoPlayInterval = null;
     var isFullscreen = false;
     
-    // Initialize total pages from DOM when ready
+    // Carousel variables
+    var thumbnailsPerView = 4; // Number of thumbnails visible at once
+    var currentCarouselPage = 0;
+    var totalCarouselPages = 0;
+    var thumbnailWidth = 132; // Will be calculated dynamically
+    
+    // Initialize
     document.addEventListener('DOMContentLoaded', function() {
-        // Count actual pages in DOM
+        // Count actual pages
         var pageElements = document.querySelectorAll('.book-page');
         var maxPage = 0;
         for (var i = 0; i < pageElements.length; i++) {
@@ -219,10 +240,14 @@
         }
         if (maxPage > 0) {
             totalPages = maxPage;
-            // Update display
             var totalDisplay = document.getElementById('total-pages-display');
             if (totalDisplay) totalDisplay.textContent = totalPages;
         }
+        
+        // Initialize carousel with delay to ensure DOM is ready
+        setTimeout(function() {
+            initializeThumbnailCarousel();
+        }, 100);
         
         showBookPages(currentPage);
         updateDisplay();
@@ -230,6 +255,208 @@
         console.log('Enhanced Flipbook initialized with', totalPages, 'pages');
     });
     
+    function initializeThumbnailCarousel() {
+        var container = document.querySelector('.thumbnail-carousel-container');
+        var strip = document.getElementById('thumbnail-strip');
+        if (!container || !strip) return;
+        
+        // Calculate actual thumbnail width from DOM
+        var firstThumbnail = document.querySelector('.thumbnail-card');
+        if (firstThumbnail) {
+            var thumbRect = firstThumbnail.getBoundingClientRect();
+            var thumbStyle = window.getComputedStyle(firstThumbnail);
+            var marginRight = parseInt(thumbStyle.marginRight) || 0;
+            thumbnailWidth = thumbRect.width + marginRight + 12; // Include gap
+            
+            console.log('Calculated thumbnail width:', thumbnailWidth, 'px');
+        }
+        
+        // Calculate how many thumbnails fit in viewport
+        var containerWidth = container.offsetWidth - 100; // Minus arrows space
+        thumbnailsPerView = Math.floor(containerWidth / thumbnailWidth);
+        if (thumbnailsPerView < 1) thumbnailsPerView = 1;
+        
+        console.log('Container width:', containerWidth, 'Thumbnails per view:', thumbnailsPerView);
+        
+        // Better calculation - only create pages if we have more thumbnails than can fit
+        if (totalPages <= thumbnailsPerView) {
+            totalCarouselPages = 1;
+            thumbnailsPerView = totalPages; // Show all thumbnails
+        } else {
+            totalCarouselPages = Math.ceil(totalPages / thumbnailsPerView);
+        }
+        
+        // Reset to first page
+        currentCarouselPage = 0;
+        
+        // Generate dots
+        generateCarouselDots();
+        
+        // Update arrow visibility
+        updateCarouselArrows();
+        
+        // Reset position
+        if (strip) {
+            strip.style.transform = 'translateX(0px)';
+        }
+        
+        console.log('Carousel initialized:', thumbnailsPerView, 'thumbnails per view,', totalCarouselPages, 'carousel pages, total thumbnails:', totalPages);
+        
+        // Debug strip width
+        setTimeout(function() {
+            var stripActualWidth = strip.scrollWidth;
+            var stripVisibleWidth = strip.offsetWidth;
+            console.log('STRIP DEBUG - Actual width:', stripActualWidth, 'Visible width:', stripVisibleWidth);
+        }, 200);
+    }
+    
+    function generateCarouselDots() {
+        var dotsContainer = document.getElementById('carousel-dots');
+        if (!dotsContainer) return;
+        
+        dotsContainer.innerHTML = '';
+        
+        if (totalCarouselPages <= 1) {
+            dotsContainer.style.display = 'none';
+            return;
+        }
+        
+        dotsContainer.style.display = 'flex';
+        
+        for (var i = 0; i < totalCarouselPages; i++) {
+            var dot = document.createElement('div');
+            dot.className = 'carousel-dot';
+            dot.setAttribute('data-page', i);
+            dot.onclick = function() { goToCarouselPage(parseInt(this.getAttribute('data-page'))); };
+            dot.style.cssText = 'width: 10px; height: 10px; border-radius: 50%; background: ' + 
+                               (i === 0 ? '#007cba' : '#ddd') + 
+                               '; cursor: pointer; transition: all 0.3s ease;';
+            dotsContainer.appendChild(dot);
+        }
+    }
+    
+    function scrollThumbnails(direction) {
+        if (totalCarouselPages <= 1) return; // No scrolling needed
+        
+        if (direction === 'left' && currentCarouselPage > 0) {
+            currentCarouselPage--;
+        } else if (direction === 'right' && currentCarouselPage < totalCarouselPages - 1) {
+            currentCarouselPage++;
+        } else {
+            return; // No more scrolling possible
+        }
+        
+        animateCarouselToPage(currentCarouselPage);
+    }
+    
+    function goToCarouselPage(page) {
+        if (page >= 0 && page < totalCarouselPages) {
+            currentCarouselPage = page;
+            animateCarouselToPage(currentCarouselPage);
+        }
+    }
+    
+    function animateCarouselToPage(page) {
+        var strip = document.getElementById('thumbnail-strip');
+        if (!strip) return;
+        
+        console.log('=== CAROUSEL DEBUG ===');
+        console.log('Moving to carousel page:', page);
+        console.log('Total carousel pages:', totalCarouselPages);
+        console.log('Thumbnails per view:', thumbnailsPerView);
+        console.log('Total thumbnails:', totalPages);
+        console.log('Thumbnail width:', thumbnailWidth);
+        
+        var scrollAmount;
+        
+        // For the last page, calculate exact position to avoid white space
+        if (page === totalCarouselPages - 1) {
+            // Calculate remaining thumbnails in last group
+            var remainingThumbnails = totalPages - (page * thumbnailsPerView);
+            var lastPageThumbnails = Math.min(remainingThumbnails, thumbnailsPerView);
+            
+            console.log('Last page - remaining thumbnails:', remainingThumbnails);
+            
+            // Calculate maximum scroll to avoid white space
+            var maxScroll = (totalPages - thumbnailsPerView) * thumbnailWidth;
+            var calculatedScroll = page * thumbnailsPerView * thumbnailWidth;
+            
+            scrollAmount = Math.min(calculatedScroll, maxScroll);
+            
+            console.log('Last page scroll - calculated:', calculatedScroll, 'max:', maxScroll, 'final:', scrollAmount);
+            
+            // If we have fewer thumbnails than fit in view, don't scroll at all
+            if (totalPages <= thumbnailsPerView) {
+                scrollAmount = 0;
+            }
+        } else {
+            scrollAmount = page * thumbnailsPerView * thumbnailWidth;
+            console.log('Normal page scroll:', scrollAmount);
+        }
+        
+        // Ensure scrollAmount is not negative
+        scrollAmount = Math.max(0, scrollAmount);
+        
+        console.log('Final scroll amount:', scrollAmount + 'px');
+        console.log('Strip total width should be:', (totalPages * thumbnailWidth) + 'px');
+        
+        strip.style.transform = 'translateX(-' + scrollAmount + 'px)';
+        
+        // Update dots
+        var dots = document.querySelectorAll('.carousel-dot');
+        for (var i = 0; i < dots.length; i++) {
+            dots[i].style.background = (i === page) ? '#007cba' : '#ddd';
+        }
+        
+        // Update arrows
+        updateCarouselArrows();
+        
+        console.log('Carousel moved to page', page, 'scroll amount:', scrollAmount + 'px');
+        console.log('=== END CAROUSEL DEBUG ===');
+    }
+    
+    function updateCarouselArrows() {
+        var prevBtn = document.getElementById('carousel-prev');
+        var nextBtn = document.getElementById('carousel-next');
+        
+        // Hide arrows if we don't need them
+        if (totalCarouselPages <= 1) {
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+            return;
+        }
+        
+        if (prevBtn) {
+            prevBtn.style.display = 'flex';
+            prevBtn.style.opacity = currentCarouselPage > 0 ? '1' : '0.3';
+            prevBtn.style.cursor = currentCarouselPage > 0 ? 'pointer' : 'not-allowed';
+        }
+        
+        if (nextBtn) {
+            nextBtn.style.display = 'flex';
+            nextBtn.style.opacity = currentCarouselPage < totalCarouselPages - 1 ? '1' : '0.3';
+            nextBtn.style.cursor = currentCarouselPage < totalCarouselPages - 1 ? 'pointer' : 'not-allowed';
+        }
+    }
+    
+    function centerThumbnailInCarousel(pageNumber) {
+        // Only center if we actually need carousel scrolling
+        if (totalCarouselPages <= 1) return;
+        
+        // Center the selected thumbnail in carousel view
+        var thumbnailIndex = pageNumber - 1;
+        var targetCarouselPage = Math.floor(thumbnailIndex / thumbnailsPerView);
+        
+        // Make sure we don't exceed bounds
+        targetCarouselPage = Math.min(targetCarouselPage, totalCarouselPages - 1);
+        
+        if (targetCarouselPage !== currentCarouselPage) {
+            currentCarouselPage = targetCarouselPage;
+            animateCarouselToPage(currentCarouselPage);
+        }
+    }
+    
+    // Enhanced goToSpecificPage function
     function goToSpecificPage(page) {
         console.log('Going to specific page:', page);
         
@@ -238,13 +465,9 @@
         
         var isGoingForward = page > currentPage;
         
-        // Add CSS transitions to all pages
         addTransitionsToPages();
-        
-        // Show page turn effect
         showPageTurnEffect();
         
-        // Animate page transition based on type
         if (transitionType === 'slide') {
             animateSlideTransition(page, isGoingForward);
         } else if (transitionType === 'flip') {
@@ -256,8 +479,10 @@
         currentPage = page;
         updateDisplay();
         updateThumbnails();
+        centerThumbnailInCarousel(page); // Center in carousel
     }
     
+    // Rest of the original functions remain the same...
     function addTransitionsToPages() {
         var allPages = document.querySelectorAll('.book-page');
         for (var i = 0; i < allPages.length; i++) {
@@ -266,7 +491,6 @@
     }
     
     function animateFadeTransition(targetPage) {
-        // First fade out current pages
         var currentPages = document.querySelectorAll('.book-page[style*="block"]');
         for (var i = 0; i < currentPages.length; i++) {
             currentPages[i].style.opacity = '0';
@@ -281,15 +505,11 @@
                 showSinglePage(targetPage);
             }
             
-            // Fade in new pages
             var newPages = document.querySelectorAll('.book-page[style*="block"]');
             for (var i = 0; i < newPages.length; i++) {
                 newPages[i].style.opacity = '0';
                 newPages[i].style.transform = 'scale(1.05)';
-                
-                // Force reflow
                 newPages[i].offsetHeight;
-                
                 newPages[i].style.opacity = '1';
                 newPages[i].style.transform = 'scale(1)';
             }
@@ -300,7 +520,6 @@
         var direction = isGoingForward ? '100%' : '-100%';
         var oppositeDirection = isGoingForward ? '-100%' : '100%';
         
-        // Slide out current pages
         var currentPages = document.querySelectorAll('.book-page[style*="block"]');
         for (var i = 0; i < currentPages.length; i++) {
             currentPages[i].style.transform = 'translateX(' + oppositeDirection + ')';
@@ -315,15 +534,11 @@
                 showSinglePage(targetPage);
             }
             
-            // Slide in new pages
             var newPages = document.querySelectorAll('.book-page[style*="block"]');
             for (var i = 0; i < newPages.length; i++) {
                 newPages[i].style.transform = 'translateX(' + direction + ')';
                 newPages[i].style.opacity = '0.5';
-                
-                // Force reflow
                 newPages[i].offsetHeight;
-                
                 newPages[i].style.transform = 'translateX(0)';
                 newPages[i].style.opacity = '1';
             }
@@ -333,7 +548,6 @@
     function animateFlipTransition(targetPage, isGoingForward) {
         var currentPages = document.querySelectorAll('.book-page[style*="block"]');
         
-        // Flip out current pages
         for (var i = 0; i < currentPages.length; i++) {
             if (isGoingForward) {
                 currentPages[i].style.transform = 'rotateY(-90deg)';
@@ -353,7 +567,6 @@
                 showSinglePage(targetPage);
             }
             
-            // Flip in new pages
             var newPages = document.querySelectorAll('.book-page[style*="block"]');
             for (var i = 0; i < newPages.length; i++) {
                 if (isGoingForward) {
@@ -364,10 +577,7 @@
                     newPages[i].style.transformOrigin = 'left center';
                 }
                 newPages[i].style.opacity = '0.3';
-                
-                // Force reflow
                 newPages[i].offsetHeight;
-                
                 newPages[i].style.transform = 'rotateY(0deg)';
                 newPages[i].style.opacity = '1';
             }
@@ -390,18 +600,15 @@
         var allPages = document.querySelectorAll('.book-page');
         for (var i = 0; i < allPages.length; i++) {
             allPages[i].style.display = 'none';
-            // Reset transforms and opacity
             allPages[i].style.transform = '';
             allPages[i].style.opacity = '1';
         }
     }
     
     function showBookPages(page) {
-        // In book view, show current page on right, previous on left (if exists)
         var rightPage = document.querySelector('.right-page[data-page="' + page + '"]');
         if (rightPage) {
             rightPage.style.display = 'block';
-            // Initial state for animation
             rightPage.style.opacity = '0';
             rightPage.style.transform = 'scale(0.95)';
         }
@@ -410,7 +617,6 @@
             var leftPage = document.querySelector('.left-page[data-page="' + (page - 1) + '"]');
             if (leftPage) {
                 leftPage.style.display = 'block';
-                // Initial state for animation
                 leftPage.style.opacity = '0';
                 leftPage.style.transform = 'scale(0.95)';
             }
@@ -421,7 +627,6 @@
         var pageEl = document.querySelector('.book-page[data-page="' + page + '"]');
         if (pageEl) {
             pageEl.style.display = 'block';
-            // Initial state for animation
             pageEl.style.opacity = '0';
             pageEl.style.transform = 'scale(0.95)';
         }
@@ -434,10 +639,7 @@
             effect.style.background = 'linear-gradient(to right, transparent, rgba(255,255,255,0.3), rgba(0,0,0,0.1), transparent)';
             effect.style.transform = 'translateX(-100%)';
             effect.style.transition = 'all 0.6s ease';
-            
-            // Force reflow
             effect.offsetHeight;
-            
             effect.style.transform = 'translateX(100%)';
             
             setTimeout(function() {
@@ -458,7 +660,6 @@
             var thumb = thumbnails[i];
             var thumbPage = parseInt(thumb.getAttribute('data-page'));
             
-            // Add smooth transition
             thumb.style.transition = 'all 0.3s ease';
             
             if (thumbPage === currentPage) {
@@ -515,6 +716,9 @@
                 container.style.background = '#000';
                 container.style.padding = '20px';
                 container.style.boxSizing = 'border-box';
+                
+                // Reinitialize carousel for fullscreen
+                setTimeout(initializeThumbnailCarousel, 100);
             }).catch(function(err) {
                 console.log('Fullscreen error:', err);
             });
@@ -529,6 +733,9 @@
                 container.style.zIndex = '';
                 container.style.background = '';
                 container.style.padding = '';
+                
+                // Reinitialize carousel for normal view
+                setTimeout(initializeThumbnailCarousel, 100);
             });
         }
     }
@@ -542,7 +749,7 @@
     
     function changeViewMode(mode) {
         viewMode = mode;
-        goToSpecificPage(currentPage); // Refresh display
+        goToSpecificPage(currentPage);
     }
     
     function changeTransition(type) {
@@ -555,7 +762,7 @@
                 if (currentPage < totalPages) {
                     goToNextPage();
                 } else {
-                    goToSpecificPage(1); // Loop back to start
+                    goToSpecificPage(1);
                 }
             }, 5000);
         } else {
@@ -605,9 +812,6 @@
         }
     });
     
-    // Initialize
-    // DOMContentLoaded event is already handled above
-    
     // Touch/swipe support for mobile
     var startX = 0;
     var startY = 0;
@@ -623,19 +827,21 @@
         var diffX = startX - endX;
         var diffY = startY - endY;
         
-        // Only react to horizontal swipes
         if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
             if (diffX > 0) {
-                // Swiped left - go to next page
                 goToNextPage();
             } else {
-                // Swiped right - go to previous page
                 goToPrevPage();
             }
         }
     });
     
-    console.log('Enhanced Flipbook fully loaded');
+    // Window resize handler for carousel
+    window.addEventListener('resize', function() {
+        setTimeout(initializeThumbnailCarousel, 100);
+    });
+    
+    console.log('Enhanced Flipbook with Carousel fully loaded');
     </script>
 
 </f:section>
