@@ -36,6 +36,8 @@ class FlipbookController extends ActionController
             return $this->htmlResponse();
         }
         
+
+
         $processedImagesField = $document['processed_images'] ?? '';
         
         $images = $this->getDocumentImages($document);
@@ -43,7 +45,10 @@ class FlipbookController extends ActionController
         if (empty($images)) {
             $images = $this->createSimpleTestImages($document['uid']);
         }
-        
+$spreads = array_chunk($images, 2);
+$this->view->assign('document', $document);
+$this->view->assign('images', $spreads);
+
         $config = [
             'showControls' => true,
             'showPageNumbers' => true,
@@ -160,8 +165,8 @@ class FlipbookController extends ActionController
                 'page' => $page,
                 'filePath' => $path,
                 'publicUrl' => $publicUrl,
-                'width' => 800,
-                'height' => 600,
+            'width' => 1241,
+            'height' => 768,
                 'fileSize' => filesize($path),
             ];
         }

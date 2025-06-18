@@ -27,13 +27,13 @@
                     <div class="book-container" style="perspective: 1200px; width: 100%; height: 600px; background: linear-gradient(45deg, #f0f0f0, #e8e8e8); position: relative; overflow: hidden;">
                         
                         <!-- Book spine/binding -->
-                        <div class="book-spine" style="position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, #8B4513, #A0522D); transform: translateX(-50%); z-index: 100; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>
+                        <div class="book-spine" style="display:none; position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, #8B4513, #A0522D); transform: translateX(-50%); z-index: 100; box-shadow: 0 0 10px rgba(0,0,0,0.3);"></div>
                         
                         <!-- Left Page -->
                         <div class="page-left" style="position: absolute; left: 0; top: 0; width: 50%; height: 100%; background: white; box-shadow: inset -5px 0 15px rgba(0,0,0,0.1); overflow: hidden;">
                             <f:for each="{images}" as="image" iteration="iterator">
                                 <div class="book-page left-page" data-page="{image.page}" 
-                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; padding: 20px; box-sizing: border-box; background: white;">
+                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; box-sizing: border-box; background: white;">
                                     <img src="{image.publicUrl}" alt="Page {image.page}" 
                                          style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;" />
                                     <div style="position: absolute; bottom: 10px; left: 20px; font-size: 12px; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 3px;">
@@ -47,7 +47,7 @@
                         <div class="page-right" style="position: absolute; right: 0; top: 0; width: 50%; height: 100%; background: white; box-shadow: inset 5px 0 15px rgba(0,0,0,0.1); overflow: hidden;">
                             <f:for each="{images}" as="image" iteration="iterator">
                                 <div class="book-page right-page" data-page="{image.page}" 
-                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; padding: 20px; box-sizing: border-box; background: white;">
+                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; box-sizing: border-box; background: white;">
                                     <img src="{image.publicUrl}" alt="Page {image.page}" 
                                          style="width: 100%; height: 100%; object-fit: contain; border-radius: 4px;" />
                                     <div style="position: absolute; bottom: 10px; right: 20px; font-size: 12px; color: #666; background: rgba(255,255,255,0.8); padding: 2px 6px; border-radius: 3px;">
@@ -65,7 +65,7 @@
                     <div class="control-panel" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); padding: 15px 20px; border-radius: 25px; color: white; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
                         
                         <!-- Navigation -->
-                        <button onclick="goToPrevPage()" class="nav-btn" 
+                        <button onclick="goToPrevSpread()" class="nav-btn" 
                                 style="background: #007cba; border: none; color: white; padding: 10px 15px; border-radius: 50%; cursor: pointer; font-size: 16px; transition: all 0.2s; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;"
                                 onmouseover="this.style.background='#005a8a'; this.style.transform='scale(1.1)'" 
                                 onmouseout="this.style.background='#007cba'; this.style.transform='scale(1)'">
@@ -73,11 +73,11 @@
                         </button>
                         
                         <!-- Page Display -->
-                        <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 15px; font-weight: bold; min-width: 80px; text-align: center;">
-                            <span id="current-page-display">1</span> / <span id="total-pages-display">5</span>
+                        <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 15px; font-weight: bold; min-width: 120px; text-align: center;">
+                            <span id="current-spread-display">1-2</span> od <span id="total-pages-display">5</span>
                         </div>
                         
-                        <button onclick="goToNextPage()" class="nav-btn"
+                        <button onclick="goToNextSpread()" class="nav-btn"
                                 style="background: #007cba; border: none; color: white; padding: 10px 15px; border-radius: 50%; cursor: pointer; font-size: 16px; transition: all 0.2s; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;"
                                 onmouseover="this.style.background='#005a8a'; this.style.transform='scale(1.1)'" 
                                 onmouseout="this.style.background='#007cba'; this.style.transform='scale(1)'">
@@ -142,7 +142,7 @@
                         <div style="margin-bottom: 10px;">
                             <label style="display: flex; align-items: center; color: #666;">
                                 <input type="checkbox" id="auto-play" onchange="toggleAutoPlay(this.checked)" style="margin-right: 8px;">
-                                Auto-play (5s per page)
+                                Auto-play (5s per spread)
                             </label>
                         </div>
                         
@@ -211,12 +211,14 @@
         </f:if>
     </div>
 
-    <!-- Enhanced JavaScript with Thumbnail Carousel -->
+    <!-- Enhanced JavaScript with Dual Page Logic -->
     <script>
-    console.log('Enhanced Flipbook with Carousel loaded');
+    console.log('Enhanced Flipbook with Dual Page loaded');
     
-    var currentPage = 1;
+    // MODIFIKOVANE VARIJABLE ZA DUAL-PAGE
+    var currentSpread = 0; // Umesto currentPage
     var totalPages = 5;
+    var totalSpreads = 0; // Izračunava se dinamički
     var viewMode = 'book';
     var transitionType = 'fade';
     var zoomLevel = 1;
@@ -224,10 +226,10 @@
     var isFullscreen = false;
     
     // Carousel variables
-    var thumbnailsPerView = 4; // Number of thumbnails visible at once
+    var thumbnailsPerView = 4;
     var currentCarouselPage = 0;
     var totalCarouselPages = 0;
-    var thumbnailWidth = 132; // Will be calculated dynamically
+    var thumbnailWidth = 132;
     
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
@@ -240,6 +242,7 @@
         }
         if (maxPage > 0) {
             totalPages = maxPage;
+            totalSpreads = Math.ceil(totalPages / 2); // IZRAČUNAJ BROJ SPREAD-OVA
             var totalDisplay = document.getElementById('total-pages-display');
             if (totalDisplay) totalDisplay.textContent = totalPages;
         }
@@ -249,65 +252,363 @@
             initializeThumbnailCarousel();
         }, 100);
         
-        showBookPages(currentPage);
+        showCurrentSpread(); // UMESTO showBookPages
         updateDisplay();
         updateThumbnails();
-        console.log('Enhanced Flipbook initialized with', totalPages, 'pages');
+        console.log('Enhanced Flipbook initialized with', totalPages, 'pages,', totalSpreads, 'spreads');
     });
     
+    // NOVE FUNKCIJE ZA DUAL-PAGE NAVIGACIJU
+    function goToNextSpread() {
+        if (currentSpread < totalSpreads - 1) {
+            currentSpread++;
+            var isGoingForward = true;
+            
+            addTransitionsToPages();
+            showPageTurnEffect();
+            
+            if (transitionType === 'slide') {
+                animateSlideTransition(currentSpread, isGoingForward);
+            } else if (transitionType === 'flip') {
+                animateFlipTransition(currentSpread, isGoingForward);
+            } else {
+                animateFadeTransition(currentSpread);
+            }
+            
+            updateDisplay();
+            updateThumbnails();
+        }
+    }
+
+    function goToPrevSpread() {
+        if (currentSpread > 0) {
+            currentSpread--;
+            var isGoingForward = false;
+            
+            addTransitionsToPages();
+            showPageTurnEffect();
+            
+            if (transitionType === 'slide') {
+                animateSlideTransition(currentSpread, isGoingForward);
+            } else if (transitionType === 'flip') {
+                animateFlipTransition(currentSpread, isGoingForward);
+            } else {
+                animateFadeTransition(currentSpread);
+            }
+            
+            updateDisplay();
+            updateThumbnails();
+        }
+    }
+
+    // MODIFIKOVANA FUNKCIJA ZA PRIKAZ SPREAD-A
+    function showCurrentSpread() {
+        hideAllPages();
+        
+        var leftPageNum = (currentSpread * 2) + 1;
+        var rightPageNum = (currentSpread * 2) + 2;
+        
+        console.log('Showing spread', currentSpread, '- pages:', leftPageNum, 'and', rightPageNum);
+        
+        // Prikaži levu stranu (neparni brojevi: 1, 3, 5...)
+        var leftPage = document.querySelector('.left-page[data-page="' + leftPageNum + '"]');
+        if (leftPage) {
+            leftPage.style.display = 'block';
+            leftPage.style.opacity = '1';
+            leftPage.style.transform = 'scale(1)';
+        }
+        
+        // Prikaži desnu stranu (parni brojevi: 2, 4, 6...)
+        if (rightPageNum <= totalPages) {
+            var rightPage = document.querySelector('.right-page[data-page="' + rightPageNum + '"]');
+            if (rightPage) {
+                rightPage.style.display = 'block';
+                rightPage.style.opacity = '1';
+                rightPage.style.transform = 'scale(1)';
+            }
+        }
+    }
+
+    // MODIFIKOVANA FUNKCIJA ZA PRIKAZ BROJEVA STRANICA
+    function updateDisplay() {
+        var leftPageNum = (currentSpread * 2) + 1;
+        var rightPageNum = (currentSpread * 2) + 2;
+        
+        var displayText;
+        if (rightPageNum <= totalPages) {
+            displayText = leftPageNum + '-' + rightPageNum;
+        } else {
+            displayText = leftPageNum.toString();
+        }
+        
+        var currentDisplay = document.getElementById('current-spread-display');
+        if (currentDisplay) currentDisplay.textContent = displayText;
+    }
+
+    // MODIFIKOVANA FUNKCIJA ZA THUMBNAIL NAVIGACIJU
+    function goToSpecificPage(page) {
+        console.log('Going to specific page:', page);
+        
+        if (page < 1 || page > totalPages) return;
+        
+        // Izračunaj odgovarajući spread za datu stranicu
+        var targetSpread = Math.floor((page - 1) / 2);
+        
+        if (targetSpread === currentSpread) return;
+        
+        var isGoingForward = targetSpread > currentSpread;
+        
+        addTransitionsToPages();
+        showPageTurnEffect();
+        
+        if (transitionType === 'slide') {
+            animateSlideTransition(targetSpread, isGoingForward);
+        } else if (transitionType === 'flip') {
+            animateFlipTransition(targetSpread, isGoingForward);
+        } else {
+            animateFadeTransition(targetSpread);
+        }
+        
+        currentSpread = targetSpread;
+        updateDisplay();
+        updateThumbnails();
+        centerThumbnailInCarousel(page);
+    }
+
+    // MODIFIKOVANE ANIMACIJE ZA SPREAD-OVE
+    function animateFadeTransition(targetSpread) {
+        var currentPages = document.querySelectorAll('.book-page[style*="block"]');
+        for (var i = 0; i < currentPages.length; i++) {
+            currentPages[i].style.opacity = '0';
+            currentPages[i].style.transform = 'scale(0.95)';
+        }
+        
+        setTimeout(function() {
+            currentSpread = targetSpread;
+            showCurrentSpread();
+            
+            var newPages = document.querySelectorAll('.book-page[style*="block"]');
+            for (var i = 0; i < newPages.length; i++) {
+                newPages[i].style.opacity = '0';
+                newPages[i].style.transform = 'scale(1.05)';
+                newPages[i].offsetHeight;
+                newPages[i].style.opacity = '1';
+                newPages[i].style.transform = 'scale(1)';
+            }
+        }, 300);
+    }
+
+    function animateSlideTransition(targetSpread, isGoingForward) {
+        var direction = isGoingForward ? '100%' : '-100%';
+        var oppositeDirection = isGoingForward ? '-100%' : '100%';
+        
+        var currentPages = document.querySelectorAll('.book-page[style*="block"]');
+        for (var i = 0; i < currentPages.length; i++) {
+            currentPages[i].style.transform = 'translateX(' + oppositeDirection + ')';
+            currentPages[i].style.opacity = '0.5';
+        }
+        
+        setTimeout(function() {
+            currentSpread = targetSpread;
+            showCurrentSpread();
+            
+            var newPages = document.querySelectorAll('.book-page[style*="block"]');
+            for (var i = 0; i < newPages.length; i++) {
+                newPages[i].style.transform = 'translateX(' + direction + ')';
+                newPages[i].style.opacity = '0.5';
+                newPages[i].offsetHeight;
+                newPages[i].style.transform = 'translateX(0)';
+                newPages[i].style.opacity = '1';
+            }
+        }, 300);
+    }
+
+    function animateFlipTransition(targetSpread, isGoingForward) {
+        var currentPages = document.querySelectorAll('.book-page[style*="block"]');
+        
+        for (var i = 0; i < currentPages.length; i++) {
+            if (isGoingForward) {
+                currentPages[i].style.transform = 'rotateY(-90deg)';
+                currentPages[i].style.transformOrigin = 'left center';
+            } else {
+                currentPages[i].style.transform = 'rotateY(90deg)';
+                currentPages[i].style.transformOrigin = 'right center';
+            }
+            currentPages[i].style.opacity = '0.3';
+        }
+        
+        setTimeout(function() {
+            currentSpread = targetSpread;
+            showCurrentSpread();
+            
+            var newPages = document.querySelectorAll('.book-page[style*="block"]');
+            for (var i = 0; i < newPages.length; i++) {
+                if (isGoingForward) {
+                    newPages[i].style.transform = 'rotateY(90deg)';
+                    newPages[i].style.transformOrigin = 'right center';
+                } else {
+                    newPages[i].style.transform = 'rotateY(-90deg)';
+                    newPages[i].style.transformOrigin = 'left center';
+                }
+                newPages[i].style.opacity = '0.3';
+                newPages[i].offsetHeight;
+                newPages[i].style.transform = 'rotateY(0deg)';
+                newPages[i].style.opacity = '1';
+            }
+        }, 350);
+    }
+
+    // MODIFIKOVANA FUNKCIJA ZA THUMBNAIL HIGHLIGHT
+    function updateThumbnails() {
+        var leftPageNum = (currentSpread * 2) + 1;
+        var rightPageNum = (currentSpread * 2) + 2;
+        
+        var thumbnails = document.querySelectorAll('.thumbnail-card');
+        for (var i = 0; i < thumbnails.length; i++) {
+            var thumb = thumbnails[i];
+            var thumbPage = parseInt(thumb.getAttribute('data-page'));
+            
+            thumb.style.transition = 'all 0.3s ease';
+            
+            // Highlight ako je strana u trenutnom spread-u
+            if (thumbPage === leftPageNum || thumbPage === rightPageNum) {
+                thumb.style.borderColor = '#007cba';
+                thumb.style.borderWidth = '3px';
+                thumb.style.transform = 'scale(1.05)';
+                thumb.style.boxShadow = '0 4px 15px rgba(0, 124, 186, 0.3)';
+            } else {
+                thumb.style.borderColor = '#ddd';
+                thumb.style.borderWidth = '3px';
+                thumb.style.transform = 'scale(1)';
+                thumb.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+            }
+        }
+    }
+
+    // MODIFIKOVANO AUTO-PLAY ZA SPREAD-OVE
+    function toggleAutoPlay(enabled) {
+        if (enabled) {
+            autoPlayInterval = setInterval(function() {
+                if (currentSpread < totalSpreads - 1) {
+                    goToNextSpread();
+                } else {
+                    currentSpread = 0;
+                    showCurrentSpread();
+                    updateDisplay();
+                    updateThumbnails();
+                }
+            }, 5000);
+        } else {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+        }
+    }
+
+    // MODIFIKOVANA KEYBOARD NAVIGACIJA
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goToPrevSpread();
+        }
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            goToNextSpread();
+        }
+        if (e.key === 'Home') {
+            e.preventDefault();
+            currentSpread = 0;
+            showCurrentSpread();
+            updateDisplay();
+            updateThumbnails();
+        }
+        if (e.key === 'End') {
+            e.preventDefault();
+            currentSpread = totalSpreads - 1;
+            showCurrentSpread();
+            updateDisplay();
+            updateThumbnails();
+        }
+        if (e.key === 'F11') {
+            e.preventDefault();
+            toggleFullscreen();
+        }
+        if (e.key === 'Escape' && isFullscreen) {
+            toggleFullscreen();
+        }
+        if (e.key === '+' || e.key === '=') {
+            e.preventDefault();
+            zoomIn();
+        }
+        if (e.key === '-') {
+            e.preventDefault();
+            zoomOut();
+        }
+        if (e.key === '0') {
+            e.preventDefault();
+            resetZoom();
+        }
+    });
+
+    // MODIFIKOVANO TOUCH/SWIPE SUPPORT ZA SPREAD-OVE
+    var startX = 0;
+    var startY = 0;
+    
+    document.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+    
+    document.addEventListener('touchend', function(e) {
+        var endX = e.changedTouches[0].clientX;
+        var endY = e.changedTouches[0].clientY;
+        var diffX = startX - endX;
+        var diffY = startY - endY;
+        
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0) {
+                goToNextSpread();
+            } else {
+                goToPrevSpread();
+            }
+        }
+    });
+
+    // CAROUSEL FUNKCIJE - ZADRŽANE ORIGINALNE
     function initializeThumbnailCarousel() {
         var container = document.querySelector('.thumbnail-carousel-container');
         var strip = document.getElementById('thumbnail-strip');
         if (!container || !strip) return;
         
-        // Calculate actual thumbnail width from DOM
         var firstThumbnail = document.querySelector('.thumbnail-card');
         if (firstThumbnail) {
             var thumbRect = firstThumbnail.getBoundingClientRect();
             var thumbStyle = window.getComputedStyle(firstThumbnail);
             var marginRight = parseInt(thumbStyle.marginRight) || 0;
-            thumbnailWidth = thumbRect.width + marginRight + 12; // Include gap
-            
-            console.log('Calculated thumbnail width:', thumbnailWidth, 'px');
+            thumbnailWidth = thumbRect.width + marginRight + 12;
         }
         
-        // Calculate how many thumbnails fit in viewport
-        var containerWidth = container.offsetWidth - 100; // Minus arrows space
+        var containerWidth = container.offsetWidth - 100;
         thumbnailsPerView = Math.floor(containerWidth / thumbnailWidth);
         if (thumbnailsPerView < 1) thumbnailsPerView = 1;
         
-        console.log('Container width:', containerWidth, 'Thumbnails per view:', thumbnailsPerView);
-        
-        // Better calculation - only create pages if we have more thumbnails than can fit
         if (totalPages <= thumbnailsPerView) {
             totalCarouselPages = 1;
-            thumbnailsPerView = totalPages; // Show all thumbnails
+            thumbnailsPerView = totalPages;
         } else {
             totalCarouselPages = Math.ceil(totalPages / thumbnailsPerView);
         }
         
-        // Reset to first page
         currentCarouselPage = 0;
-        
-        // Generate dots
         generateCarouselDots();
-        
-        // Update arrow visibility
         updateCarouselArrows();
         
-        // Reset position
         if (strip) {
             strip.style.transform = 'translateX(0px)';
         }
         
-        console.log('Carousel initialized:', thumbnailsPerView, 'thumbnails per view,', totalCarouselPages, 'carousel pages, total thumbnails:', totalPages);
-        
-        // Debug strip width
-        setTimeout(function() {
-            var stripActualWidth = strip.scrollWidth;
-            var stripVisibleWidth = strip.offsetWidth;
-            console.log('STRIP DEBUG - Actual width:', stripActualWidth, 'Visible width:', stripVisibleWidth);
-        }, 200);
+        console.log('Carousel initialized:', thumbnailsPerView, 'thumbnails per view,', totalCarouselPages, 'carousel pages');
     }
     
     function generateCarouselDots() {
@@ -336,14 +637,14 @@
     }
     
     function scrollThumbnails(direction) {
-        if (totalCarouselPages <= 1) return; // No scrolling needed
+        if (totalCarouselPages <= 1) return;
         
         if (direction === 'left' && currentCarouselPage > 0) {
             currentCarouselPage--;
         } else if (direction === 'right' && currentCarouselPage < totalCarouselPages - 1) {
             currentCarouselPage++;
         } else {
-            return; // No more scrolling possible
+            return;
         }
         
         animateCarouselToPage(currentCarouselPage);
@@ -360,66 +661,38 @@
         var strip = document.getElementById('thumbnail-strip');
         if (!strip) return;
         
-        console.log('=== CAROUSEL DEBUG ===');
-        console.log('Moving to carousel page:', page);
-        console.log('Total carousel pages:', totalCarouselPages);
-        console.log('Thumbnails per view:', thumbnailsPerView);
-        console.log('Total thumbnails:', totalPages);
-        console.log('Thumbnail width:', thumbnailWidth);
-        
         var scrollAmount;
         
-        // For the last page, calculate exact position to avoid white space
         if (page === totalCarouselPages - 1) {
-            // Calculate remaining thumbnails in last group
             var remainingThumbnails = totalPages - (page * thumbnailsPerView);
-            var lastPageThumbnails = Math.min(remainingThumbnails, thumbnailsPerView);
-            
-            console.log('Last page - remaining thumbnails:', remainingThumbnails);
-            
-            // Calculate maximum scroll to avoid white space
             var maxScroll = (totalPages - thumbnailsPerView) * thumbnailWidth;
             var calculatedScroll = page * thumbnailsPerView * thumbnailWidth;
             
             scrollAmount = Math.min(calculatedScroll, maxScroll);
             
-            console.log('Last page scroll - calculated:', calculatedScroll, 'max:', maxScroll, 'final:', scrollAmount);
-            
-            // If we have fewer thumbnails than fit in view, don't scroll at all
             if (totalPages <= thumbnailsPerView) {
                 scrollAmount = 0;
             }
         } else {
             scrollAmount = page * thumbnailsPerView * thumbnailWidth;
-            console.log('Normal page scroll:', scrollAmount);
         }
         
-        // Ensure scrollAmount is not negative
         scrollAmount = Math.max(0, scrollAmount);
-        
-        console.log('Final scroll amount:', scrollAmount + 'px');
-        console.log('Strip total width should be:', (totalPages * thumbnailWidth) + 'px');
         
         strip.style.transform = 'translateX(-' + scrollAmount + 'px)';
         
-        // Update dots
         var dots = document.querySelectorAll('.carousel-dot');
         for (var i = 0; i < dots.length; i++) {
             dots[i].style.background = (i === page) ? '#007cba' : '#ddd';
         }
         
-        // Update arrows
         updateCarouselArrows();
-        
-        console.log('Carousel moved to page', page, 'scroll amount:', scrollAmount + 'px');
-        console.log('=== END CAROUSEL DEBUG ===');
     }
     
     function updateCarouselArrows() {
         var prevBtn = document.getElementById('carousel-prev');
         var nextBtn = document.getElementById('carousel-next');
         
-        // Hide arrows if we don't need them
         if (totalCarouselPages <= 1) {
             if (prevBtn) prevBtn.style.display = 'none';
             if (nextBtn) nextBtn.style.display = 'none';
@@ -440,14 +713,11 @@
     }
     
     function centerThumbnailInCarousel(pageNumber) {
-        // Only center if we actually need carousel scrolling
         if (totalCarouselPages <= 1) return;
         
-        // Center the selected thumbnail in carousel view
         var thumbnailIndex = pageNumber - 1;
         var targetCarouselPage = Math.floor(thumbnailIndex / thumbnailsPerView);
         
-        // Make sure we don't exceed bounds
         targetCarouselPage = Math.min(targetCarouselPage, totalCarouselPages - 1);
         
         if (targetCarouselPage !== currentCarouselPage) {
@@ -455,144 +725,12 @@
             animateCarouselToPage(currentCarouselPage);
         }
     }
-    
-    // Enhanced goToSpecificPage function
-    function goToSpecificPage(page) {
-        console.log('Going to specific page:', page);
-        
-        if (page < 1 || page > totalPages) return;
-        if (page === currentPage) return;
-        
-        var isGoingForward = page > currentPage;
-        
-        addTransitionsToPages();
-        showPageTurnEffect();
-        
-        if (transitionType === 'slide') {
-            animateSlideTransition(page, isGoingForward);
-        } else if (transitionType === 'flip') {
-            animateFlipTransition(page, isGoingForward);
-        } else {
-            animateFadeTransition(page);
-        }
-        
-        currentPage = page;
-        updateDisplay();
-        updateThumbnails();
-        centerThumbnailInCarousel(page); // Center in carousel
-    }
-    
-    // Rest of the original functions remain the same...
+
+    // OSTALE POMOĆNE FUNKCIJE - ZADRŽANE ORIGINALNE
     function addTransitionsToPages() {
         var allPages = document.querySelectorAll('.book-page');
         for (var i = 0; i < allPages.length; i++) {
             allPages[i].style.transition = 'all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-        }
-    }
-    
-    function animateFadeTransition(targetPage) {
-        var currentPages = document.querySelectorAll('.book-page[style*="block"]');
-        for (var i = 0; i < currentPages.length; i++) {
-            currentPages[i].style.opacity = '0';
-            currentPages[i].style.transform = 'scale(0.95)';
-        }
-        
-        setTimeout(function() {
-            hideAllPages();
-            if (viewMode === 'book') {
-                showBookPages(targetPage);
-            } else {
-                showSinglePage(targetPage);
-            }
-            
-            var newPages = document.querySelectorAll('.book-page[style*="block"]');
-            for (var i = 0; i < newPages.length; i++) {
-                newPages[i].style.opacity = '0';
-                newPages[i].style.transform = 'scale(1.05)';
-                newPages[i].offsetHeight;
-                newPages[i].style.opacity = '1';
-                newPages[i].style.transform = 'scale(1)';
-            }
-        }, 300);
-    }
-    
-    function animateSlideTransition(targetPage, isGoingForward) {
-        var direction = isGoingForward ? '100%' : '-100%';
-        var oppositeDirection = isGoingForward ? '-100%' : '100%';
-        
-        var currentPages = document.querySelectorAll('.book-page[style*="block"]');
-        for (var i = 0; i < currentPages.length; i++) {
-            currentPages[i].style.transform = 'translateX(' + oppositeDirection + ')';
-            currentPages[i].style.opacity = '0.5';
-        }
-        
-        setTimeout(function() {
-            hideAllPages();
-            if (viewMode === 'book') {
-                showBookPages(targetPage);
-            } else {
-                showSinglePage(targetPage);
-            }
-            
-            var newPages = document.querySelectorAll('.book-page[style*="block"]');
-            for (var i = 0; i < newPages.length; i++) {
-                newPages[i].style.transform = 'translateX(' + direction + ')';
-                newPages[i].style.opacity = '0.5';
-                newPages[i].offsetHeight;
-                newPages[i].style.transform = 'translateX(0)';
-                newPages[i].style.opacity = '1';
-            }
-        }, 300);
-    }
-    
-    function animateFlipTransition(targetPage, isGoingForward) {
-        var currentPages = document.querySelectorAll('.book-page[style*="block"]');
-        
-        for (var i = 0; i < currentPages.length; i++) {
-            if (isGoingForward) {
-                currentPages[i].style.transform = 'rotateY(-90deg)';
-                currentPages[i].style.transformOrigin = 'left center';
-            } else {
-                currentPages[i].style.transform = 'rotateY(90deg)';
-                currentPages[i].style.transformOrigin = 'right center';
-            }
-            currentPages[i].style.opacity = '0.3';
-        }
-        
-        setTimeout(function() {
-            hideAllPages();
-            if (viewMode === 'book') {
-                showBookPages(targetPage);
-            } else {
-                showSinglePage(targetPage);
-            }
-            
-            var newPages = document.querySelectorAll('.book-page[style*="block"]');
-            for (var i = 0; i < newPages.length; i++) {
-                if (isGoingForward) {
-                    newPages[i].style.transform = 'rotateY(90deg)';
-                    newPages[i].style.transformOrigin = 'right center';
-                } else {
-                    newPages[i].style.transform = 'rotateY(-90deg)';
-                    newPages[i].style.transformOrigin = 'left center';
-                }
-                newPages[i].style.opacity = '0.3';
-                newPages[i].offsetHeight;
-                newPages[i].style.transform = 'rotateY(0deg)';
-                newPages[i].style.opacity = '1';
-            }
-        }, 350);
-    }
-    
-    function goToNextPage() {
-        if (currentPage < totalPages) {
-            goToSpecificPage(currentPage + 1);
-        }
-    }
-    
-    function goToPrevPage() {
-        if (currentPage > 1) {
-            goToSpecificPage(currentPage - 1);
         }
     }
     
@@ -602,33 +740,6 @@
             allPages[i].style.display = 'none';
             allPages[i].style.transform = '';
             allPages[i].style.opacity = '1';
-        }
-    }
-    
-    function showBookPages(page) {
-        var rightPage = document.querySelector('.right-page[data-page="' + page + '"]');
-        if (rightPage) {
-            rightPage.style.display = 'block';
-            rightPage.style.opacity = '0';
-            rightPage.style.transform = 'scale(0.95)';
-        }
-        
-        if (page > 1) {
-            var leftPage = document.querySelector('.left-page[data-page="' + (page - 1) + '"]');
-            if (leftPage) {
-                leftPage.style.display = 'block';
-                leftPage.style.opacity = '0';
-                leftPage.style.transform = 'scale(0.95)';
-            }
-        }
-    }
-    
-    function showSinglePage(page) {
-        var pageEl = document.querySelector('.book-page[data-page="' + page + '"]');
-        if (pageEl) {
-            pageEl.style.display = 'block';
-            pageEl.style.opacity = '0';
-            pageEl.style.transform = 'scale(0.95)';
         }
     }
     
@@ -646,33 +757,6 @@
                 effect.style.opacity = '0';
                 effect.style.transform = 'translateX(0)';
             }, 600);
-        }
-    }
-    
-    function updateDisplay() {
-        var currentDisplay = document.getElementById('current-page-display');
-        if (currentDisplay) currentDisplay.textContent = currentPage;
-    }
-    
-    function updateThumbnails() {
-        var thumbnails = document.querySelectorAll('.thumbnail-card');
-        for (var i = 0; i < thumbnails.length; i++) {
-            var thumb = thumbnails[i];
-            var thumbPage = parseInt(thumb.getAttribute('data-page'));
-            
-            thumb.style.transition = 'all 0.3s ease';
-            
-            if (thumbPage === currentPage) {
-                thumb.style.borderColor = '#007cba';
-                thumb.style.borderWidth = '3px';
-                thumb.style.transform = 'scale(1.05)';
-                thumb.style.boxShadow = '0 4px 15px rgba(0, 124, 186, 0.3)';
-            } else {
-                thumb.style.borderColor = '#ddd';
-                thumb.style.borderWidth = '3px';
-                thumb.style.transform = 'scale(1)';
-                thumb.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
-            }
         }
     }
     
@@ -717,7 +801,6 @@
                 container.style.padding = '20px';
                 container.style.boxSizing = 'border-box';
                 
-                // Reinitialize carousel for fullscreen
                 setTimeout(initializeThumbnailCarousel, 100);
             }).catch(function(err) {
                 console.log('Fullscreen error:', err);
@@ -734,7 +817,6 @@
                 container.style.background = '';
                 container.style.padding = '';
                 
-                // Reinitialize carousel for normal view
                 setTimeout(initializeThumbnailCarousel, 100);
             });
         }
@@ -749,99 +831,19 @@
     
     function changeViewMode(mode) {
         viewMode = mode;
-        goToSpecificPage(currentPage);
+        showCurrentSpread(); // Updated function call
     }
     
     function changeTransition(type) {
         transitionType = type;
     }
     
-    function toggleAutoPlay(enabled) {
-        if (enabled) {
-            autoPlayInterval = setInterval(function() {
-                if (currentPage < totalPages) {
-                    goToNextPage();
-                } else {
-                    goToSpecificPage(1);
-                }
-            }, 5000);
-        } else {
-            if (autoPlayInterval) {
-                clearInterval(autoPlayInterval);
-                autoPlayInterval = null;
-            }
-        }
-    }
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            goToPrevPage();
-        }
-        if (e.key === 'ArrowRight') {
-            e.preventDefault();
-            goToNextPage();
-        }
-        if (e.key === 'Home') {
-            e.preventDefault();
-            goToSpecificPage(1);
-        }
-        if (e.key === 'End') {
-            e.preventDefault();
-            goToSpecificPage(totalPages);
-        }
-        if (e.key === 'F11') {
-            e.preventDefault();
-            toggleFullscreen();
-        }
-        if (e.key === 'Escape' && isFullscreen) {
-            toggleFullscreen();
-        }
-        if (e.key === '+' || e.key === '=') {
-            e.preventDefault();
-            zoomIn();
-        }
-        if (e.key === '-') {
-            e.preventDefault();
-            zoomOut();
-        }
-        if (e.key === '0') {
-            e.preventDefault();
-            resetZoom();
-        }
-    });
-    
-    // Touch/swipe support for mobile
-    var startX = 0;
-    var startY = 0;
-    
-    document.addEventListener('touchstart', function(e) {
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    });
-    
-    document.addEventListener('touchend', function(e) {
-        var endX = e.changedTouches[0].clientX;
-        var endY = e.changedTouches[0].clientY;
-        var diffX = startX - endX;
-        var diffY = startY - endY;
-        
-        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
-            if (diffX > 0) {
-                goToNextPage();
-            } else {
-                goToPrevPage();
-            }
-        }
-    });
-    
     // Window resize handler for carousel
     window.addEventListener('resize', function() {
         setTimeout(initializeThumbnailCarousel, 100);
     });
     
-    console.log('Enhanced Flipbook with Carousel fully loaded');
+    console.log('Enhanced Flipbook with Dual Page fully loaded');
     </script>
 
 </f:section>
