@@ -1,0 +1,94 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<div class="flipbook-teaser-card size-{settings.teaserSize}" 
+     style="--card-bg-color: {settings.cardBackgroundColor}; --button-color: {settings.buttonColor};">
+    
+    <a href="{flipbookUrl}" 
+       target="{f:if(condition: settings.openInNewWindow, then: '_blank', else: '_self')}"
+       class="teaser-link">
+        
+        <div class="card-container">
+            <!-- Cover Image -->
+            <div class="card-image">
+                <f:if condition="{coverImage}">
+                    <f:then>
+                        <img src="{coverImage}" alt="{document.title}" loading="lazy" />
+                    </f:then>
+                    <f:else>
+                        <!-- Placeholder image -->
+                        <div class="image-placeholder">
+                            <f:render partial="Icons/Document" />
+                            <span>PDF Document</span>
+                        </div>
+                    </f:else>
+                </f:if>
+                
+                <!-- Play Overlay -->
+                <div class="play-overlay">
+                    <f:render partial="Icons/Play" />
+                </div>
+                
+                <!-- Page Count Badge -->
+                <f:if condition="{settings.showPageCount} && {document.total_pages}">
+                    <div class="page-count-badge">
+                        📄 {document.total_pages} pages
+                    </div>
+                </f:if>
+                
+                <!-- Status Badge (za development) -->
+                <f:if condition="{document.status} != 2">
+                    <div class="status-badge status-{document.status}">
+                        <f:switch expression="{document.status}">
+                            <f:case value="0">Pending</f:case>
+                            <f:case value="1">Processing</f:case>
+                            <f:case value="3">Error</f:case>
+                        </f:switch>
+                    </div>
+                </f:if>
+            </div>
+            
+            <!-- Card Content -->
+            <div class="card-content">
+                <h3 class="card-title">{document.title}</h3>
+                
+                <f:if condition="{settings.showDescription} && {document.description}">
+                    <p class="card-description">
+                        <f:format.crop maxCharacters="{f:if(condition: '{settings.teaserSize} == \'small\'', then: 60, else: f:if(condition: '{settings.teaserSize} == \'large\'', then: 150, else: 100))}" respectWordBoundaries="true">
+                            {document.description}
+                        </f:format.crop>
+                    </p>
+                </f:if>
+                
+                <!-- Document Meta -->
+                <div class="card-meta">
+                    <f:if condition="{document.total_pages}">
+                        <span class="meta-item">
+                            <f:render partial="Icons/Pages" />
+                            {document.total_pages} pages
+                        </span>
+                    </f:if>
+                    
+                    <f:if condition="{document.file_size}">
+                        <span class="meta-item">
+                            <f:render partial="Icons/FileSize" />
+                            <f:format.bytes>{document.file_size}</f:format.bytes>
+                        </span>
+                    </f:if>
+                    
+                    <span class="meta-item">
+                        <f:render partial="Icons/Interactive" />
+                        Interactive
+                    </span>
+                </div>
+                
+                <!-- Call to Action -->
+                <div class="card-cta">
+                    <span class="cta-text">Click to view flipbook</span>
+                    <f:render partial="Icons/Arrow" />
+                </div>
+            </div>
+        </div>
+        
+    </a>
+</div>
+</html>

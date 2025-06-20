@@ -1,0 +1,54 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<div class="flipbook-teaser-mini" style="--button-color: {settings.buttonColor};">
+    
+    <a href="{flipbookUrl}" 
+       target="{f:if(condition: settings.openInNewWindow, then: '_blank', else: '_self')}"
+       class="mini-link">
+        
+        <!-- Thumbnail -->
+        <div class="mini-thumbnail">
+            <f:if condition="{coverImage}">
+                <f:then>
+                    <img src="{coverImage}" alt="{document.title}" loading="lazy" />
+                </f:then>
+                <f:else>
+                    <div class="thumbnail-placeholder">
+                        <f:render partial="Icons/Document" />
+                    </div>
+                </f:else>
+            </f:if>
+            
+            <div class="mini-play-overlay">
+                <f:render partial="Icons/Play" />
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="mini-content">
+            <h4 class="mini-title">{document.title}</h4>
+            
+            <f:if condition="{settings.showDescription} && {document.description}">
+                <p class="mini-description">
+                    <f:format.crop maxCharacters="50" respectWordBoundaries="true">
+                        {document.description}
+                    </f:format.crop>
+                </p>
+            </f:if>
+            
+            <div class="mini-meta">
+                <f:if condition="{settings.showPageCount} && {document.total_pages}">
+                    <span>📄 {document.total_pages} pages</span>
+                </f:if>
+                <span>🔍 Interactive</span>
+            </div>
+        </div>
+        
+        <!-- Arrow -->
+        <div class="mini-arrow">
+            <f:render partial="Icons/Arrow" />
+        </div>
+        
+    </a>
+</div>
+</html>

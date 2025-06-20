@@ -1,0 +1,39 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<div style="border: 3px solid red; padding: 20px; background: #ffe6e6;">
+    <h2>🚨 TSFE CONTENT LOADING DEBUG</h2>
+    
+    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0;">
+        <h3>📊 Working Data</h3>
+        <ul>
+            <li><strong>UID:</strong> {contentObjectData.uid}</li>
+            <li><strong>CType:</strong> {contentObjectData.CType}</li>
+            <li><strong>Document Field:</strong> {contentObjectData.tx_flipbook_teaser_document}</li>
+            <li><strong>Working Method:</strong> {workingMethod}</li>
+        </ul>
+    </div>
+    
+    <f:if condition="{success}">
+        <f:then>
+            <div style="background: green; color: white; padding: 15px;">
+                <h3>✅ SUCCESS!</h3>
+                <p><strong>Document:</strong> {document.title}</p>
+                <p><a href="{flipbookUrl}" style="color: yellow;">View Flipbook</a></p>
+            </div>
+        </f:then>
+        <f:else>
+            <div style="background: orange; padding: 15px;">
+                <h3>⚠️ Problem</h3>
+                <p>{errorMessage}</p>
+            </div>
+        </f:else>
+    </f:if>
+    
+    <details style="margin: 20px 0;">
+        <summary>🔍 All Methods Debug</summary>
+        <pre style="background: black; color: green; padding: 10px; overflow: auto;">
+            <f:format.raw>{allMethods -> f:format.json()}</f:format.raw>
+        </pre>
+    </details>
+</div>
+</html>

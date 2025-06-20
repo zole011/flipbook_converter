@@ -1,0 +1,140 @@
+<!-- 
+File: Resources/Private/Templates/Standalone/TeaserStandalone.html
+SIMPLE COMPATIBLE VERSION - bez nepostojećih ViewHelper-a
+-->
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<div style="border: 2px solid #007cba; padding: 20px; background: #f9f9f9; margin: 20px 0;">
+    
+    <!-- DEBUG INFO -->
+    <div style="background: #fff3cd; padding: 10px; margin-bottom: 15px; font-size: 12px;">
+        <strong>🔍 Debug:</strong>
+        Content UID: {contentUid}, 
+        CType: {contentCType}, 
+        Document UID: {documentUid}, 
+        Target Page: {targetPageUid}, 
+        Style: {teaserStyle}
+    </div>
+    
+    <!-- DATAPROCESSING DEBUG -->
+    <div style="background: #e2e3e5; padding: 10px; margin-bottom: 15px; font-size: 11px;">
+        <strong>📊 Available Documents:</strong> <f:count>{allDocuments}</f:count> records loaded
+    </div>
+    
+    <!-- FIND MATCHING DOCUMENT -->
+    <f:variable name="foundDocument" value="" />
+    <f:variable name="documentFound" value="false" />
+    <f:debug>{_all}</f:debug>
+    <f:for each="{allDocuments}" as="doc">
+        <f:if condition="{doc.uid} == {documentUid}">
+            <f:variable name="foundDocument" value="{doc}" />
+            <f:variable name="documentFound" value="true" />
+        </f:if>
+    </f:for>
+    
+    <!-- DISPLAY RESULTS -->
+    <f:if condition="{documentFound} == 'true'">
+        <f:then>
+            <!-- SUCCESS - DOCUMENT FOUND -->
+            <div style="background: #d4edda; padding: 10px; margin-bottom: 15px;">
+                <strong>✅ Document found!</strong> UID {foundDocument.uid} - {foundDocument.title}
+            </div>
+            
+            <h3 style="color: #007cba; margin-top: 0;">📖 {foundDocument.title}</h3>
+            
+            <div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                
+                <!-- COVER IMAGE PLACEHOLDER -->
+                <div style="flex-shrink: 0;">
+                    <f:if condition="{foundDocument.processed_images}">
+                        <f:then>
+                            <!-- Try simple image display -->
+                            <div style="width: 150px; height: 200px; background: #d1ecf1; border: 1px solid #bee5eb; display: flex; align-items: center; justify-content: center; text-align: center;">
+                                📄<br>{foundDocument.title}<br><small>Has images</small>
+                            </div>
+                        </f:then>
+                        <f:else>
+                            <div style="width: 150px; height: 200px; background: #f8f9fa; border: 1px solid #dee2e6; display: flex; align-items: center; justify-content: center; text-align: center; color: #6c757d;">
+                                📄<br>{foundDocument.title}<br><small>No images</small>
+                            </div>
+                        </f:else>
+                    </f:if>
+                </div>
+                
+                <!-- DOCUMENT INFO -->
+                <div style="flex-grow: 1;">
+                    <div style="background: white; padding: 15px; border: 1px solid #dee2e6;">
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li><strong>Document UID:</strong> {foundDocument.uid}</li>
+                            <li><strong>Title:</strong> {foundDocument.title}</li>
+                            <li><strong>Total Pages:</strong> {foundDocument.total_pages}</li>
+                            <li><strong>Status:</strong> {foundDocument.status}</li>
+                            <li><strong>Style:</strong> {teaserStyle}</li>
+                        </ul>
+                    </div>
+                    
+                    <!-- CALL TO ACTION -->
+                    <div style="margin-top: 15px;">
+                        <f:if condition="{targetPageUid}">
+                            <f:then>
+                                <f:link.page pageUid="{targetPageUid}" additionalParams="{document: documentUid}" 
+                                             style="background: #007cba; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                                    📖 View "{foundDocument.title}" Flipbook →
+                                </f:link.page>
+                            </f:then>
+                            <f:else>
+                                <div style="background: #ffc107; color: black; padding: 10px; border-radius: 4px;">
+                                    ⚠️ No target page configured
+                                    <br><small>Set target page UID in backend</small>
+                                </div>
+                            </f:else>
+                        </f:if>
+                    </div>
+                </div>
+                
+            </div>
+        </f:then>
+        <f:else>
+            <!-- ERROR - DOCUMENT NOT FOUND -->
+            <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 4px;">
+                <h4 style="margin-top: 0;">❌ Document UID {documentUid} Not Found</h4>
+                
+                <f:if condition="{allDocuments}">
+                    <f:then>
+                        <p>Document UID {documentUid} not found among <f:count>{allDocuments}</f:count> available documents.</p>
+                        
+                        <details style="margin-top: 15px;">
+                            <summary style="cursor: pointer;">📋 Available Documents (click to expand)</summary>
+                            <div style="margin-top: 10px; max-height: 200px; overflow-y: auto;">
+                                <f:for each="{allDocuments}" as="availableDoc">
+                                    <div style="background: white; padding: 8px; margin: 5px 0; border: 1px solid #dee2e6; border-radius: 3px;">
+                                        <strong>UID {availableDoc.uid}:</strong> {availableDoc.title} 
+                                        <small>(Status: {availableDoc.status}, Pages: {availableDoc.total_pages})</small>
+                                        <br><small style="color: #007cba;">→ Use this UID in backend configuration</small>
+                                    </div>
+                                </f:for>
+                            </div>
+                        </details>
+                        
+                        <div style="background: #e7f3ff; padding: 10px; margin-top: 15px; border-radius: 4px;">
+                            <strong>💡 How to fix:</strong>
+                            <ol style="margin: 5px 0; padding-left: 20px;">
+                                <li>Go to backend content element (UID {contentUid})</li>
+                                <li>Select a valid document UID from the list above</li>
+                                <li>Save content element</li>
+                                <li>Refresh this page</li>
+                            </ol>
+                        </div>
+                    </f:then>
+                    <f:else>
+                        <p><strong>No documents found in database!</strong></p>
+                        <p>Please create flipbook documents first.</p>
+                    </f:else>
+                </f:if>
+            </div>
+        </f:else>
+    </f:if>
+    
+</div>
+
+</html>

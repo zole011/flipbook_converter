@@ -1,0 +1,44 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<div class="flipbook-teaser-banner" style="--button-color: {settings.buttonColor};">
+    
+    <a href="{flipbookUrl}" 
+       target="{f:if(condition: settings.openInNewWindow, then: '_blank', else: '_self')}"
+       class="banner-link">
+        
+        <div class="banner-container">
+            <!-- Banner Content -->
+            <div class="banner-content">
+                <div class="banner-icon">
+                    <f:render partial="Icons/Document" />
+                </div>
+                
+                <div class="banner-text">
+                    <h3 class="banner-title">📖 {document.title}</h3>
+                    
+                    <f:if condition="{settings.showDescription} && {document.description}">
+                        <p class="banner-description">{document.description}</p>
+                    </f:if>
+                    
+                    <div class="banner-meta">
+                        <span>Interactive PDF</span>
+                        <f:if condition="{document.total_pages}">
+                            <span> • {document.total_pages} pages</span>
+                        </f:if>
+                        <span> • Click to view</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner CTA -->
+            <div class="banner-cta">
+                <div class="cta-circle">
+                    <f:render partial="Icons/Play" />
+                </div>
+                <span class="cta-label">View Flipbook</span>
+            </div>
+        </div>
+        
+    </a>
+</div>
+</html>

@@ -1,0 +1,67 @@
+<T3DataStructure>
+    <meta>
+        <langDisable>1</langDisable>
+    </meta>
+    <sheets>
+        <sDEF>
+            <ROOT>
+                <TCEforms>
+                    <sheetTitle>Document Selection</sheetTitle>
+                </TCEforms>
+                <type>array</type>
+                <el>
+                    <!-- JEDNOSTAVAN TEXT FIELD ZA TEST -->
+                    <document_uid>
+                        <TCEforms>
+                            <label>Document UID (manual entry for now)</label>
+                            <description>Enter the UID of the document manually</description>
+                            <config>
+                                <type>input</type>
+                                <size>10</size>
+                                <eval>int</eval>
+                                <default>0</default>
+                            </config>
+                        </TCEforms>
+                    </document_uid>
+                    
+                    <!-- PAGE UID -->
+                    <target_page_uid>
+                        <TCEforms>
+                            <label>Target Page UID (manual entry)</label>
+                            <description>Enter the UID of the page with flipbook plugin</description>
+                            <config>
+                                <type>input</type>
+                                <size>10</size>
+                                <eval>int</eval>
+                                <default>0</default>
+                            </config>
+                        </TCEforms>
+                    </target_page_uid>
+                    
+                    <!-- STIL -->
+                    <style>
+                        <TCEforms>
+                            <label>Style</label>
+                            <config>
+                                <type>select</type>
+                                <renderType>selectSingle</renderType>
+                                <items>
+                                    <numIndex index="0">
+                                        <label>Card</label>
+                                        <value>card</value>
+                                    </numIndex>
+                                    <numIndex index="1">
+                                        <label>Mini</label>
+                                        <value>mini</value>
+                                    </numIndex>
+                                </items>
+                                <default>card</default>
+                            </config>
+                        </TCEforms>
+                    </style>
+                    
+                </el>
+            </ROOT>
+        </sDEF>
+    </sheets>
+</T3DataStructure>

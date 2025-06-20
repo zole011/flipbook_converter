@@ -101,4 +101,40 @@ if (!str_contains($GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'], 'pdf')) {
     $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext'] .= ',pdf';
 }
 
+
+
+
+\TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+    'FlipbookConverter',
+    'Teaser',
+    [
+        \Gmbit\FlipbookConverter\Controller\TeaserController::class => 'show'
+    ],
+    []
+);
+
+
+/**
+ * ========================================
+ * File 2: ext_localconf.php (dodaj u postojeći)
+ * ========================================
+ */
+
+// Dodaj ovo u postojeći ext_localconf.php fajl:
+
+/*
+// Registruj Teaser plugin (dodaj nakon postojećeg flipbook plugin-a)
+\TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
+    'FlipbookConverter',
+    'Teaser',
+    [
+        \Gmbit\FlipbookConverter\Controller\TeaserController::class => 'show'
+    ],
+    // Caching
+    [
+        \Gmbit\FlipbookConverter\Controller\TeaserController::class => ''  // Keširaj sve
+    ]
+);
+*/
+
 })();

@@ -63,3 +63,93 @@ tt_content.flipbookconverter_flipbook {
         test = 1
     }
 }
+
+
+# ========================================
+# FLUIDTEMPLATE DEBUG & FIX
+# File: Configuration/TypoScript/setup.typoscript
+# ========================================
+
+# SUCCESS: Content data se čita (UID: 182, Doc: 4)
+# PROBLEM: Document query ne vraća podatke
+
+tt_content.flipbookconverter_teaser = FLUIDTEMPLATE
+tt_content.flipbookconverter_teaser {
+    templateName = TeaserStandalone
+    templateRootPaths.0 = EXT:flipbook_converter/Resources/Private/Templates/Standalone/
+    
+    variables {
+        documentUid = TEXT
+        documentUid.field = tx_flipbook_teaser_document
+        
+        targetPageUid = TEXT
+        targetPageUid.field = tx_flipbook_teaser_target_page
+        
+        teaserStyle = TEXT
+        teaserStyle.field = tx_flipbook_teaser_style
+        
+        contentUid = TEXT
+        contentUid.field = uid
+        
+        contentCType = TEXT
+        contentCType.field = CType
+    }
+    
+    dataProcessing {
+        # SAFE: Load sve dokumente bez složenih where klauzula
+        10 = TYPO3\CMS\Frontend\DataProcessing\DatabaseQueryProcessor
+        10 {
+            table = tx_flipbookconverter_document
+            pidInList = root,-1
+            # Jednostavan where - bez field interpolation
+            where = deleted=0 AND status=2
+            orderBy = uid DESC
+            as = allDocuments
+        }
+    }
+}
+
+# ========================================
+# BACKUP: Još sigurnija verzija
+# ========================================
+
+# Ako i ovo ne radi:
+# tt_content.flipbookconverter_teaser = FLUIDTEMPLATE
+# tt_content.flipbookconverter_teaser {
+#     templateName = TeaserStandalone
+#     templateRootPaths.0 = EXT:flipbook_converter/Resources/Private/Templates/Standalone/
+#     
+#     variables {
+#         documentUid = TEXT
+#         documentUid.field = tx_flipbook_teaser_document
+#         
+#         targetPageUid = TEXT
+#         targetPageUid.field = tx_flipbook_teaser_target_page
+#         
+#         teaserStyle = TEXT
+#         teaserStyle.field = tx_flipbook_teaser_style
+#     }
+#     
+#     dataProcessing {
+#         # Najsigurniji - load sve bez ikakvih where klauzula
+#         10 = TYPO3\CMS\Frontend\DataProcessing\DatabaseQueryProcessor
+#         10 {
+#             table = tx_flipbookconverter_document
+#             pidInList = root,-1
+#             orderBy = uid
+#             as = allDocuments
+#         }
+#     }
+# }
+
+# ========================================
+# DEBUG: Test da li se TypoScript uopšte učitava
+# ========================================
+
+[applicationContext == "Development"]
+    # Dodaj test content na vrhu stranice
+    page.10 = TEXT
+    page.10 {
+        value = <div style="background:red;color:white;padding:5px;">TS DEBUG: TeaserStandalone config loaded</div>
+    }
+[END]
